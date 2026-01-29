@@ -2,11 +2,11 @@
 
 
 
-## <center> <b>  MindWars </b> </center>
+## MindWars
 
 ![Logo](assets/logo.png)
 
-<center> <i> "Where brains conquer" </i> </center>
+ "Where brains conquer" 
 
 
 
