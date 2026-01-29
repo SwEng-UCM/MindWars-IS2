@@ -1,8 +1,4 @@
-# Agile Inception
-
-
-
-## MindWars
+# MindWars
 
 ![Logo](assets/logo.png)
 
