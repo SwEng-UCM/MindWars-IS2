@@ -12,9 +12,9 @@ import mindwars.ui.ConsoleIO;
  * - Wires objects together and starts the game.
  *
  * @TODO:
- * - Create ConsoleIO, QuestionBank, and Game.
- * - Call engine.run().
- * - Keep this class tiny (no game rules, no Scanner logic).
+ *        - Create ConsoleIO, QuestionBank, and Game.
+ *        - Call engine.run().
+ *        - Keep this class tiny (no game rules, no Scanner logic).
  */
 public class Main {
     public static void main(String[] args) {
