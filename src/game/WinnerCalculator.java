@@ -1,4 +1,4 @@
-//AI-generated (ChatGPT) then reviewed by human
+package game;
 
 import player.Player;
 

@@ -1,4 +1,4 @@
-//AI-generated (ChatGPT) then reviewed by human
+package trivia;
 
 //import java.util.List;
 

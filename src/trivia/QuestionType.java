@@ -1,4 +1,4 @@
-//AI-generated (ChatGPT) reviewed by a human
+package trivia;
 
 /**
  * PURPOSE:
