@@ -1,0 +1,6 @@
+# Format: TYPE|PROMPT|CORRECT_ANSWER|CHOICES(comma-separated)
+
+MULTIPLE_CHOICE|What is the capital of France?|A|Paris,London,Berlin,Madrid
+TRUE_FALSE|The Earth is flat.|F|
+MULTIPLE_CHOICE|Which language is this project in?|C|Python,C++,Java,Ruby
+TRUE_FALSE|Java is an Object-Oriented language.|T|

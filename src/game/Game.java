@@ -1,6 +1,7 @@
 package game;
 
 import ui.ConsoleIO;
+import trivia.Question;
 import trivia.QuestionBank;
 import player.Player;
 
@@ -18,13 +19,28 @@ public class Game {
     public void run() {
         printWelcomeMessage();
         setupPlayers();
-
         setStartingPlayer();
 
         io.println("\nSetup Complete!");
         io.println("Registered players: " + gameState.getPlayers().size());
-        io.println("Game rounds logic coming soon...");
-    }
+        
+        // get the current player from the state
+        Player currentPlayer = gameState.getPlayers().get(gameState.getCurrentPlayerIndex());
+        
+        // pull a question from the bank
+        Question currentQuestion = questionBank.getRandomQuestion();
+
+        if (currentQuestion != null) {
+            io.println("\n" + currentPlayer.getName() + ", it's your turn!");
+            
+            // display formatted question (Prompt + Choices)
+            io.println(currentQuestion.formatForConsole());
+
+            // Read the user's input
+            String response = io.readNonEmptyString("Your answer (e.g., A, B, C, D, T, F):");
+            
+        }
+    } 
 
     private void printWelcomeMessage() {
         io.println("WELCOME TO MINDWARS TRIVIA!");
