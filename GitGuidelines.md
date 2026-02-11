@@ -65,7 +65,7 @@ git add .
 git commit -m "Short title" -m "What you changed"
 ```
 
-Note: You can add in the title the #number of the task/issue you have 
+Note: You can add in the title the #number of the task/issue you have completed/fixed
 
 *Example:*
 ```bash
