@@ -59,6 +59,9 @@ public class Game {
             //Show the score of the current player
             io.println("Score: " + currentPlayer.getScore());
         }
+
+        // Determine the winner at the end of the game
+        determineWinner();
     }
 
     private void printWelcomeMessage() {
@@ -82,5 +85,24 @@ public class Game {
 
         String startName = gameState.getPlayers().get(0).getName();
         io.println("\n" + startName + " (Player 1) will start the game!");
+    }
+
+    private void determineWinner() {
+        io.println("\n=== GAME OVER ===");
+        io.println("\nFinal Scores:");
+        
+        // show all player scores
+        for (Player player : gameState.getPlayers()) {
+            io.println(player.getName() + ": " + player.getScore() + " points");
+        }
+
+        // calculate the winner
+        Player winner = WinnerCalculator.getWinnerOrNull(gameState.getPlayers());
+        
+        if (winner == null) {
+            io.println("\nIt's a TIE! No clear winner.");
+        } else {
+            io.println("\n The winner is: " + winner.getName() + "!");
+        }
     }
 }
