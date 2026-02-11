@@ -31,8 +31,60 @@ public class Game {
             .getPlayers()
             .get(gameState.getCurrentPlayerIndex());
 
-        // pull a question from the bank
-        Question currentQuestion = questionBank.getRandomQuestion();
+        
+        // ============================
+        // NEW LOGIC: Ask 5 questions to Player 1 
+        // ============================
+        int questionsToAsk = 5;
+
+        io.println("\n" + currentPlayer.getName() + ", you will answer " + questionsToAsk + " questions!");
+
+
+        for (int i = 1; i <= questionsToAsk; i++) {
+
+
+            // pull a question from the bank (each call should return a new question)
+            Question currentQuestion = questionBank.getRandomQuestion();
+
+
+            // Safety: If the bank runs out of questions, stop early.
+            if (currentQuestion == null) {
+                io.println("\nNo more questions available in the bank. Ending early.");
+                break;
+            }
+
+            io.println("\nQuestion " + i + "/" + questionsToAsk);
+            io.println(currentQuestion.formatForConsole());
+
+            // Read the user's input
+            String response = io.readNonEmptyString(
+                "Your answer (e.g., A, B, C, D, T, F):"
+            );
+
+            // Validate the answer
+            boolean isCorrect = AnswerValidator.isCorrect(
+                currentQuestion,
+                response
+            );
+
+             if (isCorrect) {
+                io.println("Correct!");
+                currentPlayer.addScore(1);
+            } else {
+                io.println("Incorrect!");
+            }
+
+            // Show the score after each question
+            io.println("Score: " + currentPlayer.getScore());
+        }
+
+        // Game ends after Player 1 answers 5 questions
+        io.println("\nGame Over (Player 1 only for now). Final score for "
+            + currentPlayer.getName() + ": " + currentPlayer.getScore());
+
+
+
+        /* 
 
         if (currentQuestion != null) {
             io.println("\n" + currentPlayer.getName() + ", it's your turn!");
@@ -59,6 +111,7 @@ public class Game {
             //Show the score of the current player
             io.println("Score: " + currentPlayer.getScore());
         }
+        */
     }
 
     private void printWelcomeMessage() {
