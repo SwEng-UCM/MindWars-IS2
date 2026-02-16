@@ -32,6 +32,11 @@ public class Question {
     }
 
     // getters
-    public QuestionType getType() { return type; }
-    public String getCorrectAnswer() { return correctAnswer; }
+    public QuestionType getType() {
+        return type;
+    }
+
+    public String getCorrectAnswer() {
+        return correctAnswer;
+    }
 }

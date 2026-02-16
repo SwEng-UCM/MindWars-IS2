@@ -35,18 +35,24 @@ public class AnswerValidator {
         String playerAnswer = rawAnswer.trim().toUpperCase();
         String correctAnswer = q.getCorrectAnswer().trim().toUpperCase();
 
-        //TRUE or FALSE question
+        // TRUE or FALSE question
         if (q.getType() == QuestionType.TRUE_FALSE) {
-            if (playerAnswer.equals("TRUE")) playerAnswer = "T";
-            if (playerAnswer.equals("FALSE")) playerAnswer = "F";
+            if (playerAnswer.equals("TRUE"))
+                playerAnswer = "T";
+            if (playerAnswer.equals("FALSE"))
+                playerAnswer = "F";
         }
 
         // Multiple Choice question
         if (q.getType() == QuestionType.MULTIPLE_CHOICE) {
-            if (playerAnswer.equals("1")) playerAnswer = "A";
-            if (playerAnswer.equals("2")) playerAnswer = "B";
-            if (playerAnswer.equals("3")) playerAnswer = "C";
-            if (playerAnswer.equals("4")) playerAnswer = "D";
+            if (playerAnswer.equals("1"))
+                playerAnswer = "A";
+            if (playerAnswer.equals("2"))
+                playerAnswer = "B";
+            if (playerAnswer.equals("3"))
+                playerAnswer = "C";
+            if (playerAnswer.equals("4"))
+                playerAnswer = "D";
         }
 
         return playerAnswer.equals(correctAnswer);
