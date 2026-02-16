@@ -54,9 +54,17 @@ public class Game {
                 io.println("\nQuestion " + i + "/" + questionsToAsk);
                 io.println(currentQuestion.formatForConsole());
 
+                // Start timer
+                long startTime = System.currentTimeMillis();
+                
                 String response = io.readNonEmptyString(
                     "Your answer (e.g., A, B, C, D, T, F):"
                 );
+                
+                // Stop timer and add elapsed time to player's total
+                long endTime = System.currentTimeMillis();
+                long elapsedTime = endTime - startTime;
+                currentPlayer.setTimer(currentPlayer.getTimer() + elapsedTime);
 
                 boolean isCorrect = AnswerValidator.isCorrect(currentQuestion, response);
 
@@ -116,16 +124,18 @@ public class Game {
         io.println("\n=== GAME OVER ===");
         io.println("\nFinal Scores:");
         
-        // show all player scores
+        // show all player scores and response times
         for (Player player : gameState.getPlayers()) {
-            io.println(player.getName() + ": " + player.getScore() + " points");
+            double timeInSeconds = player.getTimer() / 1000.0;
+            io.println(player.getName() + ": " + player.getScore() + " points (Response time: " + 
+                       String.format("%.2f", timeInSeconds) + "s)");
         }
 
-        // calculate the winner
+        // calculate the winner (considers score first, then response time for ties)
         Player winner = WinnerCalculator.getWinnerOrNull(gameState.getPlayers());
         
         if (winner == null) {
-            io.println("\nIt's a TIE! No clear winner.");
+            io.println("\nIt's a TIE! Both players have the same score and response time.");
         } else {
             io.println("\n The winner is: " + winner.getName() + "!");
         }
