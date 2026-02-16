@@ -54,9 +54,13 @@ public class Game {
                 io.println("\nQuestion " + i + "/" + questionsToAsk);
                 io.println(currentQuestion.formatForConsole());
 
+                long startTime = System.nanoTime();
                 String response = io.readNonEmptyString(
                     "Your answer (e.g., A, B, C, D, T, F):"
                 );
+                long endTime = System.nanoTime();
+                long elapsedTime = (endTime - startTime)/ 1_000_000;
+                currentPlayer.addTime(elapsedTime);
 
                 boolean isCorrect = AnswerValidator.isCorrect(currentQuestion, response);
 
@@ -72,7 +76,9 @@ public class Game {
 
             io.println("\nEnd of turn for " + currentPlayer.getName() +
                     ". Current score: " + currentPlayer.getScore());
-        }
+             io.println("Total time for " + currentPlayer.getName() + ": " + currentPlayer.formatTime());
+
+         }
 
         // After both players finish, show final scores
         io.println("\n==================================");

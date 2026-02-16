@@ -12,7 +12,7 @@ public class Main {
     public static void main(String[] args) {
 
         ConsoleIO io = new ConsoleIO();
-       QuestionBank bank = new QuestionBank("questions.txt");
+       QuestionBank bank = new QuestionBank("/Users/ashleyumeghalu/Documents/V26/INGENIERÍA DEL SOFTWARE II - 805347/mindwars/MindWars-IS2/src/questions.txt");
 
         Game engine = new Game(io, bank);
 
