@@ -28,8 +28,8 @@ public class Game {
 
         // get the current player from the state
         Player currentPlayer = gameState
-            .getPlayers()
-            .get(gameState.getCurrentPlayerIndex());
+                .getPlayers()
+                .get(gameState.getCurrentPlayerIndex());
 
         // pull a question from the bank
         Question currentQuestion = questionBank.getRandomQuestion();
@@ -42,21 +42,19 @@ public class Game {
 
             // Read the user's input
             String response = io.readNonEmptyString(
-                "Your answer (e.g., A, B, C, D, T, F):"
-            );
+                    "Your answer (e.g., A, B, C, D, T, F):");
 
             // Validate the answer
             boolean isCorrect = AnswerValidator.isCorrect(
-                currentQuestion,
-                response
-            );
+                    currentQuestion,
+                    response);
             if (isCorrect) {
                 io.println("Correct!");
                 currentPlayer.addScore(1);
             } else {
                 io.println("Incorrect!");
             }
-            //Show the score of the current player
+            // Show the score of the current player
             io.println("Score: " + currentPlayer.getScore());
         }
     }
@@ -69,8 +67,7 @@ public class Game {
         io.println("\nThe game requires 2 players.");
         for (int i = 1; i <= 2; i++) {
             String name = io.readNonEmptyString(
-                "Enter name for Player " + i + ":"
-            );
+                    "Enter name for Player " + i + ":");
             Player newPlayer = new Player(name);
             gameState.addPlayer(newPlayer);
             io.println("Hello, " + name + "! You have joined the game.");
