@@ -26,37 +26,71 @@ public class Game {
         io.println("\nSetup Complete!");
         io.println("Registered players: " + gameState.getPlayers().size());
 
-        // get the current player from the state
-        Player currentPlayer = gameState
-                .getPlayers()
-                .get(gameState.getCurrentPlayerIndex());
+        int questionsToAsk = 5;
 
-        // pull a question from the bank
-        Question currentQuestion = questionBank.getRandomQuestion();
+        // Loop over each player (Player 1 then Player 2)
+        for (int p = 0; p < gameState.getPlayers().size(); p++) {
 
-        if (currentQuestion != null) {
-            io.println("\n" + currentPlayer.getName() + ", it's your turn!");
+            // Set whose turn it is
+            gameState.setCurrentPlayerIndex(p);
+            Player currentPlayer = gameState.getPlayers().get(p);
 
-            // display formatted question (Prompt + Choices)
-            io.println(currentQuestion.formatForConsole());
+            io.println("\n============================");
+            io.println("TURN: " + currentPlayer.getName());
+            io.println("============================");
+            io.println(currentPlayer.getName() + ", you will answer " + questionsToAsk + " questions!");
 
-            // Read the user's input
-            String response = io.readNonEmptyString(
-                    "Your answer (e.g., A, B, C, D, T, F):");
+            for (int i = 1; i <= questionsToAsk; i++) {
 
-            // Validate the answer
-            boolean isCorrect = AnswerValidator.isCorrect(
-                    currentQuestion,
-                    response);
-            if (isCorrect) {
-                io.println("Correct!");
-                currentPlayer.addScore(1);
-            } else {
-                io.println("Incorrect!");
+                Question currentQuestion = questionBank.getRandomQuestion();
+
+                // Safety: If the bank runs out of questions, stop early.
+                if (currentQuestion == null) {
+                    io.println("\nNo more questions available in the bank. Ending early.");
+                    break;
+                }
+
+                io.println("\nQuestion " + i + "/" + questionsToAsk);
+                io.println(currentQuestion.formatForConsole());
+
+                // Start timer
+                long startTime = System.currentTimeMillis();
+
+                String response = io.readNonEmptyString(
+                        "Your answer (e.g., A, B, C, D, T, F):");
+
+                // Stop timer and add elapsed time to player's total
+                long endTime = System.currentTimeMillis();
+                long elapsedTime = endTime - startTime;
+                currentPlayer.setTimer(currentPlayer.getTimer() + elapsedTime);
+
+                boolean isCorrect = AnswerValidator.isCorrect(currentQuestion, response);
+
+                if (isCorrect) {
+                    io.println("Correct!");
+                    currentPlayer.addScore(1);
+                } else {
+                    io.println("Incorrect!");
+                }
+
+                io.println("Score for " + currentPlayer.getName() + ": " + currentPlayer.getScore());
             }
-            // Show the score of the current player
-            io.println("Score: " + currentPlayer.getScore());
+
+            io.println("\nEnd of turn for " + currentPlayer.getName() +
+                    ". Current score: " + currentPlayer.getScore());
         }
+
+        // After both players finish, show final scores
+        io.println("\n==================================");
+        io.println("GAME OVER - FINAL SCORES");
+        io.println("==================================");
+
+        for (Player p : gameState.getPlayers()) {
+            io.println(p.getName() + ": " + p.getScore());
+        }
+
+        // Determine the winner at the end of the game
+        determineWinner();
     }
 
     private void printWelcomeMessage() {
@@ -79,5 +113,26 @@ public class Game {
 
         String startName = gameState.getPlayers().get(0).getName();
         io.println("\n" + startName + " (Player 1) will start the game!");
+    }
+
+    private void determineWinner() {
+        io.println("\n=== GAME OVER ===");
+        io.println("\nFinal Scores:");
+
+        // show all player scores and response times
+        for (Player player : gameState.getPlayers()) {
+            double timeInSeconds = player.getTimer() / 1000.0;
+            io.println(player.getName() + ": " + player.getScore() + " points (Response time: " +
+                    String.format("%.2f", timeInSeconds) + "s)");
+        }
+
+        // calculate the winner (considers score first, then response time for ties)
+        Player winner = WinnerCalculator.getWinnerOrNull(gameState.getPlayers());
+
+        if (winner == null) {
+            io.println("\nIt's a TIE! Both players have the same score and response time.");
+        } else {
+            io.println("\n The winner is: " + winner.getName() + "!");
+        }
     }
 }
