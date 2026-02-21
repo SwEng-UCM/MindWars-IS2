@@ -26,6 +26,30 @@ public class AnswerValidator {
         // no state needed for MVP
     }
 
+    public static boolean isValidAnswer(Question q, String rawAnswer) {
+        if (q == null || rawAnswer == null) return false;
+        String input = rawAnswer.trim().toUpperCase();
+
+        if (q.getType() == QuestionType.TRUE_FALSE) {
+            return input.equals("T") || input.equals("F")
+                || input.equals("TRUE") || input.equals("FALSE");
+        }
+
+        if (q.getType() == QuestionType.MULTIPLE_CHOICE) {
+            // accept A-D letters or 1-4 numbers based on number of choices
+            int numChoices = q.getChoices().size();
+            for (int i = 0; i < numChoices; i++) {
+                if (input.equals(String.valueOf((char) ('A' + i)))
+                    || input.equals(String.valueOf(i + 1))) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        return false;
+    }
+
     public static boolean isCorrect(Question q, String rawAnswer) {
         if (q == null || rawAnswer == null) {
             return false;

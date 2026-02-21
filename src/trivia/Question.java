@@ -33,5 +33,6 @@ public class Question {
 
     // getters
     public QuestionType getType() { return type; }
+    public List<String> getChoices() { return choices; }
     public String getCorrectAnswer() { return correctAnswer; }
 }

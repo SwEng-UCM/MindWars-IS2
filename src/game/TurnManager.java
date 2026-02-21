@@ -24,11 +24,11 @@ public class TurnManager {
     }
 
     public Player getCurrentPlayer() {
-        // @TODO
-        return null;
+        return state.getPlayers().get(state.getCurrentPlayerIndex());
     }
 
     public void advanceTurn() {
-        // @TODO
+        int next = (state.getCurrentPlayerIndex() + 1) % state.getPlayers().size();
+        state.setCurrentPlayerIndex(next);
     }
 }
