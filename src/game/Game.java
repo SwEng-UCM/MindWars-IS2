@@ -4,6 +4,7 @@ import player.Player;
 import trivia.AnswerValidator;
 import trivia.Question;
 import trivia.QuestionBank;
+import trivia.QuestionType;
 import ui.ConsoleIO;
 
 import java.util.ArrayList;
@@ -34,11 +35,9 @@ public class Game {
         int questionsPerPlayer = 3;
 
         // Pre-pick questions so both players get the same ones
-        List<Question> roundQuestions = new ArrayList<>();
-        for (int i = 0; i < questionsPerPlayer; i++) {
-            Question q = questionBank.getRandomQuestion();
-            if (q == null) break;
-            roundQuestions.add(q);
+        List<Question> roundQuestions = questionBank.getAllQuestionsAsList(); 
+        if (roundQuestions.size() > questionsPerPlayer) {
+            roundQuestions = roundQuestions.subList(0, questionsPerPlayer);
         }
 
         // Hot seat: alternate between players each round
@@ -84,9 +83,11 @@ public class Game {
                     io.println("  >> CORRECT! +1 point");
                     currentPlayer.addScore(1);
                 } else {
-                    io.println("  >> WRONG! The answer was: " + currentQuestion.getCorrectAnswer());
+                    String correctAnswer = (currentQuestion.getType() == QuestionType.NUMERIC) 
+                                       ? String.valueOf(currentQuestion.getNumericAnswer()) 
+                                       : currentQuestion.getAnswer();
+                    io.println("  >> WRONG! The answer was: " + correctAnswer);
                 }
-
                 io.println("  Score: " + currentPlayer.getScore() + "/" + (round + 1));
             }
         }
@@ -181,3 +182,4 @@ public class Game {
         return sb.toString();
     }
 }
+
