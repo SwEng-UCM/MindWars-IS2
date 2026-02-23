@@ -12,7 +12,11 @@ public class Main {
     public static void main(String[] args) {
 
         ConsoleIO io = new ConsoleIO();
+<<<<<<< HEAD
         QuestionBank bank = new QuestionBank("questions.txt");
+=======
+       QuestionBank bank = new QuestionBank("questions.json");
+>>>>>>> main
 
         Game engine = new Game(io, bank);
 
