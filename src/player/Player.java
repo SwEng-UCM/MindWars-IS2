@@ -3,12 +3,12 @@ package player;
 public class Player {
     private String name;
     private int score;
-    private long time;
+    private long timer;
 
     public Player(String name) {
         this.name = name;
         this.score = 0;
-        this.time = 0;
+        this.timer = 0;
     }
 
     public String getName() {
@@ -23,12 +23,11 @@ public class Player {
         this.score += points;
     }
 
-    public long getTime() {return time;}
+    public long getTimer() {
+        return timer;
+    }
 
-    public void addTime(long ms) {this.time += ms;}
-
-    public String formatTime() {
-        double seconds = time / 1000.0;
-        return String.format("%.3f s", seconds);
+    public void setTimer(long timer) {
+        this.timer = timer;
     }
 }

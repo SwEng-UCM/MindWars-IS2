@@ -1,0 +1,391 @@
+[
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "Science",
+    "difficulty": "EASY",
+    "prompt": "What is the boiling point of water?",
+    "choices": ["90°C", "100°C", "120°C"],
+    "answer": "B"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "Science",
+    "difficulty": "MEDIUM",
+    "prompt": "What is the chemical formula for water?",
+    "choices": ["H2O", "CO2", "O2", "H2O2"],
+    "answer": "A"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "Science",
+    "difficulty": "HARD",
+    "prompt": "What is the speed of light in vacuum?",
+    "choices": ["299,792,458 m/s", "300,000,000 m/s", "150,000,000 m/s", "500,000,000 m/s"],
+    "answer": "A"
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "Science",
+    "difficulty": "EASY",
+    "prompt": "The sun is a star.",
+    "answer": "T"
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "Science",
+    "difficulty": "MEDIUM",
+    "prompt": "Electrons are larger than protons.",
+    "answer": "F"
+  },
+  {
+    "type": "NUMERIC",
+    "category": "Science",
+    "difficulty": "HARD",
+    "prompt": "At what temperature (in Celsius) does water freeze?",
+    "numericAnswer": 0,
+    "tolerance": 0
+  },
+  {
+    "type": "NUMERIC",
+    "category": "History",
+    "difficulty": "HARD",
+    "prompt": "In what year did the French Revolution start?",
+    "numericAnswer": 1789,
+    "tolerance": 0
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "General",
+    "difficulty": "EASY",
+    "prompt": "What is 2+2?",
+    "choices": ["3", "4", "5"],
+    "answer": "B"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "Geography",
+    "difficulty": "EASY",
+    "prompt": "What is the capital of France?",
+    "choices": ["Paris", "London", "Berlin", "Madrid"],
+    "answer": "A"
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "General",
+    "difficulty": "EASY",
+    "prompt": "The Earth is flat.",
+    "answer": "F"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "History",
+    "difficulty": "EASY",
+    "prompt": "Who was the first president of the United States?",
+    "choices": ["Thomas Jefferson", "Abraham Lincoln", "George Washington", "John Adams"],
+    "answer": "C"
+  },
+  {
+    "type": "NUMERIC",
+    "category": "History",
+    "difficulty": "MEDIUM",
+    "prompt": "In what year did the Berlin Wall fall?",
+    "numericAnswer": 1989,
+    "tolerance": 1
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "History",
+    "difficulty": "HARD",
+    "prompt": "The Hundred Years' War actually lasted exactly 100 years.",
+    "answer": "F"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "Geography",
+    "difficulty": "EASY",
+    "prompt": "Which is the largest continent by land area?",
+    "choices": ["Africa", "Asia", "North America", "Europe"],
+    "answer": "B"
+  },
+  {
+    "type": "OPEN_ENDED",
+    "category": "Geography",
+    "difficulty": "MEDIUM",
+    "prompt": "What is the longest river in the world?",
+    "answer": "Nile"
+  },
+  {
+    "type": "NUMERIC",
+    "category": "Geography",
+    "difficulty": "HARD",
+    "prompt": "How many countries does the equator pass through?",
+    "numericAnswer": 13,
+    "tolerance": 2
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "Geography",
+    "difficulty": "EASY",
+    "prompt": "Mount Everest is the highest mountain in the world.",
+    "answer": "T"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "General",
+    "difficulty": "EASY",
+    "prompt": "How many colors are in a rainbow?",
+    "choices": ["5", "6", "7", "8"],
+    "answer": "C"
+  },
+  {
+    "type": "NUMERIC",
+    "category": "General",
+    "difficulty": "MEDIUM",
+    "prompt": "How many minutes are in a full week?",
+    "numericAnswer": 10080,
+    "tolerance": 1
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "General",
+    "difficulty": "MEDIUM",
+    "prompt": "What is the rarest blood type in humans?",
+    "choices": ["O negative", "A positive", "AB negative", "B negative"],
+    "answer": "C"
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "General",
+    "difficulty": "MEDIUM",
+    "prompt": "A shrimp's heart is located in its head.",
+    "answer": "T"
+  },
+  {
+    "type": "OPEN_ENDED",
+    "category": "General",
+    "difficulty": "EASY",
+    "prompt": "What is the chemical symbol for Gold?",
+    "answer": "Au"
+  },
+  {
+    "type": "NUMERIC",
+    "category": "General",
+    "difficulty": "EASY",
+    "prompt": "How many legs does a spider have?",
+    "numericAnswer": 8,
+    "tolerance": 0
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "General",
+    "difficulty": "HARD",
+    "prompt": "Which planet is known as the 'Morning Star'?",
+    "choices": ["Mars", "Jupiter", "Venus", "Saturn"],
+    "answer": "C"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "ComputerScience",
+    "difficulty": "EASY",
+    "prompt": "Which language is this project in?",
+    "choices": ["Python", "C++", "Java", "Ruby"],
+    "answer": "C"
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "ComputerScience",
+    "difficulty": "EASY",
+    "prompt": "Java is an Object-Oriented language.",
+    "answer": "T"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "ComputerScience",
+    "difficulty": "EASY",
+    "prompt": "Which keyword is used to create an object in Java?",
+    "choices": ["new", "make", "create", "build"],
+    "answer": "A"
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "ComputerScience",
+    "difficulty": "EASY",
+    "prompt": "Git is a version control system.",
+    "answer": "T"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "ComputerScience",
+    "difficulty": "EASY",
+    "prompt": "Which file contains the main entry point of the program?",
+    "choices": ["Main.java", "Game.java", "Player.java", "Question.java"],
+    "answer": "A"
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "ComputerScience",
+    "difficulty": "HARD",
+    "prompt": "A stack follows FIFO order.",
+    "answer": "F"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "ComputerScience",
+    "difficulty": "EASY",
+    "prompt": "Which class manages the game flow?",
+    "choices": ["Player", "Game", "Question", "ConsoleIO"],
+    "answer": "B"
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "ComputerScience",
+    "difficulty": "MEDIUM",
+    "prompt": "In Java, a class can have multiple constructors.",
+    "answer": "T"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "ComputerScience",
+    "difficulty": "HARD",
+    "prompt": "Which Git command is used to download a remote repository?",
+    "choices": ["push", "commit", "clone", "pull"],
+    "answer": "C"
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "ComputerScience",
+    "difficulty": "MEDIUM",
+    "prompt": "The 'main' branch should always be stable.",
+    "answer": "T"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "ComputerScience",
+    "difficulty": "HARD",
+    "prompt": "Which data structure works as LIFO?",
+    "choices": ["Queue", "Array", "List", "Stack"],
+    "answer": "D"
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "ComputerScience",
+    "difficulty": "MEDIUM",
+    "prompt": "In Java, '==' checks object content equality.",
+    "answer": "F"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "ComputerScience",
+    "difficulty": "EASY",
+    "prompt": "Which file stores the trivia questions?",
+    "choices": ["Game.java", "questions.json", "Main.java", "Player.java"],
+    "answer": "B"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "History",
+    "difficulty": "EASY",
+    "prompt": "In which year did World War II end?",
+    "choices": ["1943", "1944", "1945", "1946"],
+    "answer": "C"
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "History",
+    "difficulty": "MEDIUM",
+    "prompt": "The Roman Empire fell in 476 AD.",
+    "answer": "T"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "Geography",
+    "difficulty": "MEDIUM",
+    "prompt": "What is the smallest country in the world?",
+    "choices": ["Monaco", "Vatican City", "San Marino", "Liechtenstein"],
+    "answer": "B"
+  },
+  {
+    "type": "NUMERIC",
+    "category": "Geography",
+    "difficulty": "HARD",
+    "prompt": "How many time zones does Russia have?",
+    "numericAnswer": 11,
+    "tolerance": 1
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "General",
+    "difficulty": "HARD",
+    "prompt": "What is the hardest natural substance on Earth?",
+    "choices": ["Gold", "Iron", "Diamond", "Platinum"],
+    "answer": "C"
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "General",
+    "difficulty": "HARD",
+    "prompt": "Octopuses have three hearts.",
+    "answer": "T"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "Geography",
+    "difficulty": "MEDIUM",
+    "prompt": "Which African country has the most pyramids?",
+    "choices": ["Egypt", "Sudan", "Libya", "Algeria"],
+    "answer": "B"
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "Geography",
+    "difficulty": "HARD",
+    "prompt": "Australia is wider than the moon.",
+    "answer": "T"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "History",
+    "difficulty": "EASY",
+    "prompt": "Who discovered America in 1492?",
+    "choices": ["Christopher Columbus", "Amerigo Vespucci", "Marco Polo", "Ferdinand Magellan"],
+    "answer": "A"
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "History",
+    "difficulty": "MEDIUM",
+    "prompt": "The Great Wall of China is visible from space.",
+    "answer": "F"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "History",
+    "difficulty": "HARD",
+    "prompt": "In what year did the Titanic sink?",
+    "choices": ["1910", "1912", "1914", "1916"],
+    "answer": "B"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "Science",
+    "difficulty": "EASY",
+    "prompt": "How many planets are in our solar system?",
+    "choices": ["7", "8", "9", "10"],
+    "answer": "B"
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "Science",
+    "difficulty": "MEDIUM",
+    "prompt": "Humans and dinosaurs lived at the same time.",
+    "answer": "F"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "Science",
+    "difficulty": "HARD",
+    "prompt": "What is the most abundant gas in Earth's atmosphere?",
+    "choices": ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"],
+    "answer": "C"
+  }
+]
