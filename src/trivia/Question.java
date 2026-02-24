@@ -8,16 +8,18 @@ public class Question {
     private String difficulty;
     private String prompt;
     private List<String> choices;
-    private String answer;  // used for MCQ, TF, Open-Ended
+    private String answer; // used for MCQ, TF, Open-Ended
     private double numericAnswer; // used for NUMERIC
-    private double tolerance; // margin of error for NUMERIC -> is going to be used for estimation-based challenges 
+    private double tolerance; // margin of error for NUMERIC -> is going to be used for estimation-based
+                              // challenges
 
-    public Question() {} // empty constructor for GSON
+    public Question() {
+    } // empty constructor for GSON
 
     public String formatForConsole() {
         StringBuilder sb = new StringBuilder();
         sb.append("\n--- ").append(category.toUpperCase())
-          .append(" (").append(difficulty).append(") ---\n");
+                .append(" (").append(difficulty).append(") ---\n");
         sb.append(prompt).append("\n");
 
         if (type == QuestionType.MULTIPLE_CHOICE) {
@@ -37,21 +39,31 @@ public class Question {
     }
 
     // getters
-<<<<<<< HEAD
     public QuestionType getType() {
         return type;
     }
 
-    public String getCorrectAnswer() {
-        return correctAnswer;
+    public String getCategory() {
+        return category;
     }
-=======
-    public QuestionType getType() { return type; }
-    public String getCategory() { return category; }
-    public String getDifficulty() { return difficulty; }
-    public String getAnswer() { return answer; }
-    public List<String> getChoices() { return choices; }
-    public double getNumericAnswer() { return numericAnswer; }
-    public double getTolerance() { return tolerance; }
->>>>>>> main
+
+    public String getDifficulty() {
+        return difficulty;
+    }
+
+    public String getAnswer() {
+        return answer;
+    }
+
+    public List<String> getChoices() {
+        return choices;
+    }
+
+    public double getNumericAnswer() {
+        return numericAnswer;
+    }
+
+    public double getTolerance() {
+        return tolerance;
+    }
 }

@@ -33,16 +33,11 @@ public class Game {
 
         int questionsPerPlayer = 3;
 
-<<<<<<< HEAD
-        // Loop over each player (Player 1 then Player 2)
-        for (int p = 0; p < gameState.getPlayers().size(); p++) {
-=======
         // Pre-pick questions so both players get the same ones
-        List<Question> roundQuestions = questionBank.getAllQuestionsAsList(); 
+        List<Question> roundQuestions = questionBank.getAllQuestionsAsList();
         if (roundQuestions.size() > questionsPerPlayer) {
             roundQuestions = roundQuestions.subList(0, questionsPerPlayer);
         }
->>>>>>> main
 
         // Hot seat: alternate between players each round
         for (int round = 0; round < roundQuestions.size(); round++) {
@@ -66,20 +61,16 @@ public class Game {
                 io.readLine("  Press ENTER when ready...");
 
                 io.println("");
-                io.println("  " + currentPlayer.getName() + " - Question " + (round + 1) + " of " + roundQuestions.size());
+                io.println(
+                        "  " + currentPlayer.getName() + " - Question " + (round + 1) + " of " + roundQuestions.size());
                 io.println("  ----------------------------------------");
                 io.println("  " + currentQuestion.formatForConsole().replace("\n", "\n  "));
 
                 // Start timer
                 long startTime = System.currentTimeMillis();
 
-<<<<<<< HEAD
-                String response = io.readNonEmptyString(
-                        "Your answer (e.g., A, B, C, D, T, F):");
-=======
                 // Read answer and validate input
                 String response = readValidAnswer(currentQuestion);
->>>>>>> main
 
                 // Stop timer and add elapsed time to player's total
                 long endTime = System.currentTimeMillis();
@@ -92,9 +83,9 @@ public class Game {
                     io.println("  >> CORRECT! +1 point");
                     currentPlayer.addScore(1);
                 } else {
-                    String correctAnswer = (currentQuestion.getType() == QuestionType.NUMERIC) 
-                                       ? String.valueOf(currentQuestion.getNumericAnswer()) 
-                                       : currentQuestion.getAnswer();
+                    String correctAnswer = (currentQuestion.getType() == QuestionType.NUMERIC)
+                            ? String.valueOf(currentQuestion.getNumericAnswer())
+                            : currentQuestion.getAnswer();
                     io.println("  >> WRONG! The answer was: " + correctAnswer);
                 }
                 io.println("  Score: " + currentPlayer.getScore() + "/" + (round + 1));
@@ -105,8 +96,6 @@ public class Game {
         determineWinner();
     }
 
-<<<<<<< HEAD
-=======
     private String readValidAnswer(Question question) {
         while (true) {
             String response = io.readNonEmptyString("  Your answer:");
@@ -117,13 +106,12 @@ public class Game {
         }
     }
 
->>>>>>> main
     private void printWelcomeMessage() {
         io.println("");
         io.println("  +========================================+");
         io.println("  |                                        |");
-        io.println("  |      M I N D W A R S  T R I V I A     |");
-        io.println("  |      Where Brains Conquer              |");
+        io.println("  |      M I N D W A R S  T R I V I A      |");
+        io.println("  |       -  Where Brains Conquer  -       |");
         io.println("  |                                        |");
         io.println("  +========================================+");
         io.println("");
@@ -134,15 +122,11 @@ public class Game {
         io.println("");
         for (int i = 1; i <= 2; i++) {
             String name = io.readNonEmptyString(
-<<<<<<< HEAD
+
                     "Enter name for Player " + i + ":");
-=======
-                "  Enter name for Player " + i + ":"
-            );
->>>>>>> main
+
             Player newPlayer = new Player(name);
             gameState.addPlayer(newPlayer);
-            io.println("  Welcome, " + name + "!");
             io.println("");
         }
     }
@@ -155,10 +139,10 @@ public class Game {
     }
 
     private void determineWinner() {
-<<<<<<< HEAD
+
         io.println("\n=== GAME OVER ===");
         io.println("\nFinal Scores:");
-=======
+
         io.println("");
         io.println("  +========================================+");
         io.println("  |                                        |");
@@ -166,19 +150,18 @@ public class Game {
         io.println("  |                                        |");
         io.println("  +========================================+");
         io.println("");
->>>>>>> main
 
         // show all player scores and response times
         for (Player player : gameState.getPlayers()) {
             double timeInSeconds = player.getTimer() / 1000.0;
-<<<<<<< HEAD
+
             io.println(player.getName() + ": " + player.getScore() + " points (Response time: " +
                     String.format("%.2f", timeInSeconds) + "s)");
-=======
+
             io.println("    " + padRight(player.getName(), 15)
-                + padRight(player.getScore() + " pts", 10)
-                + String.format("%.2fs", timeInSeconds));
->>>>>>> main
+                    + padRight(player.getScore() + " pts", 10)
+                    + String.format("%.2fs", timeInSeconds));
+
         }
 
         io.println("");
@@ -200,7 +183,8 @@ public class Game {
     }
 
     private String padRight(String text, int length) {
-        if (text.length() >= length) return text;
+        if (text.length() >= length)
+            return text;
         StringBuilder sb = new StringBuilder(text);
         while (sb.length() < length) {
             sb.append(' ');
@@ -208,4 +192,3 @@ public class Game {
         return sb.toString();
     }
 }
-
