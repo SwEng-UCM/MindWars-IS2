@@ -223,5 +223,15 @@ public class Game {
         }
         return sb.toString();
     }
+
+    private int calculatePoints(Question question) {
+    String diff = question.getDifficulty().toUpperCase();
+    // logic: easy=10 medium=20 hard=30
+    return switch (diff) {
+        case "HARD" -> 30;
+        case "MEDIUM" -> 20;
+        default -> 10; // covers "easy" or any unexpected strings
+    };
+}
 }
 
