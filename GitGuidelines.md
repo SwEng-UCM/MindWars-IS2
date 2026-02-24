@@ -65,7 +65,14 @@ git add .
 git commit -m "Short title" -m "What you changed"
 ```
 
-Push your commits:
+Note: You can add in the title the #number of the task/issue you have completed/fixed
+
+*Example:*
+```bash
+git commit -m "Fixed issue #4" -m "<...>" 
+```
+
+Then push your commits:
 
 ```bash
 git push
