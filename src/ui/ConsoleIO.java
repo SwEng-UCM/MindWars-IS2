@@ -50,4 +50,14 @@ public class ConsoleIO {
         }
         return result;
     }
+
+    // helper function to let a player choose from a list of options
+    public String selectFromList(String prompt, java.util.List<String> options) {
+        println(prompt);
+        for (int i = 0; i < options.size(); i++) {
+            println("  " + (i + 1) + ") " + options.get(i));
+        }
+        int choice = readIntInRange("  Enter your choice (1-" + options.size() + "):", 1, options.size());
+        return options.get(choice - 1);
+    }
 }

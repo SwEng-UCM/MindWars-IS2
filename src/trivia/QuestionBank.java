@@ -39,6 +39,13 @@ public class QuestionBank {
         return organizedQuestions.keySet();
     }
 
+    public Set<String> getDifficulties(String category) {
+        if (organizedQuestions.containsKey(category)) {
+            return organizedQuestions.get(category).keySet();
+        }
+        return new HashSet<>();
+    }
+
     public Question getQuestion(String cat, String diff) {
         if (organizedQuestions.containsKey(cat) && organizedQuestions.get(cat).containsKey(diff)) {
             List<Question> list = organizedQuestions.get(cat).get(diff);

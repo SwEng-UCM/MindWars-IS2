@@ -8,6 +8,44 @@
     "answer": "B"
   },
   {
+    "type": "MULTIPLE_CHOICE",
+    "category": "Science",
+    "difficulty": "MEDIUM",
+    "prompt": "What is the chemical formula for water?",
+    "choices": ["H2O", "CO2", "O2", "H2O2"],
+    "answer": "A"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "Science",
+    "difficulty": "HARD",
+    "prompt": "What is the speed of light in vacuum?",
+    "choices": ["299,792,458 m/s", "300,000,000 m/s", "150,000,000 m/s", "500,000,000 m/s"],
+    "answer": "A"
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "Science",
+    "difficulty": "EASY",
+    "prompt": "The sun is a star.",
+    "answer": "T"
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "Science",
+    "difficulty": "MEDIUM",
+    "prompt": "Electrons are larger than protons.",
+    "answer": "F"
+  },
+  {
+    "type": "NUMERIC",
+    "category": "Science",
+    "difficulty": "HARD",
+    "prompt": "At what temperature (in Celsius) does water freeze?",
+    "numericAnswer": 0,
+    "tolerance": 0
+  },
+  {
     "type": "NUMERIC",
     "category": "History",
     "difficulty": "HARD",
@@ -222,7 +260,7 @@
   },
   {
     "type": "MULTIPLE_CHOICE",
-    "category": "CComputerScience",
+    "category": "ComputerScience",
     "difficulty": "HARD",
     "prompt": "Which data structure works as LIFO?",
     "choices": ["Queue", "Array", "List", "Stack"],
@@ -242,5 +280,112 @@
     "prompt": "Which file stores the trivia questions?",
     "choices": ["Game.java", "questions.json", "Main.java", "Player.java"],
     "answer": "B"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "History",
+    "difficulty": "EASY",
+    "prompt": "In which year did World War II end?",
+    "choices": ["1943", "1944", "1945", "1946"],
+    "answer": "C"
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "History",
+    "difficulty": "MEDIUM",
+    "prompt": "The Roman Empire fell in 476 AD.",
+    "answer": "T"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "Geography",
+    "difficulty": "MEDIUM",
+    "prompt": "What is the smallest country in the world?",
+    "choices": ["Monaco", "Vatican City", "San Marino", "Liechtenstein"],
+    "answer": "B"
+  },
+  {
+    "type": "NUMERIC",
+    "category": "Geography",
+    "difficulty": "HARD",
+    "prompt": "How many time zones does Russia have?",
+    "numericAnswer": 11,
+    "tolerance": 1
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "General",
+    "difficulty": "HARD",
+    "prompt": "What is the hardest natural substance on Earth?",
+    "choices": ["Gold", "Iron", "Diamond", "Platinum"],
+    "answer": "C"
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "General",
+    "difficulty": "HARD",
+    "prompt": "Octopuses have three hearts.",
+    "answer": "T"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "Geography",
+    "difficulty": "MEDIUM",
+    "prompt": "Which African country has the most pyramids?",
+    "choices": ["Egypt", "Sudan", "Libya", "Algeria"],
+    "answer": "B"
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "Geography",
+    "difficulty": "HARD",
+    "prompt": "Australia is wider than the moon.",
+    "answer": "T"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "History",
+    "difficulty": "EASY",
+    "prompt": "Who discovered America in 1492?",
+    "choices": ["Christopher Columbus", "Amerigo Vespucci", "Marco Polo", "Ferdinand Magellan"],
+    "answer": "A"
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "History",
+    "difficulty": "MEDIUM",
+    "prompt": "The Great Wall of China is visible from space.",
+    "answer": "F"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "History",
+    "difficulty": "HARD",
+    "prompt": "In what year did the Titanic sink?",
+    "choices": ["1910", "1912", "1914", "1916"],
+    "answer": "B"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "Science",
+    "difficulty": "EASY",
+    "prompt": "How many planets are in our solar system?",
+    "choices": ["7", "8", "9", "10"],
+    "answer": "B"
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "Science",
+    "difficulty": "MEDIUM",
+    "prompt": "Humans and dinosaurs lived at the same time.",
+    "answer": "F"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "Science",
+    "difficulty": "HARD",
+    "prompt": "What is the most abundant gas in Earth's atmosphere?",
+    "choices": ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"],
+    "answer": "C"
   }
 ]

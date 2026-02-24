@@ -9,6 +9,7 @@ import ui.ConsoleIO;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Game {
 
@@ -33,19 +34,62 @@ public class Game {
 
         int questionsPerPlayer = 3;
 
-        // Pre-pick questions so both players get the same ones
-        List<Question> roundQuestions = questionBank.getAllQuestionsAsList();
-        if (roundQuestions.size() > questionsPerPlayer) {
-            roundQuestions = roundQuestions.subList(0, questionsPerPlayer);
+        // Randomly decide which player chooses category and which chooses difficulty
+        Random random = new Random();
+        boolean player1ChoosesCategory = random.nextBoolean();
+
+        Player categoryChooser = player1ChoosesCategory ? gameState.getPlayers().get(0) : gameState.getPlayers().get(1);
+        Player difficultyChooser = player1ChoosesCategory ? gameState.getPlayers().get(1)
+                : gameState.getPlayers().get(0);
+
+        // Category selection
+        io.println("  " + categoryChooser.getName() + ", you will choose the CATEGORY for all questions!");
+        io.println("");
+        List<String> categories = new ArrayList<>(questionBank.getCategories());
+        String selectedCategory = io.selectFromList("  Choose a CATEGORY:", categories);
+        io.println("  Category selected: " + selectedCategory);
+        io.println("");
+
+        // Difficulty selection
+        io.println("  " + difficultyChooser.getName() + ", you will choose the DIFFICULTY for all questions!");
+        io.println("");
+        List<String> difficulties = new ArrayList<>(questionBank.getDifficulties(selectedCategory));
+        String selectedDifficulty = io.selectFromList("  Choose a DIFFICULTY:", difficulties);
+        io.println("  Difficulty selected: " + selectedDifficulty);
+        io.println("");
+
+        // Get questions for the game based on selections
+        List<Question> roundQuestions = new ArrayList<>();
+        for (int i = 0; i < questionsPerPlayer; i++) {
+            Question q = questionBank.getQuestion(selectedCategory, selectedDifficulty);
+            if (q != null) {
+                roundQuestions.add(q);
+            }
         }
 
-        // Hot seat: alternate between players each round
-        for (int round = 0; round < roundQuestions.size(); round++) {
-            Question currentQuestion = roundQuestions.get(round);
+        if (roundQuestions.isEmpty()) {
+            io.println("  ERROR: No questions available for this category/difficulty combination!");
+            io.println("  Game cannot start.");
+            return;
+        }
 
+        if (roundQuestions.size() < questionsPerPlayer) {
+            io.println("  WARNING: Only " + roundQuestions.size() + " question(s) available instead of "
+                    + questionsPerPlayer + ".");
+            io.println("  Continuing with " + roundQuestions.size() + " question(s)...");
+        }
+
+        io.println("  Starting game with " + roundQuestions.size() + " questions!");
+        io.println("");
+
+        // Play multiple rounds with pre-selected questions
+        for (int round = 0; round < roundQuestions.size(); round++) {
             io.println("");
             io.println("  =========== ROUND " + (round + 1) + " of " + roundQuestions.size() + " ===========");
 
+            Question currentQuestion = roundQuestions.get(round);
+
+            // Hot seat: alternate between players each round
             for (int p = 0; p < gameState.getPlayers().size(); p++) {
                 gameState.setCurrentPlayerIndex(p);
                 Player currentPlayer = gameState.getPlayers().get(p);
