@@ -23,6 +23,66 @@ public class Game {
         this.gameState = new GameState();
     }
 
+    private void handleNumericRound(Question question) {
+        List<NumericWinnerCalculator.EstimationResponse> roundData = new ArrayList<>();
+
+        for (Player p : gameState.getPlayers()) {
+            io.println("");
+            io.println("  +----------------------------------------+");
+            io.println("  |                                        |");
+            io.println("  |     PASS THE DEVICE TO " + padRight(p.getName().toUpperCase(), 14) + " |");
+            io.println("  |     Other player, look away!           |");
+            io.println("  |                                        |");
+            io.println("  +----------------------------------------+");
+            io.readLine("  Press ENTER when ready...");
+
+            io.println("");
+            io.println("  " + p.getName() + " - ESTIMATION CHALLENGE");
+            io.println("  ----------------------------------------");
+            io.println("  " + question.formatForConsole().replace("\n", "\n  "));
+
+            long startTime = System.currentTimeMillis();
+
+            String input = readValidAnswer(question);
+            double val = Double.parseDouble(input.replace(",", "."));
+
+            long endTime = System.currentTimeMillis();
+            long elapsed = endTime - startTime;
+
+            p.setTimer(p.getTimer() + elapsed);
+            roundData.add(new NumericWinnerCalculator.EstimationResponse(p, val, elapsed));
+        }
+
+        double correctAnswer = question.getNumericAnswer();
+        Player winner = NumericWinnerCalculator.calculateWinner(correctAnswer, roundData);
+
+        io.println("");
+        io.println("  >>> ROUND SUMMARY <<<");
+        io.println("  Correct Answer: " + (int) correctAnswer);
+        io.println("");
+        // Added DIFF column back
+        io.println("  " + padRight("PLAYER", 12) + " | " + padRight("GUESS", 8) + " | " + padRight("DIFF", 6) + " | "
+                + "TIME");
+        io.println("  --------------------------------------------------");
+
+        for (NumericWinnerCalculator.EstimationResponse res : roundData) {
+            int diff = (int) Math.abs(res.value - correctAnswer);
+            double timeSec = res.timeTaken / 1000.0;
+
+            io.println("  " + padRight(res.player.getName(), 12) +
+                    " | " + padRight(String.valueOf((int) res.value), 8) +
+                    " | " + padRight(String.valueOf(diff), 6) +
+                    " | " + String.format("%.2fs", timeSec));
+        }
+
+        io.println("  --------------------------------------------------");
+
+        if (winner != null) {
+            io.println("  WINNER: " + winner.getName() + " (Closer or Faster!)");
+            winner.addScore(1);
+        }
+        io.println("");
+    }
 
     public void run() {
         printWelcomeMessage();
@@ -38,9 +98,10 @@ public class Game {
         // Randomly decide which player chooses category and which chooses difficulty
         Random random = new Random();
         boolean player1ChoosesCategory = random.nextBoolean();
-        
+
         Player categoryChooser = player1ChoosesCategory ? gameState.getPlayers().get(0) : gameState.getPlayers().get(1);
-        Player difficultyChooser = player1ChoosesCategory ? gameState.getPlayers().get(1) : gameState.getPlayers().get(0);
+        Player difficultyChooser = player1ChoosesCategory ? gameState.getPlayers().get(1)
+                : gameState.getPlayers().get(0);
 
         // Category selection
         io.println("  " + categoryChooser.getName() + ", you will choose the CATEGORY for all questions!");
@@ -74,7 +135,8 @@ public class Game {
         }
 
         if (roundQuestions.size() < questionsPerPlayer) {
-            io.println("  WARNING: Only " + roundQuestions.size() + " question(s) available instead of " + questionsPerPlayer + ".");
+            io.println("  WARNING: Only " + roundQuestions.size() + " question(s) available instead of "
+                    + questionsPerPlayer + ".");
             io.println("  Continuing with " + roundQuestions.size() + " question(s)...");
         }
 
@@ -88,49 +150,55 @@ public class Game {
 
             Question currentQuestion = roundQuestions.get(round);
 
-            // Hot seat: alternate between players each round
-            for (int p = 0; p < gameState.getPlayers().size(); p++) {
-                gameState.setCurrentPlayerIndex(p);
-                Player currentPlayer = gameState.getPlayers().get(p);
+            if (currentQuestion.getType() == QuestionType.NUMERIC) {
+                handleNumericRound(currentQuestion);
+            } else {
+                // Hot seat: alternate between players each round
+                for (int p = 0; p < gameState.getPlayers().size(); p++) {
+                    gameState.setCurrentPlayerIndex(p);
+                    Player currentPlayer = gameState.getPlayers().get(p);
 
-                // Hot seat handoff between players
-                io.println("");
-                io.println("  +----------------------------------------+");
-                io.println("  |                                        |");
-                io.println("  |     PASS THE DEVICE TO " + padRight(currentPlayer.getName().toUpperCase(), 14) + " |");
-                io.println("  |     Other player, look away!           |");
-                io.println("  |                                        |");
-                io.println("  +----------------------------------------+");
-                io.readLine("  Press ENTER when ready...");
+                    // Hot seat handoff between players
+                    io.println("");
+                    io.println("  +----------------------------------------+");
+                    io.println("  |                                        |");
+                    io.println(
+                            "  |     PASS THE DEVICE TO " + padRight(currentPlayer.getName().toUpperCase(), 14) + " |");
+                    io.println("  |     Other player, look away!           |");
+                    io.println("  |                                        |");
+                    io.println("  +----------------------------------------+");
+                    io.readLine("  Press ENTER when ready...");
 
-                io.println("");
-                io.println("  " + currentPlayer.getName() + " - Question " + (round + 1) + " of " + roundQuestions.size());
-                io.println("  ----------------------------------------");
-                io.println("  " + currentQuestion.formatForConsole().replace("\n", "\n  "));
+                    io.println("");
+                    io.println("  " + currentPlayer.getName() + " - Question " + (round + 1) + " of "
+                            + roundQuestions.size());
+                    io.println("  ----------------------------------------");
+                    io.println("  " + currentQuestion.formatForConsole().replace("\n", "\n  "));
 
-                // Start timer
-                long startTime = System.currentTimeMillis();
+                    // Start timer
+                    long startTime = System.currentTimeMillis();
 
-                // Read answer and validate input
-                String response = readValidAnswer(currentQuestion);
+                    // Read answer and validate input
+                    String response = readValidAnswer(currentQuestion);
 
-                // Stop timer and add elapsed time to player's total
-                long endTime = System.currentTimeMillis();
-                long elapsedTime = endTime - startTime;
-                currentPlayer.setTimer(currentPlayer.getTimer() + elapsedTime);
+                    // Stop timer and add elapsed time to player's total
+                    long endTime = System.currentTimeMillis();
+                    long elapsedTime = endTime - startTime;
+                    currentPlayer.setTimer(currentPlayer.getTimer() + elapsedTime);
 
-                boolean isCorrect = AnswerValidator.isCorrect(currentQuestion, response);
+                    boolean isCorrect = AnswerValidator.isCorrect(currentQuestion, response);
 
-                if (isCorrect) {
-                    io.println("  >> CORRECT! +1 point");
-                    currentPlayer.addScore(1);
-                } else {
-                    String correctAnswer = (currentQuestion.getType() == QuestionType.NUMERIC) 
-                                       ? String.valueOf(currentQuestion.getNumericAnswer()) 
-                                       : currentQuestion.getAnswer();
-                    io.println("  >> WRONG! The answer was: " + correctAnswer);
+                    if (isCorrect) {
+                        io.println("  >> CORRECT! +1 point");
+                        currentPlayer.addScore(1);
+                    } else {
+                        String correctAnswer = (currentQuestion.getType() == QuestionType.NUMERIC)
+                                ? String.valueOf(currentQuestion.getNumericAnswer())
+                                : currentQuestion.getAnswer();
+                        io.println("  >> WRONG! The answer was: " + correctAnswer);
+                    }
+                    io.println("  Score: " + currentPlayer.getScore() + "/" + (round + 1));
                 }
-                io.println("  Score: " + currentPlayer.getScore() + "/" + (round + 1));
             }
         }
 
@@ -164,8 +232,7 @@ public class Game {
         io.println("");
         for (int i = 1; i <= 2; i++) {
             String name = io.readNonEmptyString(
-                "  Enter name for Player " + i + ":"
-            );
+                    "  Enter name for Player " + i + ":");
             Player newPlayer = new Player(name);
             gameState.addPlayer(newPlayer);
             io.println("  Welcome, " + name + "!");
@@ -193,8 +260,8 @@ public class Game {
         for (Player player : gameState.getPlayers()) {
             double timeInSeconds = player.getTimer() / 1000.0;
             io.println("    " + padRight(player.getName(), 15)
-                + padRight(player.getScore() + " pts", 10)
-                + String.format("%.2fs", timeInSeconds));
+                    + padRight(player.getScore() + " pts", 10)
+                    + String.format("%.2fs", timeInSeconds));
         }
 
         io.println("");
@@ -216,7 +283,8 @@ public class Game {
     }
 
     private String padRight(String text, int length) {
-        if (text.length() >= length) return text;
+        if (text.length() >= length)
+            return text;
         StringBuilder sb = new StringBuilder(text);
         while (sb.length() < length) {
             sb.append(' ');
@@ -224,4 +292,3 @@ public class Game {
         return sb.toString();
     }
 }
-
