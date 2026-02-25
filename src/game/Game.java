@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static player.Player.STREAK_BONUS;
+
 public class Game {
 
     private final ConsoleIO io;
@@ -125,9 +127,13 @@ public class Game {
 
                 if (isCorrect) {
                     int points = calculatePoints(currentQuestion); 
-                    currentPlayer.addScore(points);
+                    currentPlayer.setStreak(points);
                     io.println("  >> CORRECT! +" + points + " points ");
+                    if (currentPlayer.getStreak() >= 3) {
+                        io.println("Streak bonus! +" + STREAK_BONUS);
+                    }
                 } else {
+                    currentPlayer.resetStreak();
                     String correctAnswer = (currentQuestion.getType() == QuestionType.NUMERIC)
                             ? String.valueOf(currentQuestion.getNumericAnswer())
                             : currentQuestion.getAnswer();
