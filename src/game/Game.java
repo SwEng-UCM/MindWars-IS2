@@ -124,15 +124,16 @@ public class Game {
                 boolean isCorrect = AnswerValidator.isCorrect(currentQuestion, response);
 
                 if (isCorrect) {
-                    io.println("  >> CORRECT! +1 point");
-                    currentPlayer.addScore(1);
+                    int points = calculatePoints(currentQuestion); 
+                    currentPlayer.addScore(points);
+                    io.println("  >> CORRECT! +" + points + " points ");
                 } else {
                     String correctAnswer = (currentQuestion.getType() == QuestionType.NUMERIC)
                             ? String.valueOf(currentQuestion.getNumericAnswer())
                             : currentQuestion.getAnswer();
                     io.println("  >> WRONG! The answer was: " + correctAnswer);
                 }
-                io.println("  Score: " + currentPlayer.getScore() + "/" + (round + 1));
+                io.println("  Score: " + currentPlayer.getScore());
             }
         }
 
