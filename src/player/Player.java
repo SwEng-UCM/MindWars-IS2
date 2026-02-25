@@ -4,6 +4,7 @@ public class Player {
     private String name;
     private int score;
     private long timer;
+    private long answerTimeMs;
     private int streak;
 
     private static final int STREAK_TARGET = 3;
@@ -13,7 +14,9 @@ public class Player {
         this.name = name;
         this.score = 0;
         this.timer = 0;
+        this.answerTimeMs = 0;
         this.streak = 0;
+
     }
 
     public String getName() {
@@ -34,6 +37,14 @@ public class Player {
 
     public void setTimer(long timer) {
         this.timer = timer;
+    }
+
+    public long getAnswerTimeMs() {
+        return answerTimeMs;
+    }
+
+    public void setAnswerTimeMs(long answerTimeMs) {
+        this.answerTimeMs = answerTimeMs;
     }
 
     public int getStreak() {
