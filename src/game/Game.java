@@ -23,7 +23,6 @@ public class Game {
         this.gameState = new GameState();
     }
 
-
     public void run() {
         printWelcomeMessage();
         setupPlayers();
@@ -38,9 +37,10 @@ public class Game {
         // Randomly decide which player chooses category and which chooses difficulty
         Random random = new Random();
         boolean player1ChoosesCategory = random.nextBoolean();
-        
+
         Player categoryChooser = player1ChoosesCategory ? gameState.getPlayers().get(0) : gameState.getPlayers().get(1);
-        Player difficultyChooser = player1ChoosesCategory ? gameState.getPlayers().get(1) : gameState.getPlayers().get(0);
+        Player difficultyChooser = player1ChoosesCategory ? gameState.getPlayers().get(1)
+                : gameState.getPlayers().get(0);
 
         // Category selection
         io.println("  " + categoryChooser.getName() + ", you will choose the CATEGORY for all questions!");
@@ -74,7 +74,8 @@ public class Game {
         }
 
         if (roundQuestions.size() < questionsPerPlayer) {
-            io.println("  WARNING: Only " + roundQuestions.size() + " question(s) available instead of " + questionsPerPlayer + ".");
+            io.println("  WARNING: Only " + roundQuestions.size() + " question(s) available instead of "
+                    + questionsPerPlayer + ".");
             io.println("  Continuing with " + roundQuestions.size() + " question(s)...");
         }
 
@@ -104,7 +105,8 @@ public class Game {
                 io.readLine("  Press ENTER when ready...");
 
                 io.println("");
-                io.println("  " + currentPlayer.getName() + " - Question " + (round + 1) + " of " + roundQuestions.size());
+                io.println(
+                        "  " + currentPlayer.getName() + " - Question " + (round + 1) + " of " + roundQuestions.size());
                 io.println("  ----------------------------------------");
                 io.println("  " + currentQuestion.formatForConsole().replace("\n", "\n  "));
 
@@ -122,15 +124,16 @@ public class Game {
                 boolean isCorrect = AnswerValidator.isCorrect(currentQuestion, response);
 
                 if (isCorrect) {
-                    io.println("  >> CORRECT! +1 point");
-                    currentPlayer.addScore(1);
+                    int points = calculatePoints(currentQuestion); 
+                    currentPlayer.addScore(points);
+                    io.println("  >> CORRECT! +" + points + " points ");
                 } else {
-                    String correctAnswer = (currentQuestion.getType() == QuestionType.NUMERIC) 
-                                       ? String.valueOf(currentQuestion.getNumericAnswer()) 
-                                       : currentQuestion.getAnswer();
+                    String correctAnswer = (currentQuestion.getType() == QuestionType.NUMERIC)
+                            ? String.valueOf(currentQuestion.getNumericAnswer())
+                            : currentQuestion.getAnswer();
                     io.println("  >> WRONG! The answer was: " + correctAnswer);
                 }
-                io.println("  Score: " + currentPlayer.getScore() + "/" + (round + 1));
+                io.println("  Score: " + currentPlayer.getScore());
             }
         }
 
@@ -164,8 +167,7 @@ public class Game {
         io.println("");
         for (int i = 1; i <= 2; i++) {
             String name = io.readNonEmptyString(
-                "  Enter name for Player " + i + ":"
-            );
+                    "  Enter name for Player " + i + ":");
             Player newPlayer = new Player(name);
             gameState.addPlayer(newPlayer);
             io.println("  Welcome, " + name + "!");
@@ -193,8 +195,8 @@ public class Game {
         for (Player player : gameState.getPlayers()) {
             double timeInSeconds = player.getTimer() / 1000.0;
             io.println("    " + padRight(player.getName(), 15)
-                + padRight(player.getScore() + " pts", 10)
-                + String.format("%.2fs", timeInSeconds));
+                    + padRight(player.getScore() + " pts", 10)
+                    + String.format("%.2fs", timeInSeconds));
         }
 
         io.println("");
@@ -216,12 +218,23 @@ public class Game {
     }
 
     private String padRight(String text, int length) {
-        if (text.length() >= length) return text;
+        if (text.length() >= length)
+            return text;
         StringBuilder sb = new StringBuilder(text);
         while (sb.length() < length) {
             sb.append(' ');
         }
+
         return sb.toString();
     }
-}
 
+    private int calculatePoints(Question question) {
+    String diff = question.getDifficulty().toUpperCase();
+    // logic: easy=10 medium=20 hard=30
+    return switch (diff) {
+        case "HARD" -> 30;
+        case "MEDIUM" -> 20;
+        default -> 10; // covers "easy" or any unexpected strings
+    };
+}
+}
