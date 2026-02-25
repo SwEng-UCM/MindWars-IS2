@@ -23,10 +23,18 @@ public class Game {
         this.gameState = new GameState();
     }
 
+    /**
+     * Handles a numeric estimation challenge where all players answer the same
+     * question.
+     * The player closest to the target value wins. In case of a tie in proximity,
+     * the faster player is awarded the point.
+     */
     private void handleNumericRound(Question question) {
+        // Stores responses (player, guess, and time) to compare them later
         List<NumericWinnerCalculator.EstimationResponse> roundData = new ArrayList<>();
 
         for (Player p : gameState.getPlayers()) {
+            // Hot seat handoff to ensure the other player doesn't see the screen
             io.println("");
             io.println("  +----------------------------------------+");
             io.println("  |                                        |");
@@ -36,11 +44,13 @@ public class Game {
             io.println("  +----------------------------------------+");
             io.readLine("  Press ENTER when ready...");
 
+            // Display question details for the current player
             io.println("");
             io.println("  " + p.getName() + " - ESTIMATION CHALLENGE");
             io.println("  ----------------------------------------");
             io.println("  " + question.formatForConsole().replace("\n", "\n  "));
 
+            // Measure response time and collect the guess
             long startTime = System.currentTimeMillis();
 
             String input = readValidAnswer(question);
@@ -49,23 +59,26 @@ public class Game {
             long endTime = System.currentTimeMillis();
             long elapsed = endTime - startTime;
 
-            p.setTimer(p.getTimer() + elapsed);
+            // Record player performance
+            p.setTimer(p.getTimer() + elapsed); // Update player's total game time
             roundData.add(new NumericWinnerCalculator.EstimationResponse(p, val, elapsed));
         }
 
+        // Identify the winner based on proximity and speed
         double correctAnswer = question.getNumericAnswer();
         Player winner = NumericWinnerCalculator.calculateWinner(correctAnswer, roundData);
 
+        // Display the summary table to the players
         io.println("");
         io.println("  >>> ROUND SUMMARY <<<");
         io.println("  Correct Answer: " + (int) correctAnswer);
         io.println("");
-        // Added DIFF column back
         io.println("  " + padRight("PLAYER", 12) + " | " + padRight("GUESS", 8) + " | " + padRight("DIFF", 6) + " | "
                 + "TIME");
         io.println("  --------------------------------------------------");
 
         for (NumericWinnerCalculator.EstimationResponse res : roundData) {
+            // Calculate the absolute difference for visual feedback
             int diff = (int) Math.abs(res.value - correctAnswer);
             double timeSec = res.timeTaken / 1000.0;
 
@@ -77,6 +90,7 @@ public class Game {
 
         io.println("  --------------------------------------------------");
 
+        // Announce the winner and update the score
         if (winner != null) {
             io.println("  WINNER: " + winner.getName() + " (Closer or Faster!)");
             winner.addScore(1);

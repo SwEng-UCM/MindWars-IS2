@@ -4,43 +4,34 @@ import player.Player;
 import java.util.List;
 
 /**
- * Logic to determine the winner of a numeric estimation question.
- * If proximity is equal, the player with the faster response time wins.
+ * Utility to find the winner of an estimation round.
+ * Priority: 1. Smallest difference | 2. Fastest time.
  */
 public final class NumericWinnerCalculator {
 
     private NumericWinnerCalculator() {
     }
 
-    public static Player calculateWinner(double targetValue, List<EstimationResponse> responses) {
+    public static Player calculateWinner(double target, List<EstimationResponse> responses) {
         if (responses == null || responses.isEmpty())
             return null;
 
-        EstimationResponse winnerResponse = responses.get(0);
+        EstimationResponse best = responses.get(0);
 
         for (int i = 1; i < responses.size(); i++) {
             EstimationResponse current = responses.get(i);
+            double currentDiff = Math.abs(current.value - target);
+            double bestDiff = Math.abs(best.value - target);
 
-            double currentDiff = Math.abs(current.value - targetValue);
-            double bestDiff = Math.abs(winnerResponse.value - targetValue);
-
-            if (currentDiff < bestDiff) {
-                // Current is closer
-                winnerResponse = current;
-            } else if (currentDiff == bestDiff) {
-                // Tie in distance, compare time (lower is better)
-                if (current.timeTaken < winnerResponse.timeTaken) {
-                    winnerResponse = current;
-                }
+            // Update winner if current is closer OR same distance but faster
+            if (currentDiff < bestDiff || (currentDiff == bestDiff && current.timeTaken < best.timeTaken)) {
+                best = current;
             }
         }
-
-        return winnerResponse.player;
+        return best.player;
     }
 
-    /**
-     * DTO to hold round-specific data for comparison.
-     */
+    // Helper class to group player guess and time
     public static class EstimationResponse {
         public final Player player;
         public final double value;
