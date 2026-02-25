@@ -44,7 +44,7 @@ public class Player {
         streak++;
         addScore(score);
 
-        if (streak == STREAK_TARGET) {
+        if (streak >= STREAK_TARGET) {
             addScore(STREAK_BONUS);
         }
 
