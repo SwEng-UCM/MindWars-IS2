@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static player.Player.STREAK_BONUS;
+
 public class Game {
 
     private final ConsoleIO io;
@@ -124,15 +126,20 @@ public class Game {
                 boolean isCorrect = AnswerValidator.isCorrect(currentQuestion, response);
 
                 if (isCorrect) {
-                    io.println("  >> CORRECT! +1 point");
-                    currentPlayer.addScore(1);
+                    int points = calculatePoints(currentQuestion);
+                    currentPlayer.setStreak(points);
+                    io.println("  >> CORRECT! +" + points + " points ");
+                    if (currentPlayer.getStreak() >= 3) {
+                        io.println("Streak bonus! +" + STREAK_BONUS);
+                    }
                 } else {
+                    currentPlayer.resetStreak();
                     String correctAnswer = (currentQuestion.getType() == QuestionType.NUMERIC)
                             ? String.valueOf(currentQuestion.getNumericAnswer())
                             : currentQuestion.getAnswer();
                     io.println("  >> WRONG! The answer was: " + correctAnswer);
                 }
-                io.println("  Score: " + currentPlayer.getScore() + "/" + (round + 1));
+                io.println("  Score: " + currentPlayer.getScore());
             }
         }
 
@@ -166,9 +173,7 @@ public class Game {
         io.println("");
         for (int i = 1; i <= 2; i++) {
             String name = io.readNonEmptyString(
-
-                    "Enter name for Player " + i + ":");
-
+                    "  Enter name for Player " + i + ":");
             Player newPlayer = new Player(name);
             gameState.addPlayer(newPlayer);
             io.println("");
@@ -205,7 +210,6 @@ public class Game {
             io.println("    " + padRight(player.getName(), 15)
                     + padRight(player.getScore() + " pts", 10)
                     + String.format("%.2fs", timeInSeconds));
-
         }
 
         io.println("");
@@ -233,6 +237,17 @@ public class Game {
         while (sb.length() < length) {
             sb.append(' ');
         }
+
         return sb.toString();
+    }
+
+    private int calculatePoints(Question question) {
+        String diff = question.getDifficulty().toUpperCase();
+        // logic: easy=10 medium=20 hard=30
+        return switch (diff) {
+            case "HARD" -> 30;
+            case "MEDIUM" -> 20;
+            default -> 10; // covers "easy" or any unexpected strings
+        };
     }
 }
