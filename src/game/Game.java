@@ -176,6 +176,13 @@ public class Game {
         io.println("  |                                        |");
         io.println("  +========================================+");
         io.println("");
+
+        io.println("  RULES:");
+        io.println("  1. BATTLE: Answer correctly and BE FAST! Speed is the tie-breaker.");
+        io.println("  2. REWARD: Round Winner claims 2 cells from the map. The runner-up claims 1 cell.");
+        io.println("             - If both fail, no one conquers anything this round.");
+        io.println("             - Once claimed, the cell will show your NAME'S INITIAL.");
+        io.println("");
     }
 
     private void setupPlayers() {
