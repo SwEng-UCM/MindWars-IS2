@@ -185,7 +185,7 @@
   },
   {
     "type": "MULTIPLE_CHOICE",
-    "category": "ComputerScience",
+    "category": "Computer-Science",
     "difficulty": "EASY",
     "prompt": "Which language is this project in?",
     "choices": ["Python", "C++", "Java", "Ruby"],
@@ -193,14 +193,14 @@
   },
   {
     "type": "TRUE_FALSE",
-    "category": "ComputerScience",
+    "category": "Computer-Science",
     "difficulty": "EASY",
     "prompt": "Java is an Object-Oriented language.",
     "answer": "T"
   },
   {
     "type": "MULTIPLE_CHOICE",
-    "category": "ComputerScience",
+    "category": "Computer=Science",
     "difficulty": "EASY",
     "prompt": "Which keyword is used to create an object in Java?",
     "choices": ["new", "make", "create", "build"],
@@ -208,14 +208,14 @@
   },
   {
     "type": "TRUE_FALSE",
-    "category": "ComputerScience",
+    "category": "Computer-Science",
     "difficulty": "EASY",
     "prompt": "Git is a version control system.",
     "answer": "T"
   },
   {
     "type": "MULTIPLE_CHOICE",
-    "category": "ComputerScience",
+    "category": "Computer-Science",
     "difficulty": "EASY",
     "prompt": "Which file contains the main entry point of the program?",
     "choices": ["Main.java", "Game.java", "Player.java", "Question.java"],
@@ -223,14 +223,14 @@
   },
   {
     "type": "TRUE_FALSE",
-    "category": "ComputerScience",
+    "category": "Computer-Science",
     "difficulty": "HARD",
     "prompt": "A stack follows FIFO order.",
     "answer": "F"
   },
   {
     "type": "MULTIPLE_CHOICE",
-    "category": "ComputerScience",
+    "category": "Computer-Science",
     "difficulty": "EASY",
     "prompt": "Which class manages the game flow?",
     "choices": ["Player", "Game", "Question", "ConsoleIO"],
@@ -238,14 +238,14 @@
   },
   {
     "type": "TRUE_FALSE",
-    "category": "ComputerScience",
+    "category": "Computer-Science",
     "difficulty": "MEDIUM",
     "prompt": "In Java, a class can have multiple constructors.",
     "answer": "T"
   },
   {
     "type": "MULTIPLE_CHOICE",
-    "category": "ComputerScience",
+    "category": "Computer-Science",
     "difficulty": "HARD",
     "prompt": "Which Git command is used to download a remote repository?",
     "choices": ["push", "commit", "clone", "pull"],
@@ -253,14 +253,14 @@
   },
   {
     "type": "TRUE_FALSE",
-    "category": "ComputerScience",
+    "category": "Computer-Science",
     "difficulty": "MEDIUM",
     "prompt": "The 'main' branch should always be stable.",
     "answer": "T"
   },
   {
     "type": "MULTIPLE_CHOICE",
-    "category": "ComputerScience",
+    "category": "Computer-Science",
     "difficulty": "HARD",
     "prompt": "Which data structure works as LIFO?",
     "choices": ["Queue", "Array", "List", "Stack"],
@@ -268,17 +268,17 @@
   },
   {
     "type": "TRUE_FALSE",
-    "category": "ComputerScience",
+    "category": "Computer-Science",
     "difficulty": "MEDIUM",
     "prompt": "In Java, '==' checks object content equality.",
     "answer": "F"
   },
   {
     "type": "MULTIPLE_CHOICE",
-    "category": "ComputerScience",
+    "category": "Computer-Science",
     "difficulty": "EASY",
     "prompt": "Which file stores the trivia questions?",
-    "choices": ["Game.java", "questions.json", "Main.java", "Player.java"],
+    "choices": ["Game.java", "Questions.json", "Main.java", "Player.java"],
     "answer": "B"
   },
   {
@@ -315,7 +315,7 @@
   {
     "type": "MULTIPLE_CHOICE",
     "category": "General",
-    "difficulty": "HARD",
+    "difficulty": "MEDIUM",
     "prompt": "What is the hardest natural substance on Earth?",
     "choices": ["Gold", "Iron", "Diamond", "Platinum"],
     "answer": "C"
@@ -323,7 +323,7 @@
   {
     "type": "TRUE_FALSE",
     "category": "General",
-    "difficulty": "HARD",
+    "difficulty": "MEDIUM",
     "prompt": "Octopuses have three hearts.",
     "answer": "T"
   },
@@ -376,14 +376,14 @@
   {
     "type": "TRUE_FALSE",
     "category": "Science",
-    "difficulty": "MEDIUM",
+    "difficulty": "EASY",
     "prompt": "Humans and dinosaurs lived at the same time.",
     "answer": "F"
   },
   {
     "type": "MULTIPLE_CHOICE",
     "category": "Science",
-    "difficulty": "HARD",
+    "difficulty": "MEDIUM",
     "prompt": "What is the most abundant gas in Earth's atmosphere?",
     "choices": ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"],
     "answer": "C"

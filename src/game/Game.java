@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static player.Player.STREAK_BONUS;
+
 public class Game {
 
     private final ConsoleIO io;
@@ -184,8 +186,9 @@ public class Game {
                     io.readLine("  Press ENTER when ready...");
 
                     io.println("");
-                    io.println("  " + currentPlayer.getName() + " - Question " + (round + 1) + " of "
-                            + roundQuestions.size());
+                    io.println(
+                            "  " + currentPlayer.getName() + " - Question " + (round + 1) + " of "
+                                    + roundQuestions.size());
                     io.println("  ----------------------------------------");
                     io.println("  " + currentQuestion.formatForConsole().replace("\n", "\n  "));
 
@@ -203,15 +206,20 @@ public class Game {
                     boolean isCorrect = AnswerValidator.isCorrect(currentQuestion, response);
 
                     if (isCorrect) {
-                        io.println("  >> CORRECT! +1 point");
-                        currentPlayer.addScore(1);
+                        int points = calculatePoints(currentQuestion);
+                        currentPlayer.setStreak(points);
+                        io.println("  >> CORRECT! +" + points + " points ");
+                        if (currentPlayer.getStreak() >= 3) {
+                            io.println("Streak bonus! +" + STREAK_BONUS);
+                        }
                     } else {
+                        currentPlayer.resetStreak();
                         String correctAnswer = (currentQuestion.getType() == QuestionType.NUMERIC)
                                 ? String.valueOf(currentQuestion.getNumericAnswer())
                                 : currentQuestion.getAnswer();
                         io.println("  >> WRONG! The answer was: " + correctAnswer);
                     }
-                    io.println("  Score: " + currentPlayer.getScore() + "/" + (round + 1));
+                    io.println("  Score: " + currentPlayer.getScore());
                 }
             }
         }
@@ -303,6 +311,62 @@ public class Game {
         while (sb.length() < length) {
             sb.append(' ');
         }
+
         return sb.toString();
+    }
+
+    private int calculatePoints(Question question) {
+        String diff = question.getDifficulty().toUpperCase();
+        // logic: easy=10 medium=20 hard=30
+        return switch (diff) {
+            case "HARD" -> 30;
+            case "MEDIUM" -> 20;
+            default -> 10; // covers "easy" or any unexpected strings
+        };
+    }
+
+    /**
+     * Selects a random category and fetches a HARD question for the betting event.
+     */
+    private Question getSpecialBetQuestion() {
+        List<String> allCategories = new ArrayList<>(questionBank.getCategories());
+        if (allCategories.isEmpty())
+            return null;
+
+        Random random = new Random();
+        String randomCat = allCategories.get(random.nextInt(allCategories.size()));
+
+        // Betting questions are high-risk, so they are always HARD
+        return questionBank.getQuestion(randomCat, "HARD");
+    }
+
+    /**
+     * Handles the wager input logic for a trailing player.
+     * 
+     * @return The amount of points wagered, or 0 if declined.
+     */
+    private int handleBetting(Player player, Question q) {
+        io.println("\n  *** SPECIAL BETTING OPPORTUNITY ***");
+        io.println("  Category: " + q.getCategory().toUpperCase() + " | Difficulty: HARD");
+        io.println("  Your current score: [" + player.getScore() + "]");
+
+        String choice = io.readNonEmptyString("  Do you want to bet your points? (yes/no):").toLowerCase();
+
+        if (choice.equals("yes") || choice.equals("y")) {
+            while (true) {
+                try {
+                    String input = io.readNonEmptyString("  Enter wager (1 - " + player.getScore() + "):");
+                    int bet = Integer.parseInt(input);
+
+                    if (bet > 0 && bet <= player.getScore()) {
+                        return bet;
+                    }
+                    io.println("  Invalid amount! Max bet allowed is " + player.getScore());
+                } catch (NumberFormatException e) {
+                    io.println("  Please enter a valid number.");
+                }
+            }
+        }
+        return 0; // Player chose not to bet
     }
 }
