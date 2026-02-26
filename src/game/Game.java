@@ -18,11 +18,13 @@ public class Game {
     private final ConsoleIO io;
     private final QuestionBank questionBank;
     private final GameState gameState;
+    private final MapGrid map;
 
     public Game(ConsoleIO io, QuestionBank questionBank) {
         this.io = io;
         this.questionBank = questionBank;
         this.gameState = new GameState();
+        this.map = new MapGrid(3);
     }
 
     public void run() {
@@ -87,60 +89,68 @@ public class Game {
         // Play multiple rounds with pre-selected questions
         for (int round = 0; round < roundQuestions.size(); round++) {
             io.println("");
-            io.println("  =========== ROUND " + (round + 1) + " of " + roundQuestions.size() + " ===========");
+            io.println("   =========== ROUND " + (round + 1) + " of " + roundQuestions.size() + " ===========");
 
             Question currentQuestion = roundQuestions.get(round);
+
+            boolean[] roundResults = new boolean[gameState.getPlayers().size()];
+            long[] roundTimes = new long[gameState.getPlayers().size()];
 
             // Hot seat: alternate between players each round
             for (int p = 0; p < gameState.getPlayers().size(); p++) {
                 gameState.setCurrentPlayerIndex(p);
                 Player currentPlayer = gameState.getPlayers().get(p);
 
-                // Hot seat handoff between players
                 io.println("");
-                io.println("  +----------------------------------------+");
-                io.println("  |                                        |");
-                io.println("  |     PASS THE DEVICE TO " + padRight(currentPlayer.getName().toUpperCase(), 14) + " |");
-                io.println("  |     Other player, look away!           |");
-                io.println("  |                                        |");
-                io.println("  +----------------------------------------+");
-                io.readLine("  Press ENTER when ready...");
+                io.println("   +----------------------------------------+");
+                io.println("   |                                        |");
+                io.println("   |     PASS THE DEVICE TO " + padRight(currentPlayer.getName().toUpperCase(), 14) + " |");
+                io.println("   |     Other player, look away!           |");
+                io.println("   |                                        |");
+                io.println("   +----------------------------------------+");
+                io.readLine("   Press ENTER when ready...");
 
                 io.println("");
-                io.println(
-                        "  " + currentPlayer.getName() + " - Question " + (round + 1) + " of " + roundQuestions.size());
-                io.println("  ----------------------------------------");
-                io.println("  " + currentQuestion.formatForConsole().replace("\n", "\n  "));
+                io.println("   " + currentPlayer.getName() + " - Question " + (round + 1) + " of "
+                        + roundQuestions.size());
+                io.println("   ----------------------------------------");
+                io.println("   " + currentQuestion.formatForConsole().replace("\n", "\n   "));
 
-                // Start timer
+                // start timer per question
                 long startTime = System.currentTimeMillis();
 
-                // Read answer and validate input
                 String response = readValidAnswer(currentQuestion);
 
-                // Stop timer and add elapsed time to player's total
                 long endTime = System.currentTimeMillis();
                 long elapsedTime = endTime - startTime;
+
+                roundTimes[p] = elapsedTime;
                 currentPlayer.setTimer(currentPlayer.getTimer() + elapsedTime);
 
                 boolean isCorrect = AnswerValidator.isCorrect(currentQuestion, response);
+                roundResults[p] = isCorrect;
 
                 if (isCorrect) {
                     int points = calculatePoints(currentQuestion);
-                    currentPlayer.setStreak(points);
-                    io.println("  >> CORRECT! +" + points + " points ");
+                    currentPlayer.addScore(points);
+                    currentPlayer.setStreak(currentPlayer.getStreak() + 1);
+
+                    io.println("   >> CORRECT! +" + points + " points ");
                     if (currentPlayer.getStreak() >= 3) {
-                        io.println("Streak bonus! +" + STREAK_BONUS);
+
+                        io.println("   Streak bonus active!");
                     }
                 } else {
                     currentPlayer.resetStreak();
                     String correctAnswer = (currentQuestion.getType() == QuestionType.NUMERIC)
                             ? String.valueOf(currentQuestion.getNumericAnswer())
                             : currentQuestion.getAnswer();
-                    io.println("  >> WRONG! The answer was: " + correctAnswer);
+                    io.println("   >> WRONG! The answer was: " + correctAnswer);
                 }
-                io.println("  Score: " + currentPlayer.getScore());
+                io.println("   Score: " + currentPlayer.getScore());
             }
+
+            handleTerritoryPhase(roundResults[0], roundTimes[0], roundResults[1], roundTimes[1]);
         }
 
         // Final results
@@ -249,5 +259,61 @@ public class Game {
             case "MEDIUM" -> 20;
             default -> 10; // covers "easy" or any unexpected strings
         };
+    }
+
+    private void askToClaim(int playerNum) {
+        boolean done = false;
+        while (!done) {
+            String input = io.readNonEmptyString("  Player " + playerNum + ", enter coordinates as row,col (ex: 2,1):");
+
+            if (!input.contains(",")) {
+                io.println("  Invalid format! Please use: row,col");
+                continue;
+            }
+
+            try {
+                String[] parts = input.split(",");
+                int r = Integer.parseInt(parts[0].trim());
+                int c = Integer.parseInt(parts[1].trim());
+
+                if (map.claimCell(playerNum, r, c)) {
+                    done = true;
+                    io.println("  Success! Cell [" + r + "," + c + "] is now yours.");
+                } else {
+                    io.println("  That cell is either outside the map or already taken! Try again.");
+                }
+            } catch (NumberFormatException e) {
+                io.println("  Error: Please enter valid numbers for row and column.");
+            }
+        }
+    }
+
+    private void handleTerritoryPhase(boolean p1Correct, long p1Time, boolean p2Correct, long p2Time) {
+        int winner = 0; // 0 = no winner, 1 = Player 1, 2 = Player 2
+
+        if (p1Correct && !p2Correct)
+            winner = 1;
+        else if (!p1Correct && p2Correct)
+            winner = 2;
+        else if (p1Correct && p2Correct) {
+            winner = (p1Time <= p2Time) ? 1 : 2;
+        }
+
+        if (winner != 0) {
+            int loser = (winner == 1) ? 2 : 1;
+            io.println("\n  >> ROUND WINNER: " + gameState.getPlayers().get(winner - 1).getName() + "!");
+
+            for (int i = 1; i <= 2; i++) {
+                io.println("  [Winner Selection " + i + "/2]");
+                askToClaim(winner);
+            }
+
+            io.println("  [Loser Selection 1/1]");
+            askToClaim(loser);
+        } else {
+            io.println("\n  >> NO WINNER THIS ROUND (Both wrong). No territory claimed.");
+        }
+
+        map.display(io);
     }
 }
