@@ -5,7 +5,7 @@ public class Player {
     private int score;
     private long timer;
     private int streak;
-
+    private boolean hasUsedBet = false;
     private static final int STREAK_TARGET = 3;
     public static final int STREAK_BONUS = 3;
 
@@ -54,7 +54,22 @@ public class Player {
 
     }
 
+    public void subtractScore(int points) {
+        this.score -= points;
+        if (this.score < 0)
+            this.score = 0;
+
+    }
+
     public void resetStreak() {
         streak = 0;
+    }
+
+    public boolean hasUsedBet() {
+        return hasUsedBet;
+    }
+
+    public void setHasUsedBet(boolean hasUsedBet) {
+        this.hasUsedBet = hasUsedBet;
     }
 }

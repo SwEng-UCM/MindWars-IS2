@@ -66,4 +66,8 @@ public class Question {
     public double getTolerance() {
         return tolerance;
     }
+
+    public String getPrompt() {
+        return prompt;
+    }
 }
