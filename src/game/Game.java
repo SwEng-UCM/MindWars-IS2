@@ -20,6 +20,8 @@ public class Game {
     private final GameState gameState;
     private final MapGrid map;
 
+    long TIME_LIMIT_MS = 15000;
+
     public Game(ConsoleIO io, QuestionBank questionBank) {
         this.io = io;
         this.questionBank = questionBank;
@@ -92,7 +94,6 @@ public class Game {
             io.println("   =========== ROUND " + (round + 1) + " of " + roundQuestions.size() + " ===========");
 
             Question currentQuestion = roundQuestions.get(round);
-
             boolean[] roundResults = new boolean[gameState.getPlayers().size()];
             long[] roundTimes = new long[gameState.getPlayers().size()];
 
@@ -116,11 +117,8 @@ public class Game {
                 io.println("   ----------------------------------------");
                 io.println("   " + currentQuestion.formatForConsole().replace("\n", "\n   "));
 
-                // start timer per question
                 long startTime = System.currentTimeMillis();
-
                 String response = readValidAnswer(currentQuestion);
-
                 long endTime = System.currentTimeMillis();
                 long elapsedTime = endTime - startTime;
 
@@ -128,6 +126,12 @@ public class Game {
                 currentPlayer.setTimer(currentPlayer.getTimer() + elapsedTime);
 
                 boolean isCorrect = AnswerValidator.isCorrect(currentQuestion, response);
+
+                if (isCorrect && elapsedTime > 15000) {
+                    io.println("   >> [TIMEOUT] Correct answer, but took too long (> 15s)!");
+                    isCorrect = false;
+                }
+
                 roundResults[p] = isCorrect;
 
                 if (isCorrect) {
@@ -137,7 +141,6 @@ public class Game {
 
                     io.println("   >> CORRECT! +" + points + " points ");
                     if (currentPlayer.getStreak() >= 3) {
-
                         io.println("   Streak bonus active!");
                     }
                 } else {
@@ -149,6 +152,8 @@ public class Game {
                 }
                 io.println("   Score: " + currentPlayer.getScore());
             }
+
+            applySpeedBonus(roundResults, roundTimes);
 
             handleTerritoryPhase(roundResults[0], roundTimes[0], roundResults[1], roundTimes[1]);
         }
@@ -180,7 +185,6 @@ public class Game {
         io.println("  RULES:");
         io.println("  1. BATTLE: Answer correctly and BE FAST! Speed is the tie-breaker.");
         io.println("  2. REWARD: Round Winner claims 2 cells from the map. The runner-up claims 1 cell.");
-        io.println("             - If both fail, no one conquers anything this round.");
         io.println("             - Once claimed, the cell will show your NAME'S INITIAL.");
         io.println("");
     }
@@ -296,31 +300,72 @@ public class Game {
     }
 
     private void handleTerritoryPhase(boolean p1Correct, long p1Time, boolean p2Correct, long p2Time) {
-        int winner = 0; // 0 = no winner, 1 = Player 1, 2 = Player 2
+        int winner;
+        String reason;
 
-        if (p1Correct && !p2Correct)
+        if (p1Correct && !p2Correct) {
             winner = 1;
-        else if (!p1Correct && p2Correct)
+            reason = "being the only one with the correct answer!";
+        } else if (!p1Correct && p2Correct) {
             winner = 2;
-        else if (p1Correct && p2Correct) {
-            winner = (p1Time <= p2Time) ? 1 : 2;
-        }
-
-        if (winner != 0) {
-            int loser = (winner == 1) ? 2 : 1;
-            io.println("\n  >> ROUND WINNER: " + gameState.getPlayers().get(winner - 1).getName() + "!");
-
-            for (int i = 1; i <= 2; i++) {
-                io.println("  [Winner Selection " + i + "/2]");
-                askToClaim(winner);
+            reason = "being the only one with the correct answer!";
+        } else if (p1Correct && p2Correct) {
+            if (p1Time <= p2Time) {
+                winner = 1;
+            } else {
+                winner = 2;
             }
-
-            io.println("  [Loser Selection 1/1]");
-            askToClaim(loser);
+            reason = "answering correctly AND being faster!";
         } else {
-            io.println("\n  >> NO WINNER THIS ROUND (Both wrong). No territory claimed.");
+            if (p1Time <= p2Time) {
+                winner = 1;
+            } else {
+                winner = 2;
+            }
+            reason = "being faster (even though both missed the mark)!";
         }
+
+        int loser;
+        if (winner == 1) {
+            loser = 2;
+        } else {
+            loser = 1;
+        }
+
+        String winnerName = gameState.getPlayers().get(winner - 1).getName();
+        String loserName = gameState.getPlayers().get(loser - 1).getName();
+
+        io.println("\n  >> ROUND CONQUEROR: " + winnerName);
+        io.println("  >> Reason: " + reason);
+
+        for (int i = 1; i <= 2; i++) {
+            io.println("  [" + winnerName + " Selection " + i + "/2]");
+            askToClaim(winner);
+        }
+
+        io.println("  [" + loserName + " Selection 1/1]");
+        askToClaim(loser);
 
         map.display(io);
+    }
+
+    private void applySpeedBonus(boolean[] results, long[] times) {
+        if (results.length >= 2 && results[0] && results[1]) {
+
+            int winnerIndex;
+
+            if (times[0] <= times[1]) {
+                winnerIndex = 0;
+            } else {
+                winnerIndex = 1;
+            }
+
+            Player speedWinner = gameState.getPlayers().get(winnerIndex);
+
+            int speedBonus = 1;
+            speedWinner.addScore(speedBonus);
+
+            io.println("\n   SPEED BONUS: " + speedWinner.getName() + " was faster! +" + speedBonus + " pts");
+        }
     }
 }
