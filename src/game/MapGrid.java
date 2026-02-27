@@ -3,19 +3,16 @@ package game;
 import ui.ConsoleIO;
 
 public class MapGrid {
-    public enum CellStatus {
-        UNCLAIMED, PLAYER_1, PLAYER_2
-    }
-
-    private final CellStatus[][] grid;
+    private final char[][] grid;
     private final int size;
+    private static final char EMPTY = '.';
 
     public MapGrid(int size) {
         this.size = size;
-        this.grid = new CellStatus[size][size];
+        this.grid = new char[size][size];
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                grid[i][j] = CellStatus.UNCLAIMED;
+                grid[i][j] = EMPTY;
             }
         }
     }
@@ -25,47 +22,45 @@ public class MapGrid {
     }
 
     public boolean isFree(int row, int col) {
-        return isInside(row, col) && grid[row][col] == CellStatus.UNCLAIMED;
+        return isInside(row, col) && grid[row][col] == EMPTY;
     }
 
-    public boolean claimCell(int playerNum, int row, int col) {
+    public boolean claimCell(char symbol, int row, int col) {
         if (isFree(row, col)) {
-            grid[row][col] = (playerNum == 1) ? CellStatus.PLAYER_1 : CellStatus.PLAYER_2;
+            grid[row][col] = symbol;
             return true;
         }
         return false;
     }
 
-    public int countTerritory(int playerNum) {
+    public int countTerritory(char playerSymbol) {
         int count = 0;
-        CellStatus target = (playerNum == 1) ? CellStatus.PLAYER_1 : CellStatus.PLAYER_2;
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                if (grid[i][j] == target)
+                if (grid[i][j] == playerSymbol) {
                     count++;
+                }
             }
         }
         return count;
     }
 
     public void display(ConsoleIO io) {
-        io.println("  CURRENT MAP : ");
+        io.println("\n  CURRENT MAP:");
 
         StringBuilder header = new StringBuilder("    ");
-        for (int i = 0; i < size; i++)
+        for (int i = 0; i < size; i++) {
             header.append(i).append(" ");
+        }
         io.println(header.toString());
 
         for (int i = 0; i < size; i++) {
             StringBuilder line = new StringBuilder("  " + i + " ");
             for (int j = 0; j < size; j++) {
-                switch (grid[i][j]) {
-                    case UNCLAIMED -> line.append(". ");
-                    case PLAYER_1 -> line.append("1 ");
-                    case PLAYER_2 -> line.append("2 ");
-                }
+                line.append(grid[i][j]).append(" ");
             }
             io.println(line.toString());
         }
+        io.println("");
     }
 }

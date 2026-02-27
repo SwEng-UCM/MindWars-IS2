@@ -274,8 +274,14 @@ public class Game {
 
     private void askToClaim(int playerNum) {
         boolean done = false;
+
+        Player currentPlayer = gameState.getPlayers().get(playerNum - 1);
+
+        char initial = currentPlayer.getName().toUpperCase().charAt(0);
+
         while (!done) {
-            String input = io.readNonEmptyString("  Player " + playerNum + ", enter coordinates as row,col (ex: 2,1):");
+            String input = io.readNonEmptyString(
+                    "  " + currentPlayer.getName() + " (" + initial + "), enter coordinates row,col:");
 
             if (!input.contains(",")) {
                 io.println("  Invalid format! Please use: row,col");
@@ -287,9 +293,9 @@ public class Game {
                 int r = Integer.parseInt(parts[0].trim());
                 int c = Integer.parseInt(parts[1].trim());
 
-                if (map.claimCell(playerNum, r, c)) {
+                if (map.claimCell(initial, r, c)) {
                     done = true;
-                    io.println("  Success! Cell [" + r + "," + c + "] is now yours.");
+                    io.println("  Success! Cell [" + r + "," + c + "] is now marked with '" + initial + "'.");
                 } else {
                     io.println("  That cell is either outside the map or already taken! Try again.");
                 }
