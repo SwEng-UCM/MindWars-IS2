@@ -28,6 +28,10 @@ public class Player {
         this.score += points;
     }
 
+    public void setScore(int score) {
+        this.score = score;
+    }
+    
     public long getTimer() {
         return timer;
     }

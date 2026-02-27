@@ -200,7 +200,7 @@
   },
   {
     "type": "MULTIPLE_CHOICE",
-    "category": "Computer=Science",
+    "category": "Computer-Science",
     "difficulty": "EASY",
     "prompt": "Which keyword is used to create an object in Java?",
     "choices": ["new", "make", "create", "build"],
