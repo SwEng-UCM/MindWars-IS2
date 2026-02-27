@@ -20,11 +20,15 @@ public class Game {
     private final ConsoleIO io;
     private final QuestionBank questionBank;
     private final GameState gameState;
+    private final MapGrid map;
+
+    long TIME_LIMIT_MS = 15000;
 
     public Game(ConsoleIO io, QuestionBank questionBank) {
         this.io = io;
         this.questionBank = questionBank;
         this.gameState = new GameState();
+        this.map = new MapGrid(3);
     }
 
     /**
@@ -186,9 +190,11 @@ public class Game {
         // Play multiple rounds with pre-selected questions
         for (int round = 0; round < roundQuestions.size(); round++) {
             io.println("");
-            io.println("  =========== ROUND " + (round + 1) + " of " + roundQuestions.size() + " ===========");
+            io.println("   =========== ROUND " + (round + 1) + " of " + roundQuestions.size() + " ===========");
 
             Question currentQuestion = roundQuestions.get(round);
+            boolean[] roundResults = new boolean[gameState.getPlayers().size()];
+            long[] roundTimes = new long[gameState.getPlayers().size()];
             boolean isLastRound = (round == roundQuestions.size() - 1);
             if (currentQuestion.getType() == QuestionType.NUMERIC) {
                 handleNumericRound(currentQuestion, isLastRound);
@@ -210,23 +216,30 @@ public class Game {
                     io.println("  ----------------------------------------");
                     io.println("  " + currentQuestion.formatForConsole().replace("\n", "\n  "));
 
-                    // Start timer
                     long startTime = System.currentTimeMillis();
-
-                    // Read answer and validate input
                     String response = readValidAnswer(currentQuestion);
-
-                    // Stop timer and add elapsed time to player's total
                     long endTime = System.currentTimeMillis();
                     long elapsedTime = endTime - startTime;
+
+                    roundTimes[p] = elapsedTime;
                     currentPlayer.setTimer(currentPlayer.getTimer() + elapsedTime);
 
                     boolean isCorrect = AnswerValidator.isCorrect(currentQuestion, response);
-                    processScore(currentPlayer, currentQuestion, isCorrect, wager);
 
+                    if (isCorrect && elapsedTime > 15000) {
+                        io.println("   >> [TIMEOUT] Correct answer, but took too long (> 15s)!");
+                        isCorrect = false;
+                    }
+
+                    roundResults[p] = isCorrect;
+                    processScore(currentPlayer, currentQuestion, isCorrect, wager);
                     io.println("  Score: " + currentPlayer.getScore());
                 }
             }
+
+            applySpeedBonus(roundResults, roundTimes);
+
+            handleTerritoryPhase(roundResults[0], roundTimes[0], roundResults[1], roundTimes[1]);
         }
 
         // Final results
@@ -247,10 +260,16 @@ public class Game {
         io.println("");
         io.println("  +========================================+");
         io.println("  |                                        |");
-        io.println("  |      M I N D W A R S  T R I V I A     |");
-        io.println("  |      Where Brains Conquer              |");
+        io.println("  |      M I N D W A R S  T R I V I A      |");
+        io.println("  |       -  Where Brains Conquer  -       |");
         io.println("  |                                        |");
         io.println("  +========================================+");
+        io.println("");
+
+        io.println("  RULES:");
+        io.println("  1. BATTLE: Answer correctly and BE FAST! Speed is the tie-breaker.");
+        io.println("  2. REWARD: Round Winner claims 2 cells from the map. The runner-up claims 1 cell.");
+        io.println("             - Once claimed, the cell will show your NAME'S INITIAL.");
         io.println("");
     }
 
@@ -262,7 +281,6 @@ public class Game {
                     "  Enter name for Player " + i + ":");
             Player newPlayer = new Player(name);
             gameState.addPlayer(newPlayer);
-            io.println("  Welcome, " + name + "!");
             io.println("");
         }
     }
@@ -275,6 +293,10 @@ public class Game {
     }
 
     private void determineWinner() {
+
+        io.println("\n=== GAME OVER ===");
+        io.println("\nFinal Scores:");
+
         io.println("");
         io.println("  +========================================+");
         io.println("  |                                        |");
@@ -286,6 +308,10 @@ public class Game {
         // show all player scores and response times
         for (Player player : gameState.getPlayers()) {
             double timeInSeconds = player.getTimer() / 1000.0;
+
+            io.println(player.getName() + ": " + player.getScore() + " points (Response time: " +
+                    String.format("%.2f", timeInSeconds) + "s)");
+
             io.println("    " + padRight(player.getName(), 15)
                     + padRight(player.getScore() + " pts", 10)
                     + String.format("%.2fs", timeInSeconds));
@@ -328,6 +354,109 @@ public class Game {
             case "MEDIUM" -> 20;
             default -> 10; // covers "easy" or any unexpected strings
         };
+    }
+
+    private void askToClaim(int playerNum) {
+        boolean done = false;
+
+        Player currentPlayer = gameState.getPlayers().get(playerNum - 1);
+
+        char initial = currentPlayer.getName().toUpperCase().charAt(0);
+
+        while (!done) {
+            String input = io.readNonEmptyString(
+                    "  " + currentPlayer.getName() + " (" + initial + "), enter coordinates row,col:");
+
+            if (!input.contains(",")) {
+                io.println("  Invalid format! Please use: row,col");
+                continue;
+            }
+
+            try {
+                String[] parts = input.split(",");
+                int r = Integer.parseInt(parts[0].trim());
+                int c = Integer.parseInt(parts[1].trim());
+
+                if (map.claimCell(initial, r, c)) {
+                    done = true;
+                    io.println("  Success! Cell [" + r + "," + c + "] is now marked with '" + initial + "'.");
+                } else {
+                    io.println("  That cell is either outside the map or already taken! Try again.");
+                }
+            } catch (NumberFormatException e) {
+                io.println("  Error: Please enter valid numbers for row and column.");
+            }
+        }
+    }
+
+    private void handleTerritoryPhase(boolean p1Correct, long p1Time, boolean p2Correct, long p2Time) {
+        int winner;
+        String reason;
+
+        if (p1Correct && !p2Correct) {
+            winner = 1;
+            reason = "being the only one with the correct answer!";
+        } else if (!p1Correct && p2Correct) {
+            winner = 2;
+            reason = "being the only one with the correct answer!";
+        } else if (p1Correct && p2Correct) {
+            if (p1Time <= p2Time) {
+                winner = 1;
+            } else {
+                winner = 2;
+            }
+            reason = "answering correctly AND being faster!";
+        } else {
+            if (p1Time <= p2Time) {
+                winner = 1;
+            } else {
+                winner = 2;
+            }
+            reason = "being faster (even though both missed the mark)!";
+        }
+
+        int loser;
+        if (winner == 1) {
+            loser = 2;
+        } else {
+            loser = 1;
+        }
+
+        String winnerName = gameState.getPlayers().get(winner - 1).getName();
+        String loserName = gameState.getPlayers().get(loser - 1).getName();
+
+        io.println("\n  >> ROUND CONQUEROR: " + winnerName);
+        io.println("  >> Reason: " + reason);
+
+        for (int i = 1; i <= 2; i++) {
+            io.println("  [" + winnerName + " Selection " + i + "/2]");
+            askToClaim(winner);
+        }
+
+        io.println("  [" + loserName + " Selection 1/1]");
+        askToClaim(loser);
+
+        map.display(io);
+    }
+
+    private void applySpeedBonus(boolean[] results, long[] times) {
+        if (results.length >= 2 && results[0] && results[1]) {
+
+            int winnerIndex;
+
+            if (times[0] <= times[1]) {
+                winnerIndex = 0;
+            } else {
+                winnerIndex = 1;
+            }
+
+            Player speedWinner = gameState.getPlayers().get(winnerIndex);
+
+            int speedBonus = 1;
+            speedWinner.addScore(speedBonus);
+
+            io.println("\n   SPEED BONUS: " + speedWinner.getName() + " was faster! +" + speedBonus + " pts");
+        }
     }
 
     /**
