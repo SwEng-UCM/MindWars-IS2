@@ -8,7 +8,9 @@ import trivia.QuestionType;
 import ui.ConsoleIO;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import static player.Player.STREAK_BONUS;
@@ -28,23 +30,26 @@ public class Game {
     /**
      * Handles a numeric estimation challenge where all players answer the same
      * question.
-     * The player closest to the target value wins. In case of a tie in proximity,
-     * the faster player is awarded the point.
+     * The player closest to the target value wins.
+     * Integrated with the betting system exclusively for the final round.
      */
-    private void handleNumericRound(Question question) {
+    private void handleNumericRound(Question question, boolean isLastRound) {
         // Stores responses (player, guess, and time) to compare them later
         List<NumericWinnerCalculator.EstimationResponse> roundData = new ArrayList<>();
 
+        // Map to store the wager for each player to process later
+        Map<Player, Integer> playerBets = new HashMap<>();
+
         for (Player p : gameState.getPlayers()) {
-            // Hot seat handoff to ensure the other player doesn't see the screen
-            io.println("");
-            io.println("  +----------------------------------------+");
-            io.println("  |                                        |");
-            io.println("  |     PASS THE DEVICE TO " + padRight(p.getName().toUpperCase(), 14) + " |");
-            io.println("  |     Other player, look away!           |");
-            io.println("  |                                        |");
-            io.println("  +----------------------------------------+");
-            io.readLine("  Press ENTER when ready...");
+            // Hot seat handoff logic
+            displayHotSeatHeader(p);
+
+            // Wager logic: triggered only if it's the final round of the game
+            int wager = 0;
+            if (isLastRound) {
+                wager = handleBetting(p, question);
+            }
+            playerBets.put(p, wager);
 
             // Display question details for the current player
             io.println("");
@@ -52,35 +57,35 @@ public class Game {
             io.println("  ----------------------------------------");
             io.println("  " + question.formatForConsole().replace("\n", "\n  "));
 
-            // Measure response time and collect the guess
+            // Capture start time to measure response speed
             long startTime = System.currentTimeMillis();
 
+            // Read and parse the numeric guess
             String input = readValidAnswer(question);
             double val = Double.parseDouble(input.replace(",", "."));
 
             long endTime = System.currentTimeMillis();
             long elapsed = endTime - startTime;
 
-            // Record player performance
-            p.setTimer(p.getTimer() + elapsed); // Update player's total game time
+            // Update player's total time and store round performance
+            p.setTimer(p.getTimer() + elapsed);
             roundData.add(new NumericWinnerCalculator.EstimationResponse(p, val, elapsed));
         }
 
-        // Identify the winner based on proximity and speed
+        // Identify the winner based on proximity to target and response time
         double correctAnswer = question.getNumericAnswer();
         Player winner = NumericWinnerCalculator.calculateWinner(correctAnswer, roundData);
 
-        // Display the summary table to the players
+        // Display results summary table
         io.println("");
         io.println("  >>> ROUND SUMMARY <<<");
         io.println("  Correct Answer: " + (int) correctAnswer);
         io.println("");
-        io.println("  " + padRight("PLAYER", 12) + " | " + padRight("GUESS", 8) + " | " + padRight("DIFF", 6) + " | "
-                + "TIME");
+        io.println(
+                "  " + padRight("PLAYER", 12) + " | " + padRight("GUESS", 8) + " | " + padRight("DIFF", 6) + " | TIME");
         io.println("  --------------------------------------------------");
 
         for (NumericWinnerCalculator.EstimationResponse res : roundData) {
-            // Calculate the absolute difference for visual feedback
             int diff = (int) Math.abs(res.value - correctAnswer);
             double timeSec = res.timeTaken / 1000.0;
 
@@ -89,15 +94,34 @@ public class Game {
                     " | " + padRight(String.valueOf(diff), 6) +
                     " | " + String.format("%.2fs", timeSec));
         }
-
         io.println("  --------------------------------------------------");
 
-        // Announce the winner and update the score
+        // Finalize scores for all participants based on the winner and wagers
         if (winner != null) {
-            io.println("  WINNER: " + winner.getName() + " (Closer or Faster!)");
-            winner.addScore(1);
+            io.println("  WINNER OF THE ESTIMATION: " + winner.getName());
         }
+
+        for (NumericWinnerCalculator.EstimationResponse res : roundData) {
+            Player p = res.player;
+            boolean isWinner = (p == winner);
+            int wager = playerBets.getOrDefault(p, 0);
+
+            // Universal score processing (handles wagers, standard points, and streaks)
+            processScore(p, question, isWinner, wager);
+        }
+
         io.println("");
+    }
+
+    /**
+     * Utility method to manage the "Hot Seat" device handoff between players.
+     */
+    private void displayHotSeatHeader(Player p) {
+        io.println("\n  +----------------------------------------+");
+        io.println("  |     PASS THE DEVICE TO " + padRight(p.getName().toUpperCase(), 15) + " |");
+        io.println("  |     Other player, look away!           |");
+        io.println("  +----------------------------------------+");
+        io.readLine("  Press ENTER when ready...");
     }
 
     public void run() {
@@ -165,26 +189,20 @@ public class Game {
             io.println("  =========== ROUND " + (round + 1) + " of " + roundQuestions.size() + " ===========");
 
             Question currentQuestion = roundQuestions.get(round);
-
+            boolean isLastRound = (round == roundQuestions.size() - 1);
             if (currentQuestion.getType() == QuestionType.NUMERIC) {
-                handleNumericRound(currentQuestion);
+                handleNumericRound(currentQuestion, isLastRound);
             } else {
                 // Hot seat: alternate between players each round
                 for (int p = 0; p < gameState.getPlayers().size(); p++) {
                     gameState.setCurrentPlayerIndex(p);
                     Player currentPlayer = gameState.getPlayers().get(p);
+                    displayHotSeatHeader(currentPlayer);
+                    int wager = 0;
+                    if (isLastRound) {
 
-                    // Hot seat handoff between players
-                    io.println("");
-                    io.println("  +----------------------------------------+");
-                    io.println("  |                                        |");
-                    io.println(
-                            "  |     PASS THE DEVICE TO " + padRight(currentPlayer.getName().toUpperCase(), 14) + " |");
-                    io.println("  |     Other player, look away!           |");
-                    io.println("  |                                        |");
-                    io.println("  +----------------------------------------+");
-                    io.readLine("  Press ENTER when ready...");
-
+                        wager = handleBetting(currentPlayer, currentQuestion);
+                    }
                     io.println("");
                     io.println(
                             "  " + currentPlayer.getName() + " - Question " + (round + 1) + " of "
@@ -204,21 +222,8 @@ public class Game {
                     currentPlayer.setTimer(currentPlayer.getTimer() + elapsedTime);
 
                     boolean isCorrect = AnswerValidator.isCorrect(currentQuestion, response);
+                    processScore(currentPlayer, currentQuestion, isCorrect, wager);
 
-                    if (isCorrect) {
-                        int points = calculatePoints(currentQuestion);
-                        currentPlayer.setStreak(points);
-                        io.println("  >> CORRECT! +" + points + " points ");
-                        if (currentPlayer.getStreak() >= 3) {
-                            io.println("Streak bonus! +" + STREAK_BONUS);
-                        }
-                    } else {
-                        currentPlayer.resetStreak();
-                        String correctAnswer = (currentQuestion.getType() == QuestionType.NUMERIC)
-                                ? String.valueOf(currentQuestion.getNumericAnswer())
-                                : currentQuestion.getAnswer();
-                        io.println("  >> WRONG! The answer was: " + correctAnswer);
-                    }
                     io.println("  Score: " + currentPlayer.getScore());
                 }
             }
@@ -326,21 +331,6 @@ public class Game {
     }
 
     /**
-     * Selects a random category and fetches a HARD question for the betting event.
-     */
-    private Question getSpecialBetQuestion() {
-        List<String> allCategories = new ArrayList<>(questionBank.getCategories());
-        if (allCategories.isEmpty())
-            return null;
-
-        Random random = new Random();
-        String randomCat = allCategories.get(random.nextInt(allCategories.size()));
-
-        // Betting questions are high-risk, so they are always HARD
-        return questionBank.getQuestion(randomCat, "HARD");
-    }
-
-    /**
      * Handles the wager input logic for a trailing player.
      * 
      * @return The amount of points wagered, or 0 if declined.
@@ -368,5 +358,47 @@ public class Game {
             }
         }
         return 0; // Player chose not to bet
+    }
+
+    /**
+     * Processes the final score for a player based on their answer and wager.
+     * If a wager is placed, it doubles the bet on success or subtracts it on
+     * failure.
+     * If no wager is placed, it applies standard points and manages the win streak.
+     */
+    /**
+     * Processes the final score for a player based on their answer and wager.
+     * Handles both standard questions and numeric estimation challenges.
+     */
+    private void processScore(Player player, Question q, boolean isCorrect, int wager) {
+        if (isCorrect) {
+            if (wager > 0) {
+                // Wager logic: Double the bet
+                int winAmount = wager * 2;
+                player.addScore(winAmount);
+                io.println("  >> CORRECT! [" + player.getName() + "] won " + winAmount + " points from the bet!");
+            } else {
+                // Standard points logic: Use the difficulty-based scoring
+                int points = calculatePoints(q); // Now correctly returns 10, 20, or 30
+
+                // setStreak adds the points and checks for the STREAK_BONUS (3 pts)
+                player.setStreak(points);
+
+                io.println("  >> CORRECT! [" + player.getName() + "] earned " + points + " points.");
+                if (player.getStreak() >= 3) {
+                    io.println("     Streak Bonus applied! +3 pts");
+                }
+            }
+        } else {
+            if (wager > 0) {
+                // Failure logic: Subtract the bet
+                player.subtractScore(wager);
+                io.println("  >> WRONG! [" + player.getName() + "] lost the bet of " + wager + " points.");
+            } else {
+                // Failure logic: Reset streak, no points lost
+                player.resetStreak();
+                io.println("  >> WRONG! No points awarded for [" + player.getName() + "].");
+            }
+        }
     }
 }

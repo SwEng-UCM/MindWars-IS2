@@ -50,6 +50,13 @@ public class Player {
 
     }
 
+    public void subtractScore(int points) {
+        this.score -= points;
+        if (this.score < 0)
+            this.score = 0;
+
+    }
+
     public void resetStreak() {
         streak = 0;
     }
