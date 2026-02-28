@@ -1,5 +1,10 @@
 package game;
 
+import static player.Player.STREAK_BONUS;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import player.Player;
 import trivia.AnswerValidator;
 import trivia.Question;
@@ -143,48 +148,81 @@ public class Game {
         Random random = new Random();
         boolean player1ChoosesCategory = random.nextBoolean();
 
-        Player categoryChooser = player1ChoosesCategory ? gameState.getPlayers().get(0) : gameState.getPlayers().get(1);
-        Player difficultyChooser = player1ChoosesCategory ? gameState.getPlayers().get(1)
-                : gameState.getPlayers().get(0);
+        Player categoryChooser = player1ChoosesCategory
+            ? gameState.getPlayers().get(0)
+            : gameState.getPlayers().get(1);
+        Player difficultyChooser = player1ChoosesCategory
+            ? gameState.getPlayers().get(1)
+            : gameState.getPlayers().get(0);
 
         // Category selection
-        io.println("  " + categoryChooser.getName() + ", you will choose the CATEGORY for all questions!");
+        io.println(
+            "  " +
+                categoryChooser.getName() +
+                ", you will choose the CATEGORY for all questions!"
+        );
         io.println("");
         List<String> categories = new ArrayList<>(questionBank.getCategories());
-        String selectedCategory = io.selectFromList("  Choose a CATEGORY:", categories);
+        String selectedCategory = io.selectFromList(
+            "  Choose a CATEGORY:",
+            categories
+        );
         io.println("  Category selected: " + selectedCategory);
         io.println("");
 
         // Difficulty selection
-        io.println("  " + difficultyChooser.getName() + ", you will choose the DIFFICULTY for all questions!");
+        io.println(
+            "  " +
+                difficultyChooser.getName() +
+                ", you will choose the DIFFICULTY for all questions!"
+        );
         io.println("");
-        List<String> difficulties = new ArrayList<>(questionBank.getDifficulties(selectedCategory));
-        String selectedDifficulty = io.selectFromList("  Choose a DIFFICULTY:", difficulties);
+        List<String> difficulties = new ArrayList<>(
+            questionBank.getDifficulties(selectedCategory)
+        );
+        String selectedDifficulty = io.selectFromList(
+            "  Choose a DIFFICULTY:",
+            difficulties
+        );
         io.println("  Difficulty selected: " + selectedDifficulty);
         io.println("");
 
         // Get questions for the game based on selections
         List<Question> roundQuestions = new ArrayList<>();
         for (int i = 0; i < questionsPerPlayer; i++) {
-            Question q = questionBank.getQuestion(selectedCategory, selectedDifficulty);
+            Question q = questionBank.getQuestion(
+                selectedCategory,
+                selectedDifficulty
+            );
             if (q != null) {
                 roundQuestions.add(q);
             }
         }
 
         if (roundQuestions.isEmpty()) {
-            io.println("  ERROR: No questions available for this category/difficulty combination!");
+            io.println(
+                "  ERROR: No questions available for this category/difficulty combination!"
+            );
             io.println("  Game cannot start.");
             return;
         }
 
         if (roundQuestions.size() < questionsPerPlayer) {
-            io.println("  WARNING: Only " + roundQuestions.size() + " question(s) available instead of "
-                    + questionsPerPlayer + ".");
-            io.println("  Continuing with " + roundQuestions.size() + " question(s)...");
+            io.println(
+                "  WARNING: Only " +
+                    roundQuestions.size() +
+                    " question(s) available instead of " +
+                    questionsPerPlayer +
+                    "."
+            );
+            io.println(
+                "  Continuing with " + roundQuestions.size() + " question(s)..."
+            );
         }
 
-        io.println("  Starting game with " + roundQuestions.size() + " questions!");
+        io.println(
+            "  Starting game with " + roundQuestions.size() + " questions!"
+        );
         io.println("");
 
         // Play multiple rounds with pre-selected questions
@@ -207,6 +245,7 @@ public class Game {
                     int wager = 0;
                     if (isLastRound) {
 
+<<<<<<< HEAD
                         wager = handleBetting(currentPlayer, currentQuestion);
                     }
                     io.println("");
@@ -234,6 +273,86 @@ public class Game {
                     roundResults[p] = isCorrect;
                     processScore(currentPlayer, currentQuestion, isCorrect, wager);
                     io.println("  Score: " + currentPlayer.getScore());
+=======
+            // Hot seat: alternate between players each round
+            for (int p = 0; p < gameState.getPlayers().size(); p++) {
+                gameState.setCurrentPlayerIndex(p);
+                Player currentPlayer = gameState.getPlayers().get(p);
+
+                // Hot seat handoff between players
+                io.println("");
+                io.println("  +----------------------------------------+");
+                io.println("  |                                        |");
+                io.println(
+                    "  |     PASS THE DEVICE TO " +
+                        padRight(currentPlayer.getName().toUpperCase(), 14) +
+                        " |"
+                );
+                io.println("  |     Other player, look away!           |");
+                io.println("  |                                        |");
+                io.println("  +----------------------------------------+");
+                io.readLine("  Press ENTER when ready...");
+
+                io.println("");
+                io.println(
+                    "  " +
+                        currentPlayer.getName() +
+                        " - Question " +
+                        (round + 1) +
+                        " of " +
+                        roundQuestions.size()
+                );
+                io.println("  ----------------------------------------");
+                io.println(
+                    "  " +
+                        currentQuestion.formatForConsole().replace("\n", "\n  ")
+                );
+
+                // Start timer
+                long startTime = System.currentTimeMillis();
+
+                // Read answer and validate input
+                String response = readValidAnswer(currentQuestion);
+
+                // Stop timer and add elapsed time to player's total
+                long endTime = System.currentTimeMillis();
+                long elapsedTime = endTime - startTime;
+                currentPlayer.setTimer(currentPlayer.getTimer() + elapsedTime);
+
+                boolean isCorrect = AnswerValidator.isCorrect(
+                    currentQuestion,
+                    response
+                );
+
+                if (isCorrect) {
+                    int points = calculatePoints(currentQuestion);
+                    currentPlayer.setStreak(points);
+                    io.println("  >> CORRECT! +" + points + " points ");
+                    if (currentPlayer.getStreak() >= 3) {
+                        io.println("Streak bonus! +" + STREAK_BONUS);
+                    }
+                } else {
+                    currentPlayer.resetStreak();
+
+                    String correctAnswer;
+
+                    if (currentQuestion.getType() == QuestionType.NUMERIC) {
+                        correctAnswer = String.valueOf(
+                            currentQuestion.getNumericAnswer()
+                        );
+                    } else if (
+                        currentQuestion.getType() == QuestionType.ORDERING
+                    ) {
+                        correctAnswer = String.join(
+                            " -> ",
+                            currentQuestion.getOrderingAnswer()
+                        );
+                    } else {
+                        correctAnswer = currentQuestion.getAnswer();
+                    }
+
+                    io.println("  >> WRONG! The answer was: " + correctAnswer);
+>>>>>>> dev/aloyse
                 }
             }
 
@@ -278,7 +397,8 @@ public class Game {
         io.println("");
         for (int i = 1; i <= 2; i++) {
             String name = io.readNonEmptyString(
-                    "  Enter name for Player " + i + ":");
+                "  Enter name for Player " + i + ":"
+            );
             Player newPlayer = new Player(name);
             gameState.addPlayer(newPlayer);
             io.println("");
@@ -321,7 +441,9 @@ public class Game {
         io.println("  ------------------------------------------");
 
         // calculate the winner (considers score first, then response time for ties)
-        Player winner = WinnerCalculator.getWinnerOrNull(gameState.getPlayers());
+        Player winner = WinnerCalculator.getWinnerOrNull(
+            gameState.getPlayers()
+        );
 
         if (winner == null) {
             io.println("  It's a TIE! Same score and response time.");
@@ -336,8 +458,7 @@ public class Game {
     }
 
     private String padRight(String text, int length) {
-        if (text.length() >= length)
-            return text;
+        if (text.length() >= length) return text;
         StringBuilder sb = new StringBuilder(text);
         while (sb.length() < length) {
             sb.append(' ');
@@ -461,7 +582,7 @@ public class Game {
 
     /**
      * Handles the wager input logic for a trailing player.
-     * 
+     *
      * @return The amount of points wagered, or 0 if declined.
      */
     private int handleBetting(Player player, Question q) {
