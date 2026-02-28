@@ -38,7 +38,7 @@ public class Question {
         } else if (type == QuestionType.NUMERIC) {
             sb.append("[Answer with a number]\n");
         } else if (type == QuestionType.OPEN_ENDED) {
-            sb.append("Type your answer here:\n");
+            sb.append("Type an answer\n");
         }
         return sb.toString();
     }
