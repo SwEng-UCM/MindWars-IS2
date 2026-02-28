@@ -11,30 +11,19 @@ public class Question {
     private List<String> choices;
     private String answer; // used for MCQ, TF, Open-Ended
     private double numericAnswer; // used for NUMERIC
-<<<<<<< HEAD
-    private double tolerance; // margin of error for NUMERIC -> is going to be used for estimation-based
-                              // challenges
-=======
     private double tolerance; // margin of error for NUMERIC -> is going to be used for estimation-based challenges
     private List<String> orderingAnswer; // used for ORDERING
->>>>>>> dev/aloyse
 
-    public Question() {
-    } // empty constructor for GSON
+    public Question() {} // empty constructor for GSON
 
     public String formatForConsole() {
         StringBuilder sb = new StringBuilder();
-<<<<<<< HEAD
-        sb.append("\n--- ").append(category.toUpperCase())
-                .append(" (").append(difficulty).append(") ---\n");
-=======
         sb
             .append("\n--- ")
             .append(category.toUpperCase())
             .append(" (")
             .append(difficulty)
             .append(") ---\n");
->>>>>>> dev/aloyse
         sb.append(prompt).append("\n");
 
         if (type == QuestionType.MULTIPLE_CHOICE) {
@@ -95,7 +84,6 @@ public class Question {
         return tolerance;
     }
 
-<<<<<<< HEAD
     public String getPrompt() {
         return prompt;
     }
@@ -104,4 +92,3 @@ public class Question {
         return orderingAnswer;
     }
 }
->>>>>>> dev/aloyse
