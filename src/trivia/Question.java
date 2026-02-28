@@ -99,8 +99,7 @@ public class Question {
     public String getPrompt() {
         return prompt;
     }
-}
-=======
+
     public List<String> getOrderingAnswer() {
         return orderingAnswer;
     }
