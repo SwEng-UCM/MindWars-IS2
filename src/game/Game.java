@@ -1,9 +1,15 @@
 package game;
 
 import static player.Player.STREAK_BONUS;
+import static player.Player.STREAK_BONUS;
 
 import java.util.ArrayList;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.Random;
 import player.Player;
 import trivia.AnswerValidator;
@@ -44,7 +50,8 @@ public class Game {
      */
     private void handleNumericRound(Question question, boolean isLastRound) {
         // Stores responses (player, guess, and time) to compare them later
-        List<NumericWinnerCalculator.EstimationResponse> roundData = new ArrayList<>();
+        List<NumericWinnerCalculator.EstimationResponse> roundData =
+            new ArrayList<>();
 
         // Map to store the wager for each player to process later
         Map<Player, Integer> playerBets = new HashMap<>();
@@ -64,7 +71,9 @@ public class Game {
             io.println("");
             io.println("  " + p.getName() + " - ESTIMATION CHALLENGE");
             io.println("  ----------------------------------------");
-            io.println("  " + question.formatForConsole().replace("\n", "\n  "));
+            io.println(
+                "  " + question.formatForConsole().replace("\n", "\n  ")
+            );
 
             // Capture start time to measure response speed
             long startTime = System.currentTimeMillis();
@@ -78,12 +87,17 @@ public class Game {
 
             // Update player's total time and store round performance
             p.setTimer(p.getTimer() + elapsed);
-            roundData.add(new NumericWinnerCalculator.EstimationResponse(p, val, elapsed));
+            roundData.add(
+                new NumericWinnerCalculator.EstimationResponse(p, val, elapsed)
+            );
         }
 
         // Identify the winner based on proximity to target and response time
         double correctAnswer = question.getNumericAnswer();
-        Player winner = NumericWinnerCalculator.calculateWinner(correctAnswer, roundData);
+        Player winner = NumericWinnerCalculator.calculateWinner(
+            correctAnswer,
+            roundData
+        );
 
         // Display results summary table
         io.println("");
@@ -91,17 +105,30 @@ public class Game {
         io.println("  Correct Answer: " + (int) correctAnswer);
         io.println("");
         io.println(
-                "  " + padRight("PLAYER", 12) + " | " + padRight("GUESS", 8) + " | " + padRight("DIFF", 6) + " | TIME");
+            "  " +
+                padRight("PLAYER", 12) +
+                " | " +
+                padRight("GUESS", 8) +
+                " | " +
+                padRight("DIFF", 6) +
+                " | TIME"
+        );
         io.println("  --------------------------------------------------");
 
         for (NumericWinnerCalculator.EstimationResponse res : roundData) {
             int diff = (int) Math.abs(res.value - correctAnswer);
             double timeSec = res.timeTaken / 1000.0;
 
-            io.println("  " + padRight(res.player.getName(), 12) +
-                    " | " + padRight(String.valueOf((int) res.value), 8) +
-                    " | " + padRight(String.valueOf(diff), 6) +
-                    " | " + String.format("%.2fs", timeSec));
+            io.println(
+                "  " +
+                    padRight(res.player.getName(), 12) +
+                    " | " +
+                    padRight(String.valueOf((int) res.value), 8) +
+                    " | " +
+                    padRight(String.valueOf(diff), 6) +
+                    " | " +
+                    String.format("%.2fs", timeSec)
+            );
         }
         io.println("  --------------------------------------------------");
 
@@ -127,7 +154,11 @@ public class Game {
      */
     private void displayHotSeatHeader(Player p) {
         io.println("\n  +----------------------------------------+");
-        io.println("  |     PASS THE DEVICE TO " + padRight(p.getName().toUpperCase(), 15) + " |");
+        io.println(
+            "  |     PASS THE DEVICE TO " +
+                padRight(p.getName().toUpperCase(), 15) +
+                " |"
+        );
         io.println("  |     Other player, look away!           |");
         io.println("  +----------------------------------------+");
         io.readLine("  Press ENTER when ready...");
@@ -228,7 +259,13 @@ public class Game {
         // Play multiple rounds with pre-selected questions
         for (int round = 0; round < roundQuestions.size(); round++) {
             io.println("");
-            io.println("   =========== ROUND " + (round + 1) + " of " + roundQuestions.size() + " ===========");
+            io.println(
+                "   =========== ROUND " +
+                    (round + 1) +
+                    " of " +
+                    roundQuestions.size() +
+                    " ==========="
+            );
 
             Question currentQuestion = roundQuestions.get(round);
             boolean[] roundResults = new boolean[gameState.getPlayers().size()];
@@ -250,10 +287,20 @@ public class Game {
                     }
                     io.println("");
                     io.println(
-                            "  " + currentPlayer.getName() + " - Question " + (round + 1) + " of "
-                                    + roundQuestions.size());
+                        "  " +
+                            currentPlayer.getName() +
+                            " - Question " +
+                            (round + 1) +
+                            " of " +
+                            roundQuestions.size()
+                    );
                     io.println("  ----------------------------------------");
-                    io.println("  " + currentQuestion.formatForConsole().replace("\n", "\n  "));
+                    io.println(
+                        "  " +
+                            currentQuestion
+                                .formatForConsole()
+                                .replace("\n", "\n  ")
+                    );
 
                     long startTime = System.currentTimeMillis();
                     String response = readValidAnswer(currentQuestion);
@@ -261,17 +308,29 @@ public class Game {
                     long elapsedTime = endTime - startTime;
 
                     roundTimes[p] = elapsedTime;
-                    currentPlayer.setTimer(currentPlayer.getTimer() + elapsedTime);
+                    currentPlayer.setTimer(
+                        currentPlayer.getTimer() + elapsedTime
+                    );
 
-                    boolean isCorrect = AnswerValidator.isCorrect(currentQuestion, response);
+                    boolean isCorrect = AnswerValidator.isCorrect(
+                        currentQuestion,
+                        response
+                    );
 
                     if (isCorrect && elapsedTime > 15000) {
-                        io.println("   >> [TIMEOUT] Correct answer, but took too long (> 15s)!");
+                        io.println(
+                            "   >> [TIMEOUT] Correct answer, but took too long (> 15s)!"
+                        );
                         isCorrect = false;
                     }
 
                     roundResults[p] = isCorrect;
-                    processScore(currentPlayer, currentQuestion, isCorrect, wager);
+                    processScore(
+                        currentPlayer,
+                        currentQuestion,
+                        isCorrect,
+                        wager
+                    );
                     io.println("  Score: " + currentPlayer.getScore());
 =======
             // Hot seat: alternate between players each round
@@ -358,7 +417,12 @@ public class Game {
 
             applySpeedBonus(roundResults, roundTimes);
 
-            handleTerritoryPhase(roundResults[0], roundTimes[0], roundResults[1], roundTimes[1]);
+            handleTerritoryPhase(
+                roundResults[0],
+                roundTimes[0],
+                roundResults[1],
+                roundTimes[1]
+            );
         }
 
         // Final results
@@ -386,9 +450,15 @@ public class Game {
         io.println("");
 
         io.println("  RULES:");
-        io.println("  1. BATTLE: Answer correctly and BE FAST! Speed is the tie-breaker.");
-        io.println("  2. REWARD: Round Winner claims 2 cells from the map. The runner-up claims 1 cell.");
-        io.println("             - Once claimed, the cell will show your NAME'S INITIAL.");
+        io.println(
+            "  1. BATTLE: Answer correctly and BE FAST! Speed is the tie-breaker."
+        );
+        io.println(
+            "  2. REWARD: Round Winner claims 2 cells from the map. The runner-up claims 1 cell."
+        );
+        io.println(
+            "             - Once claimed, the cell will show your NAME'S INITIAL."
+        );
         io.println("");
     }
 
@@ -429,12 +499,21 @@ public class Game {
         for (Player player : gameState.getPlayers()) {
             double timeInSeconds = player.getTimer() / 1000.0;
 
-            io.println(player.getName() + ": " + player.getScore() + " points (Response time: " +
-                    String.format("%.2f", timeInSeconds) + "s)");
+            io.println(
+                player.getName() +
+                    ": " +
+                    player.getScore() +
+                    " points (Response time: " +
+                    String.format("%.2f", timeInSeconds) +
+                    "s)"
+            );
 
-            io.println("    " + padRight(player.getName(), 15)
-                    + padRight(player.getScore() + " pts", 10)
-                    + String.format("%.2fs", timeInSeconds));
+            io.println(
+                "    " +
+                    padRight(player.getName(), 15) +
+                    padRight(player.getScore() + " pts", 10) +
+                    String.format("%.2fs", timeInSeconds)
+            );
         }
 
         io.println("");
@@ -486,7 +565,12 @@ public class Game {
 
         while (!done) {
             String input = io.readNonEmptyString(
-                    "  " + currentPlayer.getName() + " (" + initial + "), enter coordinates row,col:");
+                "  " +
+                    currentPlayer.getName() +
+                    " (" +
+                    initial +
+                    "), enter coordinates row,col:"
+            );
 
             if (!input.contains(",")) {
                 io.println("  Invalid format! Please use: row,col");
@@ -500,17 +584,34 @@ public class Game {
 
                 if (map.claimCell(initial, r, c)) {
                     done = true;
-                    io.println("  Success! Cell [" + r + "," + c + "] is now marked with '" + initial + "'.");
+                    io.println(
+                        "  Success! Cell [" +
+                            r +
+                            "," +
+                            c +
+                            "] is now marked with '" +
+                            initial +
+                            "'."
+                    );
                 } else {
-                    io.println("  That cell is either outside the map or already taken! Try again.");
+                    io.println(
+                        "  That cell is either outside the map or already taken! Try again."
+                    );
                 }
             } catch (NumberFormatException e) {
-                io.println("  Error: Please enter valid numbers for row and column.");
+                io.println(
+                    "  Error: Please enter valid numbers for row and column."
+                );
             }
         }
     }
 
-    private void handleTerritoryPhase(boolean p1Correct, long p1Time, boolean p2Correct, long p2Time) {
+    private void handleTerritoryPhase(
+        boolean p1Correct,
+        long p1Time,
+        boolean p2Correct,
+        long p2Time
+    ) {
         int winner;
         String reason;
 
@@ -576,7 +677,13 @@ public class Game {
             int speedBonus = 1;
             speedWinner.addScore(speedBonus);
 
-            io.println("\n   SPEED BONUS: " + speedWinner.getName() + " was faster! +" + speedBonus + " pts");
+            io.println(
+                "\n   SPEED BONUS: " +
+                    speedWinner.getName() +
+                    " was faster! +" +
+                    speedBonus +
+                    " pts"
+            );
         }
     }
 
@@ -587,21 +694,32 @@ public class Game {
      */
     private int handleBetting(Player player, Question q) {
         io.println("\n  *** SPECIAL BETTING OPPORTUNITY ***");
-        io.println("  Category: " + q.getCategory().toUpperCase() + " | Difficulty: HARD");
+        io.println(
+            "  Category: " +
+                q.getCategory().toUpperCase() +
+                " | Difficulty: HARD"
+        );
         io.println("  Your current score: [" + player.getScore() + "]");
 
-        String choice = io.readNonEmptyString("  Do you want to bet your points? (yes/no):").toLowerCase();
+        String choice = io
+            .readNonEmptyString("  Do you want to bet your points? (yes/no):")
+            .toLowerCase();
 
         if (choice.equals("yes") || choice.equals("y")) {
             while (true) {
                 try {
-                    String input = io.readNonEmptyString("  Enter wager (1 - " + player.getScore() + "):");
+                    String input = io.readNonEmptyString(
+                        "  Enter wager (1 - " + player.getScore() + "):"
+                    );
                     int bet = Integer.parseInt(input);
 
                     if (bet > 0 && bet <= player.getScore()) {
                         return bet;
                     }
-                    io.println("  Invalid amount! Max bet allowed is " + player.getScore());
+                    io.println(
+                        "  Invalid amount! Max bet allowed is " +
+                            player.getScore()
+                    );
                 } catch (NumberFormatException e) {
                     io.println("  Please enter a valid number.");
                 }
@@ -620,13 +738,24 @@ public class Game {
      * Processes the final score for a player based on their answer and wager.
      * Handles both standard questions and numeric estimation challenges.
      */
-    private void processScore(Player player, Question q, boolean isCorrect, int wager) {
+    private void processScore(
+        Player player,
+        Question q,
+        boolean isCorrect,
+        int wager
+    ) {
         if (isCorrect) {
             if (wager > 0) {
                 // Wager logic: Double the bet
                 int winAmount = wager * 2;
                 player.addScore(winAmount);
-                io.println("  >> CORRECT! [" + player.getName() + "] won " + winAmount + " points from the bet!");
+                io.println(
+                    "  >> CORRECT! [" +
+                        player.getName() +
+                        "] won " +
+                        winAmount +
+                        " points from the bet!"
+                );
             } else {
                 // Standard points logic: Use the difficulty-based scoring
                 int points = calculatePoints(q); // Now correctly returns 10, 20, or 30
@@ -634,7 +763,13 @@ public class Game {
                 // setStreak adds the points and checks for the STREAK_BONUS (3 pts)
                 player.setStreak(points);
 
-                io.println("  >> CORRECT! [" + player.getName() + "] earned " + points + " points.");
+                io.println(
+                    "  >> CORRECT! [" +
+                        player.getName() +
+                        "] earned " +
+                        points +
+                        " points."
+                );
                 if (player.getStreak() >= 3) {
                     io.println("     Streak Bonus applied! +3 pts");
                 }
@@ -643,11 +778,21 @@ public class Game {
             if (wager > 0) {
                 // Failure logic: Subtract the bet
                 player.subtractScore(wager);
-                io.println("  >> WRONG! [" + player.getName() + "] lost the bet of " + wager + " points.");
+                io.println(
+                    "  >> WRONG! [" +
+                        player.getName() +
+                        "] lost the bet of " +
+                        wager +
+                        " points."
+                );
             } else {
                 // Failure logic: Reset streak, no points lost
                 player.resetStreak();
-                io.println("  >> WRONG! No points awarded for [" + player.getName() + "].");
+                io.println(
+                    "  >> WRONG! No points awarded for [" +
+                        player.getName() +
+                        "]."
+                );
             }
         }
     }
