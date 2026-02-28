@@ -2,13 +2,19 @@ package game;
 
 import static player.Player.STREAK_BONUS;
 import static player.Player.STREAK_BONUS;
+import static player.Player.STREAK_BONUS;
 
 import java.util.ArrayList;
 import java.util.ArrayList;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.List;
+import java.util.List;
 import java.util.Map;
+import java.util.Map;
+import java.util.Random;
 import java.util.Random;
 import java.util.Random;
 import player.Player;
@@ -17,14 +23,6 @@ import trivia.Question;
 import trivia.QuestionBank;
 import trivia.QuestionType;
 import ui.ConsoleIO;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-import static player.Player.STREAK_BONUS;
 
 public class Game {
 
@@ -281,8 +279,6 @@ public class Game {
                     displayHotSeatHeader(currentPlayer);
                     int wager = 0;
                     if (isLastRound) {
-
-<<<<<<< HEAD
                         wager = handleBetting(currentPlayer, currentQuestion);
                     }
                     io.println("");
@@ -332,86 +328,6 @@ public class Game {
                         wager
                     );
                     io.println("  Score: " + currentPlayer.getScore());
-=======
-            // Hot seat: alternate between players each round
-            for (int p = 0; p < gameState.getPlayers().size(); p++) {
-                gameState.setCurrentPlayerIndex(p);
-                Player currentPlayer = gameState.getPlayers().get(p);
-
-                // Hot seat handoff between players
-                io.println("");
-                io.println("  +----------------------------------------+");
-                io.println("  |                                        |");
-                io.println(
-                    "  |     PASS THE DEVICE TO " +
-                        padRight(currentPlayer.getName().toUpperCase(), 14) +
-                        " |"
-                );
-                io.println("  |     Other player, look away!           |");
-                io.println("  |                                        |");
-                io.println("  +----------------------------------------+");
-                io.readLine("  Press ENTER when ready...");
-
-                io.println("");
-                io.println(
-                    "  " +
-                        currentPlayer.getName() +
-                        " - Question " +
-                        (round + 1) +
-                        " of " +
-                        roundQuestions.size()
-                );
-                io.println("  ----------------------------------------");
-                io.println(
-                    "  " +
-                        currentQuestion.formatForConsole().replace("\n", "\n  ")
-                );
-
-                // Start timer
-                long startTime = System.currentTimeMillis();
-
-                // Read answer and validate input
-                String response = readValidAnswer(currentQuestion);
-
-                // Stop timer and add elapsed time to player's total
-                long endTime = System.currentTimeMillis();
-                long elapsedTime = endTime - startTime;
-                currentPlayer.setTimer(currentPlayer.getTimer() + elapsedTime);
-
-                boolean isCorrect = AnswerValidator.isCorrect(
-                    currentQuestion,
-                    response
-                );
-
-                if (isCorrect) {
-                    int points = calculatePoints(currentQuestion);
-                    currentPlayer.setStreak(points);
-                    io.println("  >> CORRECT! +" + points + " points ");
-                    if (currentPlayer.getStreak() >= 3) {
-                        io.println("Streak bonus! +" + STREAK_BONUS);
-                    }
-                } else {
-                    currentPlayer.resetStreak();
-
-                    String correctAnswer;
-
-                    if (currentQuestion.getType() == QuestionType.NUMERIC) {
-                        correctAnswer = String.valueOf(
-                            currentQuestion.getNumericAnswer()
-                        );
-                    } else if (
-                        currentQuestion.getType() == QuestionType.ORDERING
-                    ) {
-                        correctAnswer = String.join(
-                            " -> ",
-                            currentQuestion.getOrderingAnswer()
-                        );
-                    } else {
-                        correctAnswer = currentQuestion.getAnswer();
-                    }
-
-                    io.println("  >> WRONG! The answer was: " + correctAnswer);
->>>>>>> dev/aloyse
                 }
             }
 
@@ -483,7 +399,6 @@ public class Game {
     }
 
     private void determineWinner() {
-
         io.println("\n=== GAME OVER ===");
         io.println("\nFinal Scores:");
 
@@ -663,7 +578,6 @@ public class Game {
 
     private void applySpeedBonus(boolean[] results, long[] times) {
         if (results.length >= 2 && results[0] && results[1]) {
-
             int winnerIndex;
 
             if (times[0] <= times[1]) {
