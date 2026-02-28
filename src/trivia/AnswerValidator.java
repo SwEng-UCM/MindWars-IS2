@@ -39,32 +39,16 @@ public class AnswerValidator {
 
         // validation for TRUE_FALSE type: must be T, F, TRUE, or FALSE
         if (q.getType() == QuestionType.TRUE_FALSE) {
-<<<<<<< HEAD
             return input.equals("T") || input.equals("F") ||
                     input.equals("TRUE") || input.equals("FALSE");
-=======
-            return (
-                input.equals("T") ||
-                input.equals("F") ||
-                input.equals("TRUE") ||
-                input.equals("FALSE")
-            );
->>>>>>> dev/aloyse
         }
 
         // validation for MULTIPLE_CHOICE: must match available options (A-D or 1-4)
         if (q.getType() == QuestionType.MULTIPLE_CHOICE) {
             int numChoices = q.getChoices().size();
             // regex to match a single letter within range or a single digit within range
-<<<<<<< HEAD
             return input.matches("^[A-" + (char) ('A' + numChoices - 1) + "]$") ||
                     input.matches("^[1-" + numChoices + "]$");
-=======
-            return (
-                input.matches("^[A-" + (char) ('A' + numChoices - 1) + "]$") ||
-                input.matches("^[1-" + numChoices + "]$")
-            );
->>>>>>> dev/aloyse
         }
 
         // Validation for OPEN_ENDED: any non-empty string is considered valid
@@ -148,13 +132,7 @@ public class AnswerValidator {
             // tray-catch: if the player writes "i don't know" instead of a number it won't
             // crash
             try {
-<<<<<<< HEAD
                 double userVal = Double.parseDouble(playerAnswer.replace(",", ".")); // transforms 3,14 to 3.14
-=======
-                double userVal = Double.parseDouble(
-                    playerAnswer.replace(",", ".")
-                ); // transforms 3,14 to 3.14
->>>>>>> dev/aloyse
                 double correctVal = q.getNumericAnswer();
                 // success if the absolute difference is within the allowed tolerance range
                 return Math.abs(userVal - correctVal) <= q.getTolerance();
