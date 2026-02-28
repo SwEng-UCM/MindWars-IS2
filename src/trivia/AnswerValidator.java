@@ -1,5 +1,7 @@
 package trivia;
 
+import java.util.*;
+
 /**
  * AnswerValidator provides utility methods to validate the format of user input
  * and check if the provided answer matches the correct one based on the QuestionType.
@@ -56,7 +58,34 @@ public class AnswerValidator {
         if (q.getType() == QuestionType.OPEN_ENDED) {
             return !input.isEmpty();
         }
+        // Validation for ORDERING: must match the correct order of choices
+        if (q.getType() == QuestionType.ORDERING) {
+            String[] parts = rawAnswer.trim().split("[^0-9]+");
 
+            if (parts.length != q.getChoices().size()) {
+                return false;
+            }
+
+            Set<Integer> used = new HashSet<>();
+
+            for (String p : parts) {
+                try {
+                    int index = Integer.parseInt(p);
+
+                    if (index < 1 || index > parts.length) {
+                        return false;
+                    }
+
+                    if (!used.add(index)) {
+                        return false; // doublon
+                    }
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
         return true;
     }
 
@@ -72,6 +101,29 @@ public class AnswerValidator {
         // ensure the input is valid for the specific question type
         if (!isValidAnswer(q, rawAnswer)) {
             return false;
+        }
+
+        // ordering question logic is suppose to do it first
+        if (q.getType() == QuestionType.ORDERING) {
+            String[] parts = rawAnswer.trim().split("[^0-9]+");
+            List<String> filtered = new ArrayList<>();
+
+            for (String part : parts) {
+                if (!part.isEmpty()) {
+                    filtered.add(part);
+                }
+            }
+
+            parts = filtered.toArray(new String[0]);
+
+            List<String> userOrder = new ArrayList<>();
+
+            for (String p : parts) {
+                int index = Integer.parseInt(p) - 1;
+                userOrder.add(q.getChoices().get(index));
+            }
+
+            return userOrder.equals(q.getOrderingAnswer());
         }
 
         String playerAnswer = rawAnswer.trim().toUpperCase();
