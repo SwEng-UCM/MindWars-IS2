@@ -244,8 +244,13 @@ public class Game {
 
 
         if (roundQuestions.isEmpty()) {
-            io.println(
-                    "  ERROR: No questions available for this category/difficulty combination!");
+            if (randomRound){
+                io.println("  ERROR: No questions available for Random Round!");
+            }
+            else{
+                io.println(
+                        "  ERROR: No questions available for this category/difficulty combination!");
+            }
             io.println("  Game cannot start.");
             return;
         }
@@ -276,6 +281,13 @@ public class Game {
                             " ===========");
 
             Question currentQuestion = roundQuestions.get(round);
+            if (randomRound) {
+                io.println("  Category: "
+                        + currentQuestion.getCategory()
+                        + " | Difficulty: "
+                        + currentQuestion.getDifficulty());
+            }
+
             boolean[] roundResults = new boolean[gameState.getPlayers().size()];
             long[] roundTimes = new long[gameState.getPlayers().size()];
             boolean isLastRound = (round == roundQuestions.size() - 1);
