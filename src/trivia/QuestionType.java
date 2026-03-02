@@ -14,6 +14,7 @@ package trivia;
 public enum QuestionType {
     MULTIPLE_CHOICE,
     TRUE_FALSE,
-    NUMERIC,      // where the answer is a number
-    OPEN_ENDED    // where the player writes a text for the answer 
+    NUMERIC, // where the answer is a number
+    OPEN_ENDED, // where the player writes a text for the answer
+    ORDERING,
 }

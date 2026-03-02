@@ -20,15 +20,16 @@ public class CheckQuestions {
 
     public static void main(String[] args) {
         String jsonPath = "questions.json";
-        
+
         try (FileReader reader = new FileReader(jsonPath)) {
             Gson gson = new Gson();
-            Type listType = new TypeToken<List<QuestionData>>(){}.getType();
+            Type listType = new TypeToken<List<QuestionData>>() {
+            }.getType();
             List<QuestionData> questions = gson.fromJson(reader, listType);
 
             // organize questions by category and difficulty
             Map<String, Map<String, Integer>> categories = new HashMap<>();
-            
+
             for (QuestionData q : questions) {
                 categories.putIfAbsent(q.category, new HashMap<>());
                 Map<String, Integer> difficultyMap = categories.get(q.category);
@@ -49,15 +50,15 @@ public class CheckQuestions {
             System.out.println("-".repeat(50));
 
             List<String> insufficient = new ArrayList<>();
-            
+
             for (String cat : sortedCategories) {
                 Map<String, Integer> diffMap = categories.get(cat);
                 int easy = diffMap.getOrDefault("EASY", 0);
                 int medium = diffMap.getOrDefault("MEDIUM", 0);
                 int hard = diffMap.getOrDefault("HARD", 0);
-                
+
                 System.out.printf("%-20s %-8d %-8d %-8d%n", cat, easy, medium, hard);
-                
+
                 if (easy < 3) {
                     insufficient.add(cat + " EASY (" + easy + "/3)");
                 }
