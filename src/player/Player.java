@@ -7,6 +7,7 @@ public class Player {
     private long answerTimeMs;
     private int streak;
     private boolean hasUsedBet = false;
+    private char symbol;
     private static final int STREAK_TARGET = 3;
     public static final int STREAK_BONUS = 3;
 
@@ -16,6 +17,7 @@ public class Player {
         this.timer = 0;
         this.answerTimeMs = 0;
         this.streak = 0;
+        this.symbol = ' ';
 
     }
 
@@ -82,5 +84,13 @@ public class Player {
 
     public void setHasUsedBet(boolean hasUsedBet) {
         this.hasUsedBet = hasUsedBet;
+    }
+
+    public char getSymbol() {
+        return symbol;
+    }
+
+    public void setSymbol(char symbol) {
+        this.symbol = symbol;
     }
 }

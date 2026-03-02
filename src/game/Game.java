@@ -357,6 +357,8 @@ public class Game {
             String name = io.readNonEmptyString(
                     "  Enter name for Player " + i + ":");
             Player newPlayer = new Player(name);
+            char symbol = (i == 1) ? 'X' : 'O';
+            newPlayer.setSymbol(symbol);
             gameState.addPlayer(newPlayer);
             io.println("");
         }
