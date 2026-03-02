@@ -383,34 +383,28 @@ public class Game {
         io.println("  +========================================+");
         io.println("");
 
-        // show all player scores and response times
+        // show all player scores and territory
         for (Player player : gameState.getPlayers()) {
             double timeInSeconds = player.getTimer() / 1000.0;
-
-            io.println(
-                    player.getName() +
-                            ": " +
-                            player.getScore() +
-                            " points (Response time: " +
-                            String.format("%.2f", timeInSeconds) +
-                            "s)");
+            int territory = map.countTerritory(player.getSymbol());
 
             io.println(
                     "    " +
                             padRight(player.getName(), 15) +
                             padRight(player.getScore() + " pts", 10) +
+                            padRight(territory + " terr", 10) +
                             String.format("%.2fs", timeInSeconds));
         }
 
         io.println("");
         io.println("  ------------------------------------------");
 
-        // calculate the winner (considers score first, then response time for ties)
+        // calculate the winner (considers score first, then territory)
         Player winner = WinnerCalculator.getWinnerOrNull(
-                gameState.getPlayers());
+                gameState.getPlayers(), map);
 
         if (winner == null) {
-            io.println("  It's a TIE! Same score and response time.");
+            io.println("  It's a TIE! Same score and territory.");
         } else {
             io.println("  WINNER: " + winner.getName() + "!");
         }

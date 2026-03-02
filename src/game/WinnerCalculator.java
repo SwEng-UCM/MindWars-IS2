@@ -23,7 +23,7 @@ public final class WinnerCalculator {
     private WinnerCalculator() {
     }
 
-    public static Player getWinnerOrNull(List<Player> players) {
+    public static Player getWinnerOrNull(List<Player> players, MapGrid mapGrid) {
         // check if the list is empty
         if (players == null || players.isEmpty()) {
             return null;
@@ -37,12 +37,15 @@ public final class WinnerCalculator {
             // compare scores
             if (currentPlayer.getScore() > winner.getScore()) {
                 winner = currentPlayer;
+
             } else if (currentPlayer.getScore() == winner.getScore()) {
-                // if scores are tied, check the timer (lower is better)
-                if (currentPlayer.getTimer() < winner.getTimer()) {
+                // tie breaker, player with most territory
+                int currentTerritory = mapGrid.countTerritory(currentPlayer.getSymbol());
+                int winnerTerritory = mapGrid.countTerritory(winner.getSymbol());
+                if (currentTerritory > winnerTerritory) {
                     winner = currentPlayer;
-                } else if (currentPlayer.getTimer() == winner.getTimer()) {
-                    // if both score and timer are the same, it's a tie
+                } else if (currentTerritory == winnerTerritory) {
+                    //  Tie (Territory + points)
                     return null;
                 }
             }
