@@ -46,14 +46,6 @@
     "tolerance": 0
   },
   {
-    "type": "NUMERIC",
-    "category": "History",
-    "difficulty": "HARD",
-    "prompt": "In what year did the French Revolution start?",
-    "numericAnswer": 1789,
-    "tolerance": 0
-  },
-  {
     "type": "MULTIPLE_CHOICE",
     "category": "General",
     "difficulty": "EASY",
@@ -387,5 +379,69 @@
     "prompt": "What is the most abundant gas in Earth's atmosphere?",
     "choices": ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"],
     "answer": "C"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "General",
+    "difficulty": "HARD",
+    "prompt": "Which country is the only one in the world to have a non-quadrilateral flag?",
+    "choices": ["Bhutan", "Nepal", "Vatican City", "Switzerland"],
+    "answer": "B"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "General",
+    "difficulty": "HARD",
+    "prompt": "Who is credited with inventing the World Wide Web (WWW) in 1989?",
+    "choices": ["Bill Gates", "Tim Berners-Lee", "Steve Jobs", "Alan Turing"],
+    "answer": "B"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "General",
+    "difficulty": "HARD",
+    "prompt": "What is the chemical element with the highest melting point?",
+    "choices": ["Gold", "Platinum", "Carbon", "Tungsten"],
+    "answer": "D"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "General",
+    "difficulty": "HARD",
+    "prompt": "What is the name of the first artificial satellite launched into orbit in 1957?",
+    "choices": ["Sputnik 1", "Explorer 1", "Vostok 1", "Apollo 11"],
+    "answer": "A"
+  },
+  {
+    "type": "TRUE_FALSE",
+    "category": "General",
+    "difficulty": "HARD",
+    "prompt": "The total surface area of a human's lungs is roughly the same size as a tennis court.",
+    "choices": ["True", "False"],
+    "answer": "A"
+  },
+  {
+    "type": "SHORT_ANSWER",
+    "category": "General",
+    "difficulty": "MEDIUM",
+    "prompt": "Which chemical element has the symbol 'Hg'?",
+    "choices": [],
+    "answer": "Mercury"
+  },
+  {
+    "type": "MULTIPLE_CHOICE",
+    "category": "General",
+    "difficulty": "HARD",
+    "prompt": "What is the capital city of Australia?",
+    "choices": ["Sydney", "Melbourne", "Canberra", "Perth"],
+    "answer": "C"
+  },
+  {
+    "type": "SHORT_ANSWER",
+    "category": "General",
+    "difficulty": "HARD",
+    "prompt": "In which year did the French Revolution begin?",
+    "choices": [],
+    "answer": "1789"
   }
 ]
