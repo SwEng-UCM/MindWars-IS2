@@ -38,4 +38,10 @@ public class GameState {
     public void setCurrentPlayerIndex(int index) {
         this.currentPlayerIndex = index;
     }
+
+    public void reset() {
+    this.players.clear();
+    this.roundNumber = 1;
+    this.currentPlayerIndex = 0;
+}
 }
