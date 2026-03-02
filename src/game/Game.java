@@ -149,60 +149,99 @@ public class Game {
         setupPlayers();
         setStartingPlayer();
 
+        int questionsPerPlayer = 3;
+
+        io.println("");
+        String mode = io.selectFromList("  Choose game mode:", List.of(
+                "Choose category & difficulty",
+                "Random Round (computer decides)"
+        ));
+
         io.println("");
         io.println("  All players registered. Let the battle begin!");
         io.println("");
 
-        int questionsPerPlayer = 3;
+        boolean randomRound = mode.equals("Random Round (computer decides)");
 
-        // Randomly decide which player chooses category and which chooses difficulty
         Random random = new Random();
-        boolean player1ChoosesCategory = random.nextBoolean();
-
-        Player categoryChooser = player1ChoosesCategory
-                ? gameState.getPlayers().get(0)
-                : gameState.getPlayers().get(1);
-        Player difficultyChooser = player1ChoosesCategory
-                ? gameState.getPlayers().get(1)
-                : gameState.getPlayers().get(0);
-
-        // Category selection
-        io.println(
-                "  " +
-                        categoryChooser.getName() +
-                        ", you will choose the CATEGORY for all questions!");
-        io.println("");
-        List<String> categories = new ArrayList<>(questionBank.getCategories());
-        String selectedCategory = io.selectFromList(
-                "  Choose a CATEGORY:",
-                categories);
-        io.println("  Category selected: " + selectedCategory);
-        io.println("");
-
-        // Difficulty selection
-        io.println(
-                "  " +
-                        difficultyChooser.getName() +
-                        ", you will choose the DIFFICULTY for all questions!");
-        io.println("");
-        List<String> difficulties = new ArrayList<>(
-                questionBank.getDifficulties(selectedCategory));
-        String selectedDifficulty = io.selectFromList(
-                "  Choose a DIFFICULTY:",
-                difficulties);
-        io.println("  Difficulty selected: " + selectedDifficulty);
-        io.println("");
-
-        // Get questions for the game based on selections
         List<Question> roundQuestions = new ArrayList<>();
-        for (int i = 0; i < questionsPerPlayer; i++) {
-            Question q = questionBank.getQuestion(
-                    selectedCategory,
-                    selectedDifficulty);
-            if (q != null) {
-                roundQuestions.add(q);
+
+
+        if (!randomRound) {
+            // Randomly decide which player chooses category and which chooses difficulty
+            boolean player1ChoosesCategory = random.nextBoolean();
+
+            Player categoryChooser = player1ChoosesCategory
+                    ? gameState.getPlayers().get(0)
+                    : gameState.getPlayers().get(1);
+            Player difficultyChooser = player1ChoosesCategory
+                    ? gameState.getPlayers().get(1)
+                    : gameState.getPlayers().get(0);
+
+            // Category selection
+            io.println(
+                    "  " +
+                            categoryChooser.getName() +
+                            ", you will choose the CATEGORY for all questions!");
+            io.println("");
+            List<String> categories = new ArrayList<>(questionBank.getCategories());
+            String selectedCategory = io.selectFromList(
+                    "  Choose a CATEGORY:",
+                    categories);
+            io.println("  Category selected: " + selectedCategory);
+            io.println("");
+
+            // Difficulty selection
+            io.println(
+                    "  " +
+                            difficultyChooser.getName() +
+                            ", you will choose the DIFFICULTY for all questions!");
+            io.println("");
+            List<String> difficulties = new ArrayList<>(
+                    questionBank.getDifficulties(selectedCategory));
+            String selectedDifficulty = io.selectFromList(
+                    "  Choose a DIFFICULTY:",
+                    difficulties);
+            io.println("  Difficulty selected: " + selectedDifficulty);
+            io.println("");
+
+            // Get questions for the game based on selections
+            for (int i = 0; i < questionsPerPlayer; i++) {
+                Question q = questionBank.getQuestion(
+                        selectedCategory,
+                        selectedDifficulty);
+                if (q != null) {
+                    roundQuestions.add(q);
+                }
             }
         }
+        else{
+            io.println("  Random Round enabled: The computer will choose category and difficulty each question!");
+            io.println("");
+
+            List<String> categories = new ArrayList<>(questionBank.getCategories());
+
+            for (int i = 0; i < questionsPerPlayer; i++) {
+                String category = categories.get(random.nextInt(categories.size()));
+
+                List<String> diffs = new ArrayList<>(questionBank.getDifficulties(category));
+                if (diffs.isEmpty()) {
+                    i--; // try again
+                    continue;
+                }
+
+                String difficulty = diffs.get(random.nextInt(diffs.size()));
+
+                Question q = questionBank.getQuestion(category, difficulty);
+                if (q != null) {
+                    roundQuestions.add(q);
+                } else {
+                    i--; // try again
+                }
+            }
+        }
+
+
 
         if (roundQuestions.isEmpty()) {
             io.println(
