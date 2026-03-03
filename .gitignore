@@ -5,3 +5,5 @@
 *.class
 *.log
 .class
+out/
+**/out/
