@@ -1,13 +1,32 @@
 package ui;
 
+import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class ConsoleIO {
 
-    private final Scanner scanner;
+    private final BlockingQueue<String> inputQueue = new LinkedBlockingQueue<>();
 
     public ConsoleIO() {
-        this.scanner = new Scanner(System.in);
+        // Single background thread reads all System.in input into a queue.
+        // This allows readLineWithTimeout() to poll with a deadline without
+        // leaving a blocked scanner.nextLine() that would eat future input.
+        Thread readerThread = new Thread(() -> {
+            Scanner sc = new Scanner(System.in);
+            while (sc.hasNextLine()) {
+                try {
+                    inputQueue.put(sc.nextLine());
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        });
+        readerThread.setDaemon(true);
+        readerThread.start();
     }
 
     public void println(String s) {
@@ -17,7 +36,29 @@ public class ConsoleIO {
     public String readLine(String prompt) {
         System.out.println(prompt);
         System.out.print("> ");
-        return scanner.nextLine().trim();
+        try {
+            return inputQueue.take().trim();
+        } catch (InterruptedException e) {
+            return "";
+        }
+    }
+
+    /**
+     * Reads a line within the given timeout in milliseconds.
+     * Throws TimeoutException if no input is provided in time.
+     */
+    public String readLineWithTimeout(String prompt, long timeoutMs) throws TimeoutException {
+        System.out.println(prompt);
+        System.out.print("> ");
+        try {
+            String result = inputQueue.poll(timeoutMs, TimeUnit.MILLISECONDS);
+            if (result == null) {
+                throw new TimeoutException();
+            }
+            return result.trim();
+        } catch (InterruptedException e) {
+            throw new TimeoutException();
+        }
     }
 
     public String readNonEmptyString(String prompt) {
@@ -52,7 +93,7 @@ public class ConsoleIO {
     }
 
     // helper function to let a player choose from a list of options
-    public String selectFromList(String prompt, java.util.List<String> options) {
+    public String selectFromList(String prompt, List<String> options) {
         println(prompt);
         for (int i = 0; i < options.size(); i++) {
             println("  " + (i + 1) + ") " + options.get(i));

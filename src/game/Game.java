@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeoutException;
 import player.Player;
 import trivia.AnswerValidator;
 import trivia.Question;
@@ -63,8 +64,16 @@ public class Game {
             long startTime = System.currentTimeMillis();
 
             // Read and parse the numeric guess
-            String input = readValidAnswer(question);
-            double val = Double.parseDouble(input.replace(",", "."));
+            io.println("  You have " + (TIME_LIMIT_MS / 1000) + " seconds to answer!");
+            String input = readAnswerWithTimeout(question);
+            double val;
+            if (input.equals("__TIMEOUT__")) {
+                val = Double.MAX_VALUE;
+                int penalty = calculatePoints(question);
+                p.subtractScore(penalty);
+            } else {
+                val = Double.parseDouble(input.replace(",", "."));
+            }
 
             long endTime = System.currentTimeMillis();
             long elapsed = endTime - startTime;
@@ -319,8 +328,9 @@ public class Game {
                                                 .formatForConsole()
                                                 .replace("\n", "\n  "));
 
+                        io.println("  You have " + (TIME_LIMIT_MS / 1000) + " seconds to answer!");
                         long startTime = System.currentTimeMillis();
-                        String response = readValidAnswer(currentQuestion);
+                        String response = readAnswerWithTimeout(currentQuestion);
                         long endTime = System.currentTimeMillis();
                         long elapsedTime = endTime - startTime;
 
@@ -328,14 +338,14 @@ public class Game {
                         currentPlayer.setTimer(
                                 currentPlayer.getTimer() + elapsedTime);
 
-                        boolean isCorrect = AnswerValidator.isCorrect(
-                                currentQuestion,
-                                response);
-
-                        if (isCorrect && elapsedTime > TIME_LIMIT_MS) {
-                            io.println(
-                                    "   >> [TIMEOUT] Correct answer, but took too long (> 15s)!");
+                        boolean isCorrect;
+                        if (response.equals("__TIMEOUT__")) {
                             isCorrect = false;
+                            int penalty = calculatePoints(currentQuestion);
+                            currentPlayer.subtractScore(penalty);
+                            io.println("   >> TIME'S UP! -" + penalty + " points penalty.");
+                        } else {
+                            isCorrect = AnswerValidator.isCorrect(currentQuestion, response);
                         }
 
                         roundResults[p] = isCorrect;
@@ -391,6 +401,48 @@ public class Game {
             }
             io.println("  Invalid answer. Please enter a valid option.");
         }
+    }
+
+    /**
+     * Reads a valid answer within the time limit.
+     * Timer runs silently in the background and returns "__TIMEOUT__" if time expires.
+     */
+    private String readAnswerWithTimeout(Question question) {
+        final boolean[] done = {false};
+        final String[] result = {null};
+
+        // Input reading thread
+        Thread inputThread = new Thread(() -> {
+            while (!done[0]) {
+                try {
+                    String response = io.readLineWithTimeout("  Your answer:", TIME_LIMIT_MS);
+                    if (AnswerValidator.isValidAnswer(question, response)) {
+                        result[0] = response;
+                        done[0] = true;
+                        break;
+                    } else {
+                        io.println("  Invalid answer. Please enter a valid option.");
+                    }
+                } catch (TimeoutException e) {
+                    done[0] = true;
+                    break;
+                }
+            }
+        });
+
+        inputThread.start();
+
+        try {
+            inputThread.join();
+        } catch (InterruptedException e) {
+            // ignored
+        }
+
+        if (result[0] == null) {
+            io.println("  !! TIME'S UP !!");
+            return "__TIMEOUT__";
+        }
+        return result[0];
     }
 
     private void printWelcomeMessage() {
