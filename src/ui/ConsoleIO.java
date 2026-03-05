@@ -16,6 +16,7 @@ public class ConsoleIO {
         // This allows readLineWithTimeout() to poll with a deadline without
         // leaving a blocked scanner.nextLine() that would eat future input.
         Thread readerThread = new Thread(() -> {
+            @SuppressWarnings("resource") // Scanner must remain open for program lifetime
             Scanner sc = new Scanner(System.in);
             while (sc.hasNextLine()) {
                 try {

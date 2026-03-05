@@ -393,6 +393,7 @@ public class Game {
         io.println("Thanks for playing!");
     }
 
+    @SuppressWarnings("unused") // Kept for potential future use without timeout
     private String readValidAnswer(Question question) {
         while (true) {
             String response = io.readNonEmptyString("  Your answer:");
