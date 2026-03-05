@@ -314,6 +314,8 @@ public class Game {
                                         " of " +
                                         roundQuestions.size());
                         io.println("  ----------------------------------------");
+                        io.println("  ⚠  You have " + (TIME_LIMIT_MS / 1000) + " seconds to answer!");
+                        io.println("");
                         io.println(
                                 "  " +
                                         currentQuestion
