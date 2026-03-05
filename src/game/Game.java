@@ -142,7 +142,7 @@ public class Game {
      * Utility method to manage the "Hot Seat" device handoff between players.
      */
     private void displayHotSeatHeader(Player p) {
-        io.println("\n  +----------------------------------------+");
+        io.println("\n\n  +----------------------------------------+");
         io.println(
                 "  |     PASS THE DEVICE TO " +
                         padRight(p.getName().toUpperCase(), 15) +
@@ -150,6 +150,7 @@ public class Game {
         io.println("  |     Other player, look away!           |");
         io.println("  +----------------------------------------+");
         io.readLine("  Press ENTER when ready...");
+        io.println("");
     }
 
     public void run() {
@@ -283,6 +284,7 @@ public class Game {
             // Play multiple rounds with pre-selected questions
             for (int round = 0; round < roundQuestions.size(); round++) {
                 io.println("");
+                io.println("");
                 io.println(
                         "   =========== ROUND " +
                                 (round + 1) +
@@ -297,6 +299,7 @@ public class Game {
                             + " | Difficulty: "
                             + currentQuestion.getDifficulty());
                 }
+                io.println("");
 
                 boolean[] roundResults = new boolean[gameState.getPlayers().size()];
                 long[] roundTimes = new long[gameState.getPlayers().size()];
@@ -366,6 +369,7 @@ public class Game {
                         }
 
                         io.println("  Score: " + currentPlayer.getScore());
+                        io.println("");
                     }
                 }
 
@@ -416,7 +420,7 @@ public class Game {
         Thread inputThread = new Thread(() -> {
             while (!done[0]) {
                 try {
-                    String response = io.readLineWithTimeout("  Your answer:", TIME_LIMIT_MS);
+                    String response = io.readLineWithTimeoutAndCountdown("  Your answer:", TIME_LIMIT_MS);
                     if (AnswerValidator.isValidAnswer(question, response)) {
                         result[0] = response;
                         done[0] = true;
@@ -587,6 +591,7 @@ public class Game {
                                     "] is now marked with '" +
                                     initial +
                                     "'.");
+                    io.println("");
                 } else {
                     io.println(
                             "  That cell is either outside the map or already taken! Try again.");
@@ -638,16 +643,20 @@ public class Game {
         String winnerName = gameState.getPlayers().get(winner - 1).getName();
         String loserName = gameState.getPlayers().get(loser - 1).getName();
 
-        io.println("\n  >> ROUND CONQUEROR: " + winnerName);
+        io.println("\n\n  >> ROUND CONQUEROR: " + winnerName);
         io.println("  >> Reason: " + reason);
+        io.println("");
+        io.println("");
 
         for (int i = 1; i <= 2; i++) {
             io.println("  [" + winnerName + " Selection " + i + "/2]");
             askToClaim(winner);
         }
+        io.println("");
 
         io.println("  [" + loserName + " Selection 1/1]");
         askToClaim(loser);
+        io.println("");
 
         map.display(io);
     }
@@ -735,7 +744,7 @@ public class Game {
                 int winAmount = wager * 2;
                 player.addScore(winAmount);
                 io.println(
-                        "  >> CORRECT! [" +
+                        "\n  >> CORRECT! [" +
                                 player.getName() +
                                 "] won " +
                                 winAmount +
@@ -748,7 +757,7 @@ public class Game {
                 player.setStreak(points);
 
                 io.println(
-                        "  >> CORRECT! [" +
+                        "\n  >> CORRECT! [" +
                                 player.getName() +
                                 "] earned " +
                                 points +

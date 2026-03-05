@@ -62,6 +62,82 @@ public class ConsoleIO {
         }
     }
 
+    /**
+     * Reads a line with a live countdown timer displayed above the input.
+     * The countdown shows remaining seconds in real-time.
+     * Throws TimeoutException if no input is provided in time.
+     */
+    public String readLineWithTimeoutAndCountdown(String prompt, long timeoutMs) throws TimeoutException {
+        // Flag to signal when input is received
+        final boolean[] inputReceived = {false};
+        final long[] lastDisplayedSecond = {-1};
+        
+        // Display initial countdown line
+        long initialSeconds = timeoutMs / 1000;
+        System.out.println("");
+        System.out.println("  ⏱ Time remaining: " + initialSeconds + "s");
+        System.out.println("");
+        System.out.print("  Answer: ");
+        System.out.flush();
+        
+        // Start countdown thread that updates the timer display
+        Thread countdownThread = new Thread(() -> {
+            long startTime = System.currentTimeMillis();
+            lastDisplayedSecond[0] = initialSeconds;
+            
+            while (!inputReceived[0]) {
+                long elapsed = System.currentTimeMillis() - startTime;
+                long remaining = timeoutMs - elapsed;
+                
+                if (remaining <= 0) {
+                    break;
+                }
+                
+                long secondsRemaining = remaining / 1000;
+                
+                // Only update display when the second changes
+                if (secondsRemaining != lastDisplayedSecond[0] && secondsRemaining >= 0) {
+                    lastDisplayedSecond[0] = secondsRemaining;
+                    
+                    // Save cursor position, move up 2 lines, update timer, restore position
+                    System.out.print("\0337");  // Save cursor position
+                    System.out.print("\033[2A"); // Move up two lines
+                    System.out.print("\r  ⏱ Time remaining: " + secondsRemaining + "s      ");
+                    System.out.print("\0338");  // Restore cursor position
+                    System.out.flush();
+                }
+                
+                try {
+                    Thread.sleep(100); // Check every 100ms
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        });
+        countdownThread.setDaemon(true);
+        countdownThread.start();
+        
+        try {
+            String result = inputQueue.poll(timeoutMs, TimeUnit.MILLISECONDS);
+            inputReceived[0] = true;
+            
+            if (result == null) {
+                System.out.println(); // Move to next line after timeout
+                throw new TimeoutException();
+            }
+            
+            System.out.println(); // Move to next line after input
+            return result.trim();
+        } catch (InterruptedException e) {
+            inputReceived[0] = true;
+            System.out.println();
+            throw new TimeoutException();
+        } finally {
+            inputReceived[0] = true;
+            countdownThread.interrupt();
+        }
+    }
+
     public String readNonEmptyString(String prompt) {
         String input = "";
         while (input.isEmpty()) {
