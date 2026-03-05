@@ -5,9 +5,17 @@ import java.util.Scanner;
 public class ConsoleIO {
 
     private final Scanner scanner;
+    private static ConsoleIO instance;
 
-    public ConsoleIO() {
+    private ConsoleIO() {
         this.scanner = new Scanner(System.in);
+    }
+
+    public static ConsoleIO getConsole() {
+        if (instance == null) {
+            instance = new ConsoleIO();
+        }
+        return instance;
     }
 
     public void println(String s) {

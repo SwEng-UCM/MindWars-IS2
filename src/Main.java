@@ -11,7 +11,7 @@ import ui.ConsoleIO;
 public class Main {
     public static void main(String[] args) {
 
-        ConsoleIO io = new ConsoleIO();
+        ConsoleIO io = ConsoleIO.getConsole();
         QuestionBank bank = new QuestionBank("questions.json");
 
         Game engine = new Game(io, bank);
