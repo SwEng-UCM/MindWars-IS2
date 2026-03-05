@@ -1,6 +1,5 @@
 package game;
 
-import static player.Player.STREAK_BONUS;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
