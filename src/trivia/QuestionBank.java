@@ -11,8 +11,8 @@ public class QuestionBank {
     private Map<String, Map<String, List<Question>>> organizedQuestions = new HashMap<>();
 
     public QuestionBank(String jsonPath) {
-        System.out.println("DEBUG: QuestionBank loaded " + getAllQuestionsAsList().size() + " total questions.");
         loadFromJson(jsonPath);
+        System.out.println("DEBUG: QuestionBank loaded " + getAllQuestionsAsList().size() + " total questions.");
     }
 
     private void loadFromJson(String jsonPath) {

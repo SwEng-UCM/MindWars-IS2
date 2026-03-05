@@ -332,7 +332,7 @@ public class Game {
                                 currentQuestion,
                                 response);
 
-                        if (isCorrect && elapsedTime > 15000) {
+                        if (isCorrect && elapsedTime > TIME_LIMIT_MS) {
                             io.println(
                                     "   >> [TIMEOUT] Correct answer, but took too long (> 15s)!");
                             isCorrect = false;
