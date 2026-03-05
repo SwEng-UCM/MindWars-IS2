@@ -20,7 +20,9 @@ public class Game {
     private final GameState gameState;
     private final MapGrid map;
 
-    long TIME_LIMIT_MS = 15000;
+    private static final long TIME_LIMIT_MS = 15000;
+    // New feature: if a player answers correctly in <= 3 seconds, base points are doubled.
+    private static final long LIGHTNING_BONUS_MS = 3_000;
 
     public Game(ConsoleIO io, QuestionBank questionBank) {
         this.io = io;
@@ -124,7 +126,7 @@ public class Game {
             int wager = playerBets.getOrDefault(p, 0);
 
             // Universal score processing (handles wagers, standard points, and streaks)
-            processScore(p, question, isWinner, wager);
+            processScore(p, question, isWinner, wager, res.timeTaken);        
         }
 
         io.println("");
@@ -333,7 +335,7 @@ public class Game {
                                 currentQuestion,
                                 response);
 
-                        if (isCorrect && elapsedTime > 15000) {
+                        if (isCorrect && elapsedTime > TIME_LIMIT_MS) {
                             io.println(
                                     "   >> [TIMEOUT] Correct answer, but took too long (> 15s)!");
                             isCorrect = false;
@@ -344,7 +346,8 @@ public class Game {
                                 currentPlayer,
                                 currentQuestion,
                                 isCorrect,
-                                wager);
+                                wager,
+                                elapsedTime);
 
                         if (!isCorrect) {
                             String correctAnswer;
@@ -621,6 +624,10 @@ public class Game {
                             " was faster! +" +
                             speedBonus +
                             " pts");
+                        
+            // actually add the bonus to the player's score
+            io.println("   Updated Score: " + speedWinner.getScore());
+           
         }
     }
 
@@ -676,7 +683,8 @@ public class Game {
             Player player,
             Question q,
             boolean isCorrect,
-            int wager) {
+            int wager,
+            long elapsedTimeMs) {
         if (isCorrect) {
             if (wager > 0) {
                 // Wager logic: Double the bet
@@ -688,9 +696,15 @@ public class Game {
                                 "] won " +
                                 winAmount +
                                 " points from the bet!");
-            } else {
+            } else{
                 // Standard points logic: Use the difficulty-based scoring
                 int points = calculatePoints(q); // Now correctly returns 10, 20, or 30
+
+                // ⚡ Lightning bonus (<= 3 seconds)
+                if (elapsedTimeMs <= LIGHTNING_BONUS_MS) {
+                    points *= 2;
+                    io.println("  >> ⚡ LIGHTNING! Answered in <= 3s: base points doubled.");
+                }
 
                 // setStreak adds the points and checks for the STREAK_BONUS (3 pts)
                 player.setStreak(points);
