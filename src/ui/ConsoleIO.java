@@ -9,9 +9,11 @@ import java.util.concurrent.TimeoutException;
 
 public class ConsoleIO {
 
+    private static ConsoleIO instance;
+
     private final BlockingQueue<String> inputQueue = new LinkedBlockingQueue<>();
 
-    public ConsoleIO() {
+    private ConsoleIO() {
         // Single background thread reads all System.in input into a queue.
         // This allows readLineWithTimeout() to poll with a deadline without
         // leaving a blocked scanner.nextLine() that would eat future input.
@@ -28,6 +30,13 @@ public class ConsoleIO {
         });
         readerThread.setDaemon(true);
         readerThread.start();
+    }
+
+    public static ConsoleIO getConsole() {
+        if (instance == null) {
+            instance = new ConsoleIO();
+        }
+        return instance;
     }
 
     public void println(String s) {
