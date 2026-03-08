@@ -410,11 +410,12 @@ public class Game {
 
     /**
      * Reads a valid answer within the time limit.
-     * Timer runs silently in the background and returns "__TIMEOUT__" if time expires.
+     * Timer runs silently in the background and returns "__TIMEOUT__" if time
+     * expires.
      */
     private String readAnswerWithTimeout(Question question) {
-        final boolean[] done = {false};
-        final String[] result = {null};
+        final boolean[] done = { false };
+        final String[] result = { null };
 
         // Input reading thread
         Thread inputThread = new Thread(() -> {
@@ -691,6 +692,10 @@ public class Game {
      * @return The amount of points wagered, or 0 if declined.
      */
     private int handleBetting(Player player, Question q) {
+        if (player.getScore() <= 0) {
+            io.println("\n  " + player.getName() + ", you have 0 points. Skipping betting phase.");
+            return 0;
+        }
         io.println("\n  *** SPECIAL BETTING OPPORTUNITY ***");
         io.println(
                 "  Category: " +
