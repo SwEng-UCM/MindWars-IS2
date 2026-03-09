@@ -1,11 +1,11 @@
 package game;
 
-import static player.Player.STREAK_BONUS;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeoutException;
 import player.Player;
 import trivia.AnswerValidator;
 import trivia.Question;
@@ -66,8 +66,16 @@ public class Game {
             long startTime = System.currentTimeMillis();
 
             // Read and parse the numeric guess
-            String input = readValidAnswer(question);
-            double val = Double.parseDouble(input.replace(",", "."));
+            io.println("  You have " + (TIME_LIMIT_MS / 1000) + " seconds to answer!");
+            String input = readAnswerWithTimeout(question);
+            double val;
+            if (input.equals("__TIMEOUT__")) {
+                val = Double.MAX_VALUE;
+                int penalty = calculatePoints(question);
+                p.subtractScore(penalty);
+            } else {
+                val = Double.parseDouble(input.replace(",", "."));
+            }
 
             long endTime = System.currentTimeMillis();
             long elapsed = endTime - startTime;
@@ -136,7 +144,7 @@ public class Game {
      * Utility method to manage the "Hot Seat" device handoff between players.
      */
     private void displayHotSeatHeader(Player p) {
-        io.println("\n  +----------------------------------------+");
+        io.println("\n\n  +----------------------------------------+");
         io.println(
                 "  |     PASS THE DEVICE TO " +
                         padRight(p.getName().toUpperCase(), 15) +
@@ -144,6 +152,7 @@ public class Game {
         io.println("  |     Other player, look away!           |");
         io.println("  +----------------------------------------+");
         io.readLine("  Press ENTER when ready...");
+        io.println("");
     }
 
     public void run() {
@@ -277,6 +286,7 @@ public class Game {
             // Play multiple rounds with pre-selected questions
             for (int round = 0; round < roundQuestions.size(); round++) {
                 io.println("");
+                io.println("");
                 io.println(
                         "   =========== ROUND " +
                                 (round + 1) +
@@ -291,6 +301,7 @@ public class Game {
                             + " | Difficulty: "
                             + currentQuestion.getDifficulty());
                 }
+                io.println("");
 
                 boolean[] roundResults = new boolean[gameState.getPlayers().size()];
                 long[] roundTimes = new long[gameState.getPlayers().size()];
@@ -322,8 +333,9 @@ public class Game {
                                                 .formatForConsole()
                                                 .replace("\n", "\n  "));
 
+                        io.println("  You have " + (TIME_LIMIT_MS / 1000) + " seconds to answer!");
                         long startTime = System.currentTimeMillis();
-                        String response = readValidAnswer(currentQuestion);
+                        String response = readAnswerWithTimeout(currentQuestion);
                         long endTime = System.currentTimeMillis();
                         long elapsedTime = endTime - startTime;
 
@@ -331,6 +343,8 @@ public class Game {
                         currentPlayer.setTimer(
                                 currentPlayer.getTimer() + elapsedTime);
 
+                        boolean isCorrect;
+                        if (response.equals("__TIMEOUT__")) {
                         boolean isCorrect = AnswerValidator.isCorrect(
                                 currentQuestion,
                                 response);
@@ -339,6 +353,11 @@ public class Game {
                             io.println(
                                     "   >> [TIMEOUT] Correct answer, but took too long (> 15s)!");
                             isCorrect = false;
+                            int penalty = calculatePoints(currentQuestion);
+                            currentPlayer.subtractScore(penalty);
+                            io.println("   >> TIME'S UP! -" + penalty + " points penalty.");
+                        } else {
+                            isCorrect = AnswerValidator.isCorrect(currentQuestion, response);
                         }
 
                         roundResults[p] = isCorrect;
@@ -360,6 +379,7 @@ public class Game {
                         }
 
                         io.println("  Score: " + currentPlayer.getScore());
+                        io.println("");
                     }
                 }
 
@@ -387,6 +407,7 @@ public class Game {
         io.println("Thanks for playing!");
     }
 
+    @SuppressWarnings("unused") // Kept for potential future use without timeout
     private String readValidAnswer(Question question) {
         while (true) {
             String response = io.readNonEmptyString("  Your answer:");
@@ -395,6 +416,49 @@ public class Game {
             }
             io.println("  Invalid answer. Please enter a valid option.");
         }
+    }
+
+    /**
+     * Reads a valid answer within the time limit.
+     * Timer runs silently in the background and returns "__TIMEOUT__" if time
+     * expires.
+     */
+    private String readAnswerWithTimeout(Question question) {
+        final boolean[] done = { false };
+        final String[] result = { null };
+
+        // Input reading thread
+        Thread inputThread = new Thread(() -> {
+            while (!done[0]) {
+                try {
+                    String response = io.readLineWithTimeoutAndCountdown("  Your answer:", TIME_LIMIT_MS);
+                    if (AnswerValidator.isValidAnswer(question, response)) {
+                        result[0] = response;
+                        done[0] = true;
+                        break;
+                    } else {
+                        io.println("  Invalid answer. Please enter a valid option.");
+                    }
+                } catch (TimeoutException e) {
+                    done[0] = true;
+                    break;
+                }
+            }
+        });
+
+        inputThread.start();
+
+        try {
+            inputThread.join();
+        } catch (InterruptedException e) {
+            // ignored
+        }
+
+        if (result[0] == null) {
+            io.println("  !! TIME'S UP !!");
+            return "__TIMEOUT__";
+        }
+        return result[0];
     }
 
     private void printWelcomeMessage() {
@@ -538,6 +602,7 @@ public class Game {
                                     "] is now marked with '" +
                                     initial +
                                     "'.");
+                    io.println("");
                 } else {
                     io.println(
                             "  That cell is either outside the map or already taken! Try again.");
@@ -589,16 +654,20 @@ public class Game {
         String winnerName = gameState.getPlayers().get(winner - 1).getName();
         String loserName = gameState.getPlayers().get(loser - 1).getName();
 
-        io.println("\n  >> ROUND CONQUEROR: " + winnerName);
+        io.println("\n\n  >> ROUND CONQUEROR: " + winnerName);
         io.println("  >> Reason: " + reason);
+        io.println("");
+        io.println("");
 
         for (int i = 1; i <= 2; i++) {
             io.println("  [" + winnerName + " Selection " + i + "/2]");
             askToClaim(winner);
         }
+        io.println("");
 
         io.println("  [" + loserName + " Selection 1/1]");
         askToClaim(loser);
+        io.println("");
 
         map.display(io);
     }
@@ -637,6 +706,10 @@ public class Game {
      * @return The amount of points wagered, or 0 if declined.
      */
     private int handleBetting(Player player, Question q) {
+        if (player.getScore() <= 0) {
+            io.println("\n  " + player.getName() + ", you have 0 points. Skipping betting phase.");
+            return 0;
+        }
         io.println("\n  *** SPECIAL BETTING OPPORTUNITY ***");
         io.println(
                 "  Category: " +
@@ -691,7 +764,7 @@ public class Game {
                 int winAmount = wager * 2;
                 player.addScore(winAmount);
                 io.println(
-                        "  >> CORRECT! [" +
+                        "\n  >> CORRECT! [" +
                                 player.getName() +
                                 "] won " +
                                 winAmount +
@@ -710,7 +783,7 @@ public class Game {
                 player.setStreak(points);
 
                 io.println(
-                        "  >> CORRECT! [" +
+                        "\n  >> CORRECT! [" +
                                 player.getName() +
                                 "] earned " +
                                 points +
