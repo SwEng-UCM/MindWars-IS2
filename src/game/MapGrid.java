@@ -56,12 +56,12 @@ public class MapGrid {
     }
 
     public void revealCellForPlayer (char symbol, int row, int col) {
-        if (isInside(row, col)) {
+        if (!isInside(row, col)) {
             return;
         }
         boolean[][] playerView = visibility.get(symbol);
-        if (playerView[row][col]) {
-            playerView[row][col] = false;
+        if (playerView!= null) {
+            playerView[row][col] = true;
         }
     }
 
@@ -71,6 +71,29 @@ public class MapGrid {
                 revealCellForPlayer(symbol, row + dr, col + dc);
             }
         }
+    }
+
+    public void displayForPlayer (ui.ConsoleIO io, char symbol) {
+        io.println("\n  CURRENT MAP:");
+        boolean[][] playerView = visibility.get(symbol);
+
+        io.println("");
+        io.println("    0 1 2");
+        for (int i = 0; i < size; i++) {
+            StringBuilder line = new StringBuilder();
+            line.append(" ").append(i).append("  ");
+
+            for (int j = 0; j < size; j++) {
+                if (playerView != null && playerView[i][j]) {
+                    line.append(grid[i][j]).append(" ");
+                } else {
+                    line.append("? ");
+                }
+            }
+
+            io.println(line.toString());
+        }
+        io.println("");
     }
 
 
