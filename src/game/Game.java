@@ -483,6 +483,7 @@ public class Game {
             Player newPlayer = new Player(name);
             char symbol = (i == 1) ? 'X' : 'O';
             newPlayer.setSymbol(symbol);
+            map.initVisibilityForPlayer(symbol);
             gameState.addPlayer(newPlayer);
             io.println("");
         }
