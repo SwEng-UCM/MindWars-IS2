@@ -13,6 +13,7 @@ public class Question {
     private double numericAnswer; // used for NUMERIC
     private double tolerance; // margin of error for NUMERIC -> is going to be used for estimation-based challenges
     private List<String> orderingAnswer; // used for ORDERING
+    private String clue;
 
     public Question() {} // empty constructor for GSON
 
@@ -90,5 +91,9 @@ public class Question {
 
     public List<String> getOrderingAnswer() {
         return orderingAnswer;
+    }
+
+    public String getClue() {
+        return clue;
     }
 }
