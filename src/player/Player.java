@@ -1,12 +1,14 @@
 package player;
 
 public class Player {
+
     private String name;
     private int score;
     private long timer;
     private long answerTimeMs;
     private int streak;
     private boolean hasUsedBet = false;
+    private boolean hasUsedBonus = false;
     private char symbol;
     private static final int STREAK_TARGET = 3;
     public static final int STREAK_BONUS = 3;
@@ -18,7 +20,6 @@ public class Player {
         this.answerTimeMs = 0;
         this.streak = 0;
         this.symbol = ' ';
-
     }
 
     public String getName() {
@@ -36,7 +37,7 @@ public class Player {
     public void setScore(int score) {
         this.score = score;
     }
-    
+
     public long getTimer() {
         return timer;
     }
@@ -64,14 +65,11 @@ public class Player {
         if (streak >= STREAK_TARGET) {
             addScore(STREAK_BONUS);
         }
-
     }
 
     public void subtractScore(int points) {
         this.score -= points;
-        if (this.score < 0)
-            this.score = 0;
-
+        if (this.score < 0) this.score = 0;
     }
 
     public void resetStreak() {
@@ -92,5 +90,13 @@ public class Player {
 
     public void setSymbol(char symbol) {
         this.symbol = symbol;
+    }
+
+    public boolean hasUsedBonus() {
+        return hasUsedBonus;
+    }
+
+    public void setHasUsedBonus(boolean useBonus) {
+        this.hasUsedBonus = useBonus;
     }
 }
