@@ -162,13 +162,13 @@ public class Game {
         while (playAgain) {
 
             gameState.reset();
-            map.clear();
-
             printWelcomeMessage();
+
+            int mapSize = chooseMapSize();
+            this.map = new MapGrid(mapSize);
             setupPlayers();
             setStartingPlayer();
-
-            int questionsPerPlayer = 3;
+            int questionsPerPlayer = mapSize;
 
             io.println("");
             String mode = io.selectFromList("  Choose game mode:", List.of(
@@ -468,9 +468,9 @@ public class Game {
         io.println(
                 "  1. BATTLE: Answer correctly and BE FAST! Speed is the tie-breaker.");
         io.println(
-                "  2. REWARD: Round Winner claims 2 cells from the map. The runner-up claims 1 cell.");
+                "  2. REWARD: Round Winner claims 1 more cell from the map than the runner up. Claims scale with the map size.");
         io.println(
-                "             - Once claimed, the cell will show your NAME'S INITIAL.");
+                "             - Once claimed, the cell will show your player symbol.");
         io.println("");
     }
 

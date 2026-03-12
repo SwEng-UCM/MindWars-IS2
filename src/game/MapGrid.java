@@ -24,6 +24,10 @@ public class MapGrid {
         generateBonus();
     }
 
+    public int getSize() {
+        return size;
+    }
+
     private void initializeGrid() {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
@@ -107,7 +111,12 @@ public class MapGrid {
         boolean[][] playerView = visibility.get(symbol);
 
         io.println("");
-        io.println("    0 1 2");
+        StringBuilder header = new StringBuilder("    ");
+        for (int i = 0; i < size; i++) {
+            header.append(i).append(" ");
+        }
+        io.println(header.toString());
+
         for (int i = 0; i < size; i++) {
             StringBuilder line = new StringBuilder();
             line.append(" ").append(i).append("  ");
