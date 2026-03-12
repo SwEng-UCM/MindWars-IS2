@@ -21,7 +21,8 @@ public class Game {
     private final MapGrid map;
 
     private static final long TIME_LIMIT_MS = 15000;
-    // New feature: if a player answers correctly in <= 3 seconds, base points are doubled.
+    // New feature: if a player answers correctly in <= 3 seconds, base points are
+    // doubled.
     private static final long LIGHTNING_BONUS_MS = 3_000;
 
     public Game(ConsoleIO io, QuestionBank questionBank) {
@@ -134,7 +135,7 @@ public class Game {
             int wager = playerBets.getOrDefault(p, 0);
 
             // Universal score processing (handles wagers, standard points, and streaks)
-            processScore(p, question, isWinner, wager, res.timeTaken);        
+            processScore(p, question, isWinner, wager, res.timeTaken);
         }
 
         io.println("");
@@ -567,7 +568,6 @@ public class Game {
         Player currentPlayer = gameState.getPlayers().get(playerNum - 1);
         char symbol = currentPlayer.getSymbol();
 
-
         while (!done) {
             map.displayForPlayer(io, symbol);
             String input = io.readNonEmptyString(
@@ -587,12 +587,12 @@ public class Game {
                 int r = Integer.parseInt(parts[0].trim());
                 int c = Integer.parseInt(parts[1].trim());
 
-                map.revealCellForPlayer(symbol, r, c);
-
+                boolean cellHasBonus = map.hasBonus(r, c);
 
                 if (map.claimCell(symbol, r, c)) {
                     map.revealNeighbourForPlayer(symbol, r, c);
-                    done = true;
+                    map.revealCellForPlayer(symbol, r, c);
+
                     io.println(
                             "  Success! Cell [" +
                                     r +
@@ -601,6 +601,19 @@ public class Game {
                                     "] is now marked with '" +
                                     symbol +
                                     "'.");
+                    io.println("");
+
+                    if (cellHasBonus) {
+                        io.println("\n BONUS FOUND!");
+                        io.println("  Congratulations " + currentPlayer.getName() + "!");
+                        io.println("  You found a power-up in this region!");
+
+                        // to be implemented in Player as issue #58
+                        // currentPlayer.addPowerUp();
+
+                        // io.println(" Power-ups stored: " + currentPlayer.getPowerUpCount());
+                    }
+                    done = true;
                     io.println("");
                 } else {
                     io.println(
@@ -691,10 +704,10 @@ public class Game {
                             " was faster! +" +
                             speedBonus +
                             " pts");
-                        
+
             // actually add the bonus to the player's score
             io.println("   Updated Score: " + speedWinner.getScore());
-           
+
         }
     }
 
@@ -767,7 +780,7 @@ public class Game {
                                 "] won " +
                                 winAmount +
                                 " points from the bet!");
-            } else{
+            } else {
                 // Standard points logic: Use the difficulty-based scoring
                 int points = calculatePoints(q); // Now correctly returns 10, 20, or 30
 
