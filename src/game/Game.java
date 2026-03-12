@@ -18,7 +18,7 @@ public class Game {
     private final ConsoleIO io;
     private final QuestionBank questionBank;
     private final GameState gameState;
-    private final MapGrid map;
+    private  MapGrid map;
 
     private static final long TIME_LIMIT_MS = 15000;
     // New feature: if a player answers correctly in <= 3 seconds, base points are
@@ -29,7 +29,6 @@ public class Game {
         this.io = io;
         this.questionBank = questionBank;
         this.gameState = new GameState();
-        this.map = new MapGrid(3);
     }
 
     /**
@@ -818,5 +817,18 @@ public class Game {
                 player.resetStreak();
             }
         }
+    }
+
+    private int chooseMapSize(){
+        String mapSize = io.selectFromList("  Choose a map size. ", List.of(
+                "Small 3x3",
+                "Medium 5x5",
+                "Large 7x7"));
+
+        return switch (mapSize) {
+            case "Medium 5x5" -> 5;
+            case "Large 7x7" -> 7;
+            default -> 3;
+        };
     }
 }
