@@ -554,9 +554,9 @@ public class Game {
         String diff = question.getDifficulty().toUpperCase();
         // logic: easy=10 medium=20 hard=30
         return switch (diff) {
-            case "HARD" -> 30;
-            case "MEDIUM" -> 20;
-            default -> 10; // covers "easy" or any unexpected strings
+            case "HARD" -> 300;
+            case "MEDIUM" -> 200;
+            default -> 100; // covers "easy" or any unexpected strings
         };
     }
 
