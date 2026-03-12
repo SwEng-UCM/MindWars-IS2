@@ -483,6 +483,7 @@ public class Game {
             Player newPlayer = new Player(name);
             char symbol = (i == 1) ? 'X' : 'O';
             newPlayer.setSymbol(symbol);
+            map.initVisibilityForPlayer(symbol);
             gameState.addPlayer(newPlayer);
             io.println("");
         }
@@ -564,15 +565,16 @@ public class Game {
         boolean done = false;
 
         Player currentPlayer = gameState.getPlayers().get(playerNum - 1);
+        char symbol = currentPlayer.getSymbol();
 
-        char initial = currentPlayer.getName().toUpperCase().charAt(0);
 
         while (!done) {
+            map.displayForPlayer(io, symbol);
             String input = io.readNonEmptyString(
                     "  " +
                             currentPlayer.getName() +
                             " (" +
-                            initial +
+                            symbol +
                             "), enter coordinates row,col:");
 
             if (!input.contains(",")) {
@@ -585,7 +587,11 @@ public class Game {
                 int r = Integer.parseInt(parts[0].trim());
                 int c = Integer.parseInt(parts[1].trim());
 
-                if (map.claimCell(initial, r, c)) {
+                map.revealCellForPlayer(symbol, r, c);
+
+
+                if (map.claimCell(symbol, r, c)) {
+                    map.revealNeighbourForPlayer(symbol, r, c);
                     done = true;
                     io.println(
                             "  Success! Cell [" +
@@ -593,7 +599,7 @@ public class Game {
                                     "," +
                                     c +
                                     "] is now marked with '" +
-                                    initial +
+                                    symbol +
                                     "'.");
                     io.println("");
                 } else {
@@ -662,7 +668,6 @@ public class Game {
         askToClaim(loser);
         io.println("");
 
-        map.display(io);
     }
 
     private void applySpeedBonus(boolean[] results, long[] times) {
