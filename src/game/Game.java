@@ -670,14 +670,20 @@ public class Game {
         io.println("");
         io.println("");
 
-        for (int i = 1; i <= 2; i++) {
-            io.println("  [" + winnerName + " Selection " + i + "/2]");
+        int mapSize = map.getSize();
+        int winnerClaims = mapSize/2+1;
+        int loserClaims = mapSize/2;
+
+        for (int i = 1; i <= winnerClaims; i++) {
+            io.println("  [" + winnerName + " Selection " + i + "/" + winnerClaims + "]");
             askToClaim(winner);
         }
         io.println("");
 
-        io.println("  [" + loserName + " Selection 1/1]");
-        askToClaim(loser);
+        for (int i = 1; i <= loserClaims; i++) {
+            io.println("  [" + loserName + " Selection" + i + "/" + loserClaims + "]");
+            askToClaim(loser);
+        }
         io.println("");
 
     }
