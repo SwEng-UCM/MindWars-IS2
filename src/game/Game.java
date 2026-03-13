@@ -12,6 +12,7 @@ import trivia.Question;
 import trivia.QuestionBank;
 import trivia.QuestionType;
 import ui.ConsoleIO;
+import ui.SoundManager;
 
 public class Game {
 
@@ -19,6 +20,7 @@ public class Game {
     private final QuestionBank questionBank;
     private final GameState gameState;
     private final MapGrid map;
+    private final SoundManager sound;
 
     private static final long TIME_LIMIT_MS = 15000;
     // New feature: if a player answers correctly in <= 3 seconds, base points are doubled.
@@ -29,6 +31,7 @@ public class Game {
         this.questionBank = questionBank;
         this.gameState = new GameState();
         this.map = new MapGrid(3);
+        this.sound = new SoundManager();
     }
 
     /**
@@ -156,6 +159,7 @@ public class Game {
     }
 
     public void run() {
+        sound.startBackground();
 
         boolean playAgain = true;
 
@@ -178,6 +182,7 @@ public class Game {
             io.println("");
             io.println("  All players registered. Let the battle begin!");
             io.println("");
+            sound.play(SoundManager.GAME_START);
 
             boolean randomRound = mode.equals("Random Round (computer decides)");
 
@@ -386,6 +391,7 @@ public class Game {
             }
 
             // Final results
+            sound.stopBackground();
             determineWinner();
 
             // option to play again
@@ -420,6 +426,9 @@ public class Game {
         final boolean[] done = { false };
         final String[] result = { null };
 
+        // Start ticking sound while player is answering
+        sound.startTimer();
+
         // Input reading thread
         Thread inputThread = new Thread(() -> {
             while (!done[0]) {
@@ -446,6 +455,9 @@ public class Game {
         } catch (InterruptedException e) {
             // ignored
         }
+
+        // Stop ticking sound once answered or timed out
+        sound.stopTimer();
 
         if (result[0] == null) {
             io.println("  !! TIME'S UP !!");
@@ -531,6 +543,7 @@ public class Game {
         if (winner == null) {
             io.println("  It's a TIE! Same score and territory.");
         } else {
+            sound.play(SoundManager.VICTORY);
             io.println("  WINNER: " + winner.getName() + "!");
         }
 
@@ -591,6 +604,7 @@ public class Game {
 
 
                 if (map.claimCell(symbol, r, c)) {
+                    sound.play(SoundManager.TERRITORY);
                     map.revealNeighbourForPlayer(symbol, r, c);
                     done = true;
                     io.println(
@@ -756,7 +770,11 @@ public class Game {
             boolean isCorrect,
             int wager,
             long elapsedTimeMs) {
+        boolean playSounds = q.getType() != QuestionType.OPEN_ENDED
+                && q.getType() != QuestionType.NUMERIC;
+
         if (isCorrect) {
+            if (playSounds) sound.play(SoundManager.CORRECT);
             if (wager > 0) {
                 // Wager logic: Double the bet
                 int winAmount = wager * 2;
@@ -774,6 +792,7 @@ public class Game {
                 // ⚡ Lightning bonus (<= 3 seconds)
                 if (elapsedTimeMs <= LIGHTNING_BONUS_MS) {
                     points *= 2;
+                    sound.play(SoundManager.LIGHTNING);
                     io.println("  >> ⚡ LIGHTNING! Answered in <= 3s: base points doubled.");
                 }
 
@@ -791,6 +810,7 @@ public class Game {
                 }
             }
         } else {
+            if (playSounds) sound.play(SoundManager.INCORRECT);
             if (wager > 0) {
                 // Failure logic: Subtract the bet
                 player.subtractScore(wager);
