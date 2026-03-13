@@ -19,11 +19,12 @@ public class Game {
     private final ConsoleIO io;
     private final QuestionBank questionBank;
     private final GameState gameState;
-    private final MapGrid map;
+    private MapGrid map;
     private final SoundManager sound;
 
     private static final long TIME_LIMIT_MS = 15000;
-    // New feature: if a player answers correctly in <= 3 seconds, base points are doubled.
+    // New feature: if a player answers correctly in <= 3 seconds, base points are
+    // doubled.
     private static final long LIGHTNING_BONUS_MS = 3_000;
 
     public Game(ConsoleIO io, QuestionBank questionBank) {
@@ -137,7 +138,7 @@ public class Game {
             int wager = playerBets.getOrDefault(p, 0);
 
             // Universal score processing (handles wagers, standard points, and streaks)
-            processScore(p, question, isWinner, wager, res.timeTaken);        
+            processScore(p, question, isWinner, wager, res.timeTaken);
         }
 
         io.println("");
@@ -166,13 +167,13 @@ public class Game {
         while (playAgain) {
 
             gameState.reset();
-            map.clear();
-
             printWelcomeMessage();
+
+            int mapSize = chooseMapSize();
+            this.map = new MapGrid(mapSize);
             setupPlayers();
             setStartingPlayer();
-
-            int questionsPerPlayer = 3;
+            int questionsPerPlayer = mapSize;
 
             io.println("");
             String mode = io.selectFromList("  Choose game mode:", List.of(
@@ -480,9 +481,9 @@ public class Game {
         io.println(
                 "  1. BATTLE: Answer correctly and BE FAST! Speed is the tie-breaker.");
         io.println(
-                "  2. REWARD: Round Winner claims 2 cells from the map. The runner-up claims 1 cell.");
+                "  2. REWARD: Round Winner claims 1 more cell from the map than the runner up. Claims scale with the map size.");
         io.println(
-                "             - Once claimed, the cell will show your NAME'S INITIAL.");
+                "             - Once claimed, the cell will show your player symbol.");
         io.println("");
     }
 
@@ -580,7 +581,6 @@ public class Game {
         Player currentPlayer = gameState.getPlayers().get(playerNum - 1);
         char symbol = currentPlayer.getSymbol();
 
-
         while (!done) {
             map.displayForPlayer(io, symbol);
             String input = io.readNonEmptyString(
@@ -600,13 +600,13 @@ public class Game {
                 int r = Integer.parseInt(parts[0].trim());
                 int c = Integer.parseInt(parts[1].trim());
 
-                map.revealCellForPlayer(symbol, r, c);
-
+                boolean cellHasBonus = map.hasBonus(r, c);
 
                 if (map.claimCell(symbol, r, c)) {
                     sound.play(SoundManager.TERRITORY);
                     map.revealNeighbourForPlayer(symbol, r, c);
-                    done = true;
+                    map.revealCellForPlayer(symbol, r, c);
+
                     io.println(
                             "  Success! Cell [" +
                                     r +
@@ -615,6 +615,19 @@ public class Game {
                                     "] is now marked with '" +
                                     symbol +
                                     "'.");
+                    io.println("");
+
+                    if (cellHasBonus) {
+                        io.println("\n BONUS FOUND!");
+                        io.println("  Congratulations " + currentPlayer.getName() + "!");
+                        io.println("  You found a power-up in this region!");
+
+                        // to be implemented in Player as issue #58
+                        // currentPlayer.addPowerUp();
+
+                        // io.println(" Power-ups stored: " + currentPlayer.getPowerUpCount());
+                    }
+                    done = true;
                     io.println("");
                 } else {
                     io.println(
@@ -672,14 +685,20 @@ public class Game {
         io.println("");
         io.println("");
 
-        for (int i = 1; i <= 2; i++) {
-            io.println("  [" + winnerName + " Selection " + i + "/2]");
+        int mapSize = map.getSize();
+        int winnerClaims = mapSize/2+1;
+        int loserClaims = mapSize/2;
+
+        for (int i = 1; i <= winnerClaims; i++) {
+            io.println("  [" + winnerName + " Selection " + i + "/" + winnerClaims + "]");
             askToClaim(winner);
         }
         io.println("");
 
-        io.println("  [" + loserName + " Selection 1/1]");
-        askToClaim(loser);
+        for (int i = 1; i <= loserClaims; i++) {
+            io.println("  [" + loserName + " Selection" + i + "/" + loserClaims + "]");
+            askToClaim(loser);
+        }
         io.println("");
 
     }
@@ -705,10 +724,10 @@ public class Game {
                             " was faster! +" +
                             speedBonus +
                             " pts");
-                        
+
             // actually add the bonus to the player's score
             io.println("   Updated Score: " + speedWinner.getScore());
-           
+
         }
     }
 
@@ -785,7 +804,7 @@ public class Game {
                                 "] won " +
                                 winAmount +
                                 " points from the bet!");
-            } else{
+            } else {
                 // Standard points logic: Use the difficulty-based scoring
                 int points = calculatePoints(q); // Now correctly returns 10, 20, or 30
 
@@ -825,5 +844,18 @@ public class Game {
                 player.resetStreak();
             }
         }
+    }
+
+    private int chooseMapSize(){
+        String mapSize = io.selectFromList("  Choose a map size. ", List.of(
+                "Small 3x3",
+                "Medium 5x5",
+                "Large 7x7"));
+
+        return switch (mapSize) {
+            case "Medium 5x5" -> 5;
+            case "Large 7x7" -> 7;
+            default -> 3;
+        };
     }
 }
