@@ -160,4 +160,31 @@ public class MapGrid {
             }
         }
     }
+
+    public char getOwner(int row, int col) {
+        if (isInside(row, col)) {
+            return grid[row][col];
+        }
+        return EMPTY;
+    }
+
+    public void setOwner(int row, int col, char symbol) {
+        if (isInside(row, col)) {
+            grid[row][col] = symbol;
+        }
+    }
+
+    public boolean isAdjacent(int r1, int c1, int r2, int c2) {
+        return Math.abs(r1 - r2) <= 1 && Math.abs(c1 - c2) <= 1 && !(r1 == r2 && c1 == c2);
+    }
+
+    public boolean isMapFull() {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (grid[i][j] == EMPTY)
+                    return false;
+            }
+        }
+        return true;
+    }
 }
