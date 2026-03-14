@@ -23,12 +23,28 @@ public class SoundManager {
 
     private Clip backgroundClip;
     private Clip timerClip;
+    private boolean isMuted = false; // Default is not muted
 
     /**
      * Plays a WAV sound file asynchronously (non-blocking).
      * If the file doesn't exist or playback fails, it is silently ignored.
      */
+    public void setMuted(boolean muted) {
+        this.isMuted = muted;
+        // If we mute while music is playing, stop the music immediately
+        if (isMuted) {
+            stopBackground();
+            stopTimer();
+        }
+    }
+
+    public boolean isMuted() {
+        return isMuted;
+    }
+
     public void play(String soundFileName) {
+        if (isMuted)
+            return; // Skip if muted
         File file = new File(ASSETS_DIR + soundFileName);
         if (!file.exists()) {
             return;
@@ -56,6 +72,8 @@ public class SoundManager {
      * Call stopBackground() to stop it.
      */
     public void startBackground() {
+        if (isMuted)
+            return; // Skip if muted
         stopBackground();
         File file = new File(ASSETS_DIR + BACKGROUND);
         if (!file.exists()) {
@@ -89,6 +107,8 @@ public class SoundManager {
      * (when the player answers or time runs out).
      */
     public void startTimer() {
+        if (isMuted)
+            return;
         stopTimer();
         File file = new File(ASSETS_DIR + TIMER);
         if (!file.exists()) {

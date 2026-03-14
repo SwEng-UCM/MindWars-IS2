@@ -160,6 +160,10 @@ public class Game {
     }
 
     public void run() {
+        // 1. Ask for sound preference at the very beginning
+        String soundChoice = io.readNonEmptyString("  Enable sound effects and music? (yes/no): ").toLowerCase();
+        boolean isMuted = soundChoice.equals("no") || soundChoice.equals("n");
+        sound.setMuted(isMuted);
         sound.startBackground();
 
         boolean playAgain = true;
@@ -686,8 +690,8 @@ public class Game {
         io.println("");
 
         int mapSize = map.getSize();
-        int winnerClaims = mapSize/2+1;
-        int loserClaims = mapSize/2;
+        int winnerClaims = mapSize / 2 + 1;
+        int loserClaims = mapSize / 2;
 
         for (int i = 1; i <= winnerClaims; i++) {
             io.println("  [" + winnerName + " Selection " + i + "/" + winnerClaims + "]");
@@ -793,7 +797,8 @@ public class Game {
                 && q.getType() != QuestionType.NUMERIC;
 
         if (isCorrect) {
-            if (playSounds) sound.play(SoundManager.CORRECT);
+            if (playSounds)
+                sound.play(SoundManager.CORRECT);
             if (wager > 0) {
                 // Wager logic: Double the bet
                 int winAmount = wager * 2;
@@ -829,7 +834,8 @@ public class Game {
                 }
             }
         } else {
-            if (playSounds) sound.play(SoundManager.INCORRECT);
+            if (playSounds)
+                sound.play(SoundManager.INCORRECT);
             if (wager > 0) {
                 // Failure logic: Subtract the bet
                 player.subtractScore(wager);
@@ -846,7 +852,7 @@ public class Game {
         }
     }
 
-    private int chooseMapSize(){
+    private int chooseMapSize() {
         String mapSize = io.selectFromList("  Choose a map size. ", List.of(
                 "Small 3x3",
                 "Medium 5x5",
