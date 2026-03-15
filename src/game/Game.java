@@ -884,23 +884,31 @@ public class Game {
             io.println("  " + attacker.getName() + ", choose your move!");
             map.display(io);
 
-            boolean validAttack = false;
             int attR = -1, attC = -1, defR = -1, defC = -1;
 
-            while (!validAttack) {
-                String input = io.readNonEmptyString("  Select YOUR territory to attack FROM (row,col):");
+            boolean sourceValid = false;
+            while (!sourceValid) {
                 try {
+                    String input = io.readNonEmptyString("  Select YOUR territory to attack FROM (row,col):");
                     String[] p = input.split(",");
                     attR = Integer.parseInt(p[0].trim());
                     attC = Integer.parseInt(p[1].trim());
 
-                    if (map.getOwner(attR, attC) != attackerSym) {
+                    if (map.getOwner(attR, attC) == attackerSym) {
+                        sourceValid = true;
+                    } else {
                         io.println("  Error: You don't own that cell!");
-                        continue;
                     }
+                } catch (Exception e) {
+                    io.println("  Invalid format. Use row,col.");
+                }
+            }
 
-                    input = io.readNonEmptyString("  Select ADJACENT enemy territory to ATTACK (row,col):");
-                    p = input.split(",");
+            boolean targetValid = false;
+            while (!targetValid) {
+                try {
+                    String input = io.readNonEmptyString("  Select ADJACENT enemy territory to ATTACK (row,col):");
+                    String[] p = input.split(",");
                     defR = Integer.parseInt(p[0].trim());
                     defC = Integer.parseInt(p[1].trim());
 
@@ -909,42 +917,68 @@ public class Game {
                     } else if (!map.isAdjacent(attR, attC, defR, defC)) {
                         io.println("  Error: Cell is not adjacent!");
                     } else {
-                        validAttack = true;
+                        targetValid = true;
                     }
                 } catch (Exception e) {
                     io.println("  Invalid format. Use row,col.");
                 }
             }
 
-            boolean tie = true;
-            while (tie) {
-                Question q = questionBank.getAllQuestionsAsList().get(0);
-                io.println("\n  BATTLE QUESTION");
+            int attempts = 0;
+            boolean battleResolved = false;
 
-                // attacker Turn
+            while (attempts < 2 && !battleResolved) {
+                attempts++;
+                Question q = questionBank.getAllQuestionsAsList().get(0);
+                String correctAnswer = (q.getType() == QuestionType.NUMERIC)
+                        ? String.valueOf(q.getNumericAnswer())
+                        : q.getAnswer();
+
+                if (attempts == 2) {
+                    io.println("\n  !!! TIE-BREAKER QUESTION (Final attempt) !!!");
+                } else {
+                    io.println("\n BATTLE QUESTION");
+                }
+
                 displayHotSeatHeader(attacker);
                 io.println("  ATTACKER [" + attacker.getName() + "]:");
                 io.println(q.formatForConsole());
                 String attAns = readAnswerWithTimeout(q);
                 boolean attCorrect = !attAns.equals("__TIMEOUT__") && AnswerValidator.isCorrect(q, attAns);
 
-                // defender Turn
+                if (attCorrect) {
+                    io.println("   >> CORRECT!");
+                } else {
+                    io.println("   >> WRONG! The correct answer was: " + correctAnswer);
+                }
+
                 displayHotSeatHeader(defender);
                 io.println("  DEFENDER [" + defender.getName() + "]:");
                 io.println(q.formatForConsole());
                 String defAns = readAnswerWithTimeout(q);
                 boolean defCorrect = !defAns.equals("__TIMEOUT__") && AnswerValidator.isCorrect(q, defAns);
 
+                if (defCorrect) {
+                    io.println("   >> CORRECT!");
+                } else {
+                    io.println("   >> WRONG! The correct answer was: " + correctAnswer);
+                }
+
                 if (attCorrect && !defCorrect) {
                     io.println("\n  >> SUCCESS! " + attacker.getName() + " conquered the territory!");
                     map.setOwner(defR, defC, attackerSym);
                     sound.play(SoundManager.TERRITORY);
-                    tie = false;
+                    battleResolved = true;
                 } else if (!attCorrect && defCorrect) {
                     io.println("\n  >> REPELLED! " + defender.getName() + " defended successfully!");
-                    tie = false;
+                    battleResolved = true;
                 } else {
-                    io.println("\n  >> TIE! Both were " + (attCorrect ? "CORRECT" : "WRONG") + ". New question...");
+                    if (attempts < 2) {
+                        io.println("\n  >> TIE! Moving to the final tie-breaker question...");
+                    } else {
+                        io.println("\n  >> DOUBLE TIE! Attack failed. The territory remains with " + defender.getName()
+                                + ".");
+                    }
                 }
             }
         }
