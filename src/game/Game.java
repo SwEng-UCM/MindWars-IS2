@@ -889,7 +889,14 @@ public class Game {
             boolean sourceValid = false;
             while (!sourceValid) {
                 try {
-                    String input = io.readNonEmptyString("  Select YOUR territory to attack FROM (row,col):");
+                    String input = io
+                            .readNonEmptyString("  Select YOUR territory to attack FROM (row,col) or 'd' to see map:");
+
+                    if (input.equalsIgnoreCase("d")) {
+                        map.display(io);
+                        continue;
+                    }
+
                     String[] p = input.split(",");
                     attR = Integer.parseInt(p[0].trim());
                     attC = Integer.parseInt(p[1].trim());
@@ -900,14 +907,21 @@ public class Game {
                         io.println("  Error: You don't own that cell!");
                     }
                 } catch (Exception e) {
-                    io.println("  Invalid format. Use row,col.");
+                    io.println("  Invalid format. Use row,col or 'd'.");
                 }
             }
 
             boolean targetValid = false;
             while (!targetValid) {
                 try {
-                    String input = io.readNonEmptyString("  Select ADJACENT enemy territory to ATTACK (row,col):");
+                    String input = io.readNonEmptyString(
+                            "  Select ADJACENT enemy territory to ATTACK (row,col) or 'd' to see map:");
+
+                    if (input.equalsIgnoreCase("d")) {
+                        map.display(io);
+                        continue;
+                    }
+
                     String[] p = input.split(",");
                     defR = Integer.parseInt(p[0].trim());
                     defC = Integer.parseInt(p[1].trim());
@@ -920,7 +934,7 @@ public class Game {
                         targetValid = true;
                     }
                 } catch (Exception e) {
-                    io.println("  Invalid format. Use row,col.");
+                    io.println("  Invalid format. Use row,col or 'd'.");
                 }
             }
 
@@ -937,7 +951,7 @@ public class Game {
                 if (attempts == 2) {
                     io.println("\n  !!! TIE-BREAKER QUESTION (Final attempt) !!!");
                 } else {
-                    io.println("\n BATTLE QUESTION");
+                    io.println("\n BATTLE QUESTION ");
                 }
 
                 displayHotSeatHeader(attacker);
