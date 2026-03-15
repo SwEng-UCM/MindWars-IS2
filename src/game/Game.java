@@ -12,16 +12,19 @@ import trivia.Question;
 import trivia.QuestionBank;
 import trivia.QuestionType;
 import ui.ConsoleIO;
+import ui.SoundManager;
 
 public class Game {
 
     private final ConsoleIO io;
     private final QuestionBank questionBank;
     private final GameState gameState;
-    private final MapGrid map;
+    private MapGrid map;
+    private final SoundManager sound;
 
     private static final long TIME_LIMIT_MS = 15000;
-    // New feature: if a player answers correctly in <= 3 seconds, base points are doubled.
+    // New feature: if a player answers correctly in <= 3 seconds, base points are
+    // doubled.
     private static final long LIGHTNING_BONUS_MS = 3_000;
 
     public Game(ConsoleIO io, QuestionBank questionBank) {
@@ -29,6 +32,7 @@ public class Game {
         this.questionBank = questionBank;
         this.gameState = new GameState();
         this.map = new MapGrid(3);
+        this.sound = new SoundManager();
     }
 
     /**
@@ -134,7 +138,7 @@ public class Game {
             int wager = playerBets.getOrDefault(p, 0);
 
             // Universal score processing (handles wagers, standard points, and streaks)
-            processScore(p, question, isWinner, wager, res.timeTaken);        
+            processScore(p, question, isWinner, wager, res.timeTaken);
         }
 
         io.println("");
@@ -156,19 +160,24 @@ public class Game {
     }
 
     public void run() {
+        // 1. Ask for sound preference at the very beginning
+        String soundChoice = io.readNonEmptyString("  Enable sound effects and music? (yes/no): ").toLowerCase();
+        boolean isMuted = soundChoice.equals("no") || soundChoice.equals("n");
+        sound.setMuted(isMuted);
+        sound.startBackground();
 
         boolean playAgain = true;
 
         while (playAgain) {
 
             gameState.reset();
-            map.clear();
-
             printWelcomeMessage();
+
+            int mapSize = chooseMapSize();
+            this.map = new MapGrid(mapSize);
             setupPlayers();
             setStartingPlayer();
-
-            int questionsPerPlayer = 3;
+            int questionsPerPlayer = mapSize;
 
             io.println("");
             String mode = io.selectFromList("  Choose game mode:", List.of(
@@ -178,6 +187,7 @@ public class Game {
             io.println("");
             io.println("  All players registered. Let the battle begin!");
             io.println("");
+            sound.play(SoundManager.GAME_START);
 
             boolean randomRound = mode.equals("Random Round (computer decides)");
 
@@ -253,6 +263,7 @@ public class Game {
                         roundQuestions.add(q);
                     } else {
                         i--; // try again
+                        continue;
                     }
                 }
             }
@@ -383,9 +394,15 @@ public class Game {
                         roundTimes[0],
                         roundResults[1],
                         roundTimes[1]);
+
+                if (map.isMapFull()) {
+                    handleAttackPhase();
+                    break;
+                }
             }
 
             // Final results
+            sound.stopBackground();
             determineWinner();
 
             // option to play again
@@ -420,6 +437,9 @@ public class Game {
         final boolean[] done = { false };
         final String[] result = { null };
 
+        // Start ticking sound while player is answering
+        sound.startTimer();
+
         // Input reading thread
         Thread inputThread = new Thread(() -> {
             while (!done[0]) {
@@ -447,6 +467,9 @@ public class Game {
             // ignored
         }
 
+        // Stop ticking sound once answered or timed out
+        sound.stopTimer();
+
         if (result[0] == null) {
             io.println("  !! TIME'S UP !!");
             return "__TIMEOUT__";
@@ -468,9 +491,9 @@ public class Game {
         io.println(
                 "  1. BATTLE: Answer correctly and BE FAST! Speed is the tie-breaker.");
         io.println(
-                "  2. REWARD: Round Winner claims 2 cells from the map. The runner-up claims 1 cell.");
+                "  2. REWARD: Round Winner claims 1 more cell from the map than the runner up. Claims scale with the map size.");
         io.println(
-                "             - Once claimed, the cell will show your NAME'S INITIAL.");
+                "             - Once claimed, the cell will show your player symbol.");
         io.println("");
     }
 
@@ -531,6 +554,7 @@ public class Game {
         if (winner == null) {
             io.println("  It's a TIE! Same score and territory.");
         } else {
+            sound.play(SoundManager.VICTORY);
             io.println("  WINNER: " + winner.getName() + "!");
         }
 
@@ -567,7 +591,6 @@ public class Game {
         Player currentPlayer = gameState.getPlayers().get(playerNum - 1);
         char symbol = currentPlayer.getSymbol();
 
-
         while (!done) {
             map.displayForPlayer(io, symbol);
             String input = io.readNonEmptyString(
@@ -587,12 +610,13 @@ public class Game {
                 int r = Integer.parseInt(parts[0].trim());
                 int c = Integer.parseInt(parts[1].trim());
 
-                map.revealCellForPlayer(symbol, r, c);
-
+                boolean cellHasBonus = map.hasBonus(r, c);
 
                 if (map.claimCell(symbol, r, c)) {
+                    sound.play(SoundManager.TERRITORY);
                     map.revealNeighbourForPlayer(symbol, r, c);
-                    done = true;
+                    map.revealCellForPlayer(symbol, r, c);
+
                     io.println(
                             "  Success! Cell [" +
                                     r +
@@ -601,6 +625,19 @@ public class Game {
                                     "] is now marked with '" +
                                     symbol +
                                     "'.");
+                    io.println("");
+
+                    if (cellHasBonus) {
+                        io.println("\n BONUS FOUND!");
+                        io.println("  Congratulations " + currentPlayer.getName() + "!");
+                        io.println("  You found a power-up in this region!");
+
+                        // to be implemented in Player as issue #58
+                        // currentPlayer.addPowerUp();
+
+                        // io.println(" Power-ups stored: " + currentPlayer.getPowerUpCount());
+                    }
+                    done = true;
                     io.println("");
                 } else {
                     io.println(
@@ -658,14 +695,20 @@ public class Game {
         io.println("");
         io.println("");
 
-        for (int i = 1; i <= 2; i++) {
-            io.println("  [" + winnerName + " Selection " + i + "/2]");
+        int mapSize = map.getSize();
+        int winnerClaims = mapSize / 2 + 1;
+        int loserClaims = mapSize / 2;
+
+        for (int i = 1; i <= winnerClaims; i++) {
+            io.println("  [" + winnerName + " Selection " + i + "/" + winnerClaims + "]");
             askToClaim(winner);
         }
         io.println("");
 
-        io.println("  [" + loserName + " Selection 1/1]");
-        askToClaim(loser);
+        for (int i = 1; i <= loserClaims; i++) {
+            io.println("  [" + loserName + " Selection" + i + "/" + loserClaims + "]");
+            askToClaim(loser);
+        }
         io.println("");
 
     }
@@ -691,10 +734,10 @@ public class Game {
                             " was faster! +" +
                             speedBonus +
                             " pts");
-                        
+
             // actually add the bonus to the player's score
             io.println("   Updated Score: " + speedWinner.getScore());
-           
+
         }
     }
 
@@ -756,7 +799,12 @@ public class Game {
             boolean isCorrect,
             int wager,
             long elapsedTimeMs) {
+        boolean playSounds = q.getType() != QuestionType.OPEN_ENDED
+                && q.getType() != QuestionType.NUMERIC;
+
         if (isCorrect) {
+            if (playSounds)
+                sound.play(SoundManager.CORRECT);
             if (wager > 0) {
                 // Wager logic: Double the bet
                 int winAmount = wager * 2;
@@ -767,13 +815,14 @@ public class Game {
                                 "] won " +
                                 winAmount +
                                 " points from the bet!");
-            } else{
+            } else {
                 // Standard points logic: Use the difficulty-based scoring
                 int points = calculatePoints(q); // Now correctly returns 10, 20, or 30
 
                 // ⚡ Lightning bonus (<= 3 seconds)
                 if (elapsedTimeMs <= LIGHTNING_BONUS_MS) {
                     points *= 2;
+                    sound.play(SoundManager.LIGHTNING);
                     io.println("  >> ⚡ LIGHTNING! Answered in <= 3s: base points doubled.");
                 }
 
@@ -791,6 +840,8 @@ public class Game {
                 }
             }
         } else {
+            if (playSounds)
+                sound.play(SoundManager.INCORRECT);
             if (wager > 0) {
                 // Failure logic: Subtract the bet
                 player.subtractScore(wager);
@@ -803,6 +854,146 @@ public class Game {
             } else {
                 // Failure logic: Reset streak, no points lost
                 player.resetStreak();
+            }
+        }
+    }
+
+    private int chooseMapSize() {
+        String mapSize = io.selectFromList("  Choose a map size. ", List.of(
+                "Small 3x3",
+                "Medium 5x5",
+                "Large 7x7"));
+
+        return switch (mapSize) {
+            case "Medium 5x5" -> 5;
+            case "Large 7x7" -> 7;
+            default -> 3;
+        };
+    }
+
+    private void handleAttackPhase() {
+        io.println("  |        ALL TERRITORIES CLAIMED         |");
+        io.println("  |        PHASE 2: THE INVASION           |");
+
+        for (Player attacker : gameState.getPlayers()) {
+            displayHotSeatHeader(attacker);
+            char attackerSym = attacker.getSymbol();
+            Player defender = (attackerSym == 'X') ? gameState.getPlayers().get(1) : gameState.getPlayers().get(0);
+            char defenderSym = defender.getSymbol();
+
+            io.println("  " + attacker.getName() + ", choose your move!");
+            map.display(io);
+
+            int attR = -1, attC = -1, defR = -1, defC = -1;
+
+            boolean sourceValid = false;
+            while (!sourceValid) {
+                try {
+                    String input = io
+                            .readNonEmptyString("  Select YOUR territory to attack FROM (row,col) or 'd' to see map:");
+
+                    if (input.equalsIgnoreCase("d")) {
+                        map.display(io);
+                        continue;
+                    }
+
+                    String[] p = input.split(",");
+                    attR = Integer.parseInt(p[0].trim());
+                    attC = Integer.parseInt(p[1].trim());
+
+                    if (map.getOwner(attR, attC) == attackerSym) {
+                        sourceValid = true;
+                    } else {
+                        io.println("  Error: You don't own that cell!");
+                    }
+                } catch (Exception e) {
+                    io.println("  Invalid format. Use row,col or 'd'.");
+                }
+            }
+
+            boolean targetValid = false;
+            while (!targetValid) {
+                try {
+                    String input = io.readNonEmptyString(
+                            "  Select ADJACENT enemy territory to ATTACK (row,col) or 'd' to see map:");
+
+                    if (input.equalsIgnoreCase("d")) {
+                        map.display(io);
+                        continue;
+                    }
+
+                    String[] p = input.split(",");
+                    defR = Integer.parseInt(p[0].trim());
+                    defC = Integer.parseInt(p[1].trim());
+
+                    if (map.getOwner(defR, defC) != defenderSym) {
+                        io.println("  Error: That's not an enemy territory!");
+                    } else if (!map.isAdjacent(attR, attC, defR, defC)) {
+                        io.println("  Error: Cell is not adjacent!");
+                    } else {
+                        targetValid = true;
+                    }
+                } catch (Exception e) {
+                    io.println("  Invalid format. Use row,col or 'd'.");
+                }
+            }
+
+            int attempts = 0;
+            boolean battleResolved = false;
+
+            while (attempts < 2 && !battleResolved) {
+                attempts++;
+                Question q = questionBank.getAllQuestionsAsList().get(0);
+                String correctAnswer = (q.getType() == QuestionType.NUMERIC)
+                        ? String.valueOf(q.getNumericAnswer())
+                        : q.getAnswer();
+
+                if (attempts == 2) {
+                    io.println("\n  !!! TIE-BREAKER QUESTION (Final attempt) !!!");
+                } else {
+                    io.println("\n BATTLE QUESTION ");
+                }
+
+                displayHotSeatHeader(attacker);
+                io.println("  ATTACKER [" + attacker.getName() + "]:");
+                io.println(q.formatForConsole());
+                String attAns = readAnswerWithTimeout(q);
+                boolean attCorrect = !attAns.equals("__TIMEOUT__") && AnswerValidator.isCorrect(q, attAns);
+
+                if (attCorrect) {
+                    io.println("   >> CORRECT!");
+                } else {
+                    io.println("   >> WRONG! The correct answer was: " + correctAnswer);
+                }
+
+                displayHotSeatHeader(defender);
+                io.println("  DEFENDER [" + defender.getName() + "]:");
+                io.println(q.formatForConsole());
+                String defAns = readAnswerWithTimeout(q);
+                boolean defCorrect = !defAns.equals("__TIMEOUT__") && AnswerValidator.isCorrect(q, defAns);
+
+                if (defCorrect) {
+                    io.println("   >> CORRECT!");
+                } else {
+                    io.println("   >> WRONG! The correct answer was: " + correctAnswer);
+                }
+
+                if (attCorrect && !defCorrect) {
+                    io.println("\n  >> SUCCESS! " + attacker.getName() + " conquered the territory!");
+                    map.setOwner(defR, defC, attackerSym);
+                    sound.play(SoundManager.TERRITORY);
+                    battleResolved = true;
+                } else if (!attCorrect && defCorrect) {
+                    io.println("\n  >> REPELLED! " + defender.getName() + " defended successfully!");
+                    battleResolved = true;
+                } else {
+                    if (attempts < 2) {
+                        io.println("\n  >> TIE! Moving to the final tie-breaker question...");
+                    } else {
+                        io.println("\n  >> DOUBLE TIE! Attack failed. The territory remains with " + defender.getName()
+                                + ".");
+                    }
+                }
             }
         }
     }

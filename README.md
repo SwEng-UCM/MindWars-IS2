@@ -7,31 +7,44 @@
 
 
 
-### One-liner
-A multiplayer trivia game where players answer knowledge-based questions to gain points and strategically conquer territories controlled by other players.
+### Description
+A 2-player hot seat trivia game where players answer questions to earn points and conquer territory on a shared map.
 
 
-## Project structure
+## Build & Run
+
+```bash
+javac -d out -cp "lib/*" src/**/*.java
+java -cp "out:lib/*" Main
+```
+
+Requires Java 17+ and GSON (included in `lib/`).
+
+## Project Structure
 
 ```text
 src/
-├─ Main.java                     # Entry point (wires everything and starts the game)
+├─ Main.java                         # Entry point
+├─ CheckQuestions.java               # Utility to validate questions.json
 │
-├─ game/                         # Core game flow + state management
-│  ├─ GameEngine.java            # Orchestrates setup, rounds/turns, scoring, end results
-│  ├─ GameState.java             # Holds mutable state (players, round, current turn)
-│  ├─ TurnManager.java           # Handles turn order logic
-│  └─ WinnerCalculator.java      # Computes winner/tie from scores
+├─ game/                             # Core game logic
+│  ├─ Game.java                      # Main orchestrator (rounds, scoring, territory)
+│  ├─ GameState.java                 # Mutable state (players, current turn)
+│  ├─ TurnManager.java               # Turn order logic
+│  ├─ WinnerCalculator.java          # Final winner (score + territory tiebreaker)
+│  ├─ NumericWinnerCalculator.java   # Estimation round winner (closest + fastest)
+│  └─ MapGrid.java                   # Territory grid with fog of war and bonus cells
 │
-├─ player/                       # Player data model
-│  └─ Player.java                # Player name + score (+ later stats/territories)
+├─ player/                           # Player data model
+│  └─ Player.java                    # Name, score, timer, streak, symbol
 │
-├─ trivia/                       # Trivia questions + validation
-│  ├─ QuestionType.java          # Enum for question types (MCQ, True/False)
-│  ├─ Question.java              # Question model + console formatting
-│  ├─ QuestionBank.java          # Stores and serves questions (hardcoded for MVP)
-│  └─ AnswerValidator.java       # Checks if input matches correct answer
+├─ trivia/                           # Question management
+│  ├─ QuestionType.java              # Enum (MCQ, True/False, Numeric, Open-Ended, Ordering)
+│  ├─ Question.java                  # Question model with multi-type support
+│  ├─ QuestionBank.java              # Loads questions from JSON by category & difficulty
+│  └─ AnswerValidator.java           # Input validation and answer checking
 │
-└─ ui/                           # Console I/O only (System.in/out)
-   └─ ConsoleIO.java             # Safe input helpers + printing
-
+└─ ui/                               # User interface
+   ├─ ConsoleIO.java                 # Console I/O with timeout and countdown
+   └─ SoundManager.java              # Async WAV playback (one-shot + looping)
+```
