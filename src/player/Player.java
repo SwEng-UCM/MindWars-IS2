@@ -1,5 +1,8 @@
 package player;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Player {
 
     private String name;
@@ -12,6 +15,9 @@ public class Player {
     private char symbol;
     private static final int STREAK_TARGET = 3;
     public static final int STREAK_BONUS = 3;
+    private int correctAnswers = 0;
+    private int wrongAnswers = 0;
+    private List<Long> responseTimes = new ArrayList<>();
 
     public Player(String name) {
         this.name = name;
@@ -98,5 +104,37 @@ public class Player {
 
     public void setHasUsedBonus(boolean useBonus) {
         this.hasUsedBonus = useBonus;
+    }
+
+    public void addCorrectAnswer(long responseTimeMs) {
+        correctAnswers++;
+        responseTimes.add(responseTimeMs);
+    }
+
+    public void addWrongAnswer(long responseTimeMs) {
+        wrongAnswers++;
+        responseTimes.add(responseTimeMs);
+    }
+
+    public int getCorrectAnswers() {
+        return correctAnswers;
+    }
+
+    public int getWrongAnswers() {
+        return wrongAnswers;
+    }
+
+    public double getAverageResponseTime() {
+        if (responseTimes.isEmpty()) return 0;
+        long sum = 0;
+        for (long t : responseTimes) sum += t;
+        return sum / (double) responseTimes.size() / 1000.0; // secondes
+    }
+
+    public double getFastestResponse() {
+        if (responseTimes.isEmpty()) return 0;
+        long min = Long.MAX_VALUE;
+        for (long t : responseTimes) if (t < min) min = t;
+        return min / 1000.0; // secondes
     }
 }
