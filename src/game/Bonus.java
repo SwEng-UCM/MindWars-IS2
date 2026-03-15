@@ -51,7 +51,7 @@ public class Bonus {
                         io.println(
                             "50/50 cannot be used on True/False or Open-Ended questions. Choose another bonus."
                         );
-                        continue; // reposer la question
+                        continue;
                     }
                     apply5050(q);
                     bonusApplied = true;
@@ -125,7 +125,6 @@ public class Bonus {
             double fake;
 
             if (correct == 0) {
-                // si la réponse est 0, créer un faux nombre entre 1 et 10
                 fake = 1 + random.nextInt(10);
             } else {
                 boolean add = random.nextBoolean();
@@ -142,8 +141,8 @@ public class Bonus {
 
         if (type == QuestionType.ORDERING) {
             List<String> ordering = q.getOrderingAnswer();
-            int hintCount = Math.max(1, ordering.size() / 2); // nombre d’indices à montrer
-            List<String> hintElements = ordering.subList(0, hintCount); // les éléments à montrer
+            int hintCount = Math.max(1, ordering.size() / 2);
+            List<String> hintElements = ordering.subList(0, hintCount);
 
             io.println(
                 "  50/50 applied: here is the start of the correct order!"
@@ -160,7 +159,6 @@ public class Bonus {
         Question newQ = null;
         int tries = 0;
 
-        // Cherche une nouvelle question valide (max 10 essais)
         while ((newQ == null || newQ.getAnswer() == null) && tries < 10) {
             newQ = questionBank.getQuestion(
                 currentQuestion.getCategory(),
@@ -174,7 +172,6 @@ public class Bonus {
             return;
         }
 
-        // Clone la question pour que le joueur ait sa propre copie
         Question cloned = newQ.cloneQuestion();
         currentQuestion.copyFrom(cloned);
 
