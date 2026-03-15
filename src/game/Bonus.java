@@ -1,0 +1,198 @@
+package game;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Random;
+import player.Player;
+import trivia.Question;
+import trivia.QuestionBank;
+import trivia.QuestionType;
+import ui.ConsoleIO;
+
+public class Bonus {
+
+    private final ConsoleIO io;
+    private final QuestionBank questionBank;
+    private final Random random = new Random();
+
+    public Bonus(ConsoleIO io, QuestionBank questionBank) {
+        this.io = io;
+        this.questionBank = questionBank;
+    }
+
+    public enum BonusType {
+        FIFTY_FIFTY,
+        NEW_QUESTION,
+        CLUE,
+    }
+
+    public void offerBonusIfAvailable(Player player, Question q) {
+        if (player.hasUsedBonus()) return;
+
+        boolean bonusApplied = false;
+        String choice = "";
+
+        while (!bonusApplied) {
+            io.println("\n  Bonus available! Choose one or skip:");
+            io.println("   1) 50/50");
+            io.println("   2) New Question (same category & difficulty)");
+            io.println("   3) Clue (get a hint)");
+            io.println("   4) Skip");
+
+            choice = io.readNonEmptyString("  Your choice (1-4):");
+
+            switch (choice) {
+                case "1":
+                    if (
+                        q.getType() == QuestionType.TRUE_FALSE ||
+                        q.getType() == QuestionType.OPEN_ENDED
+                    ) {
+                        io.println(
+                            "50/50 cannot be used on True/False or Open-Ended questions. Choose another bonus."
+                        );
+                        continue; // reposer la question
+                    }
+                    apply5050(q);
+                    bonusApplied = true;
+                    break;
+                case "2":
+                    if (
+                        q.getType() == QuestionType.NUMERIC ||
+                        q.getType() == QuestionType.ORDERING
+                    ) {
+                        io.println(
+                            "New question cannot be used on numeric or ordering questions. Choose another bonus."
+                        );
+                        continue;
+                    }
+                    applyNewQuestion(player, q);
+                    bonusApplied = true;
+                    break;
+                case "3":
+                    showClue(q);
+                    bonusApplied = true;
+                    break;
+                case "4":
+                    io.println("  Skipped bonus.");
+                    bonusApplied = true;
+                    break;
+                default:
+                    io.println("  Invalid choice. Try again.");
+            }
+        }
+
+        if (bonusApplied && !choice.equals("4")) {
+            player.setHasUsedBonus(true);
+        }
+    }
+
+    private void apply5050(Question q) {
+        QuestionType type = q.getType();
+
+        if (type == QuestionType.MULTIPLE_CHOICE) {
+            List<String> choices = new ArrayList<>(q.getChoices());
+            //convert the answer in index
+            int correctIndex = q.getAnswer().toUpperCase().charAt(0) - 'A';
+
+            String correctChoice = choices.get(correctIndex);
+            choices.remove(correctChoice);
+
+            String randomChoice = choices.get(random.nextInt(choices.size()));
+
+            List<String> newChoices = new ArrayList<>();
+            newChoices.add(correctChoice);
+            newChoices.add(randomChoice);
+
+            // mix
+            java.util.Collections.shuffle(newChoices, random);
+
+            //update the lettre of the ansews
+            int newIndex = newChoices.indexOf(correctChoice);
+            char newAnswer = (char) ('A' + newIndex);
+            q.setAnswer(String.valueOf(newAnswer));
+
+            q.setChoices(newChoices);
+            io.println("  50/50 applied: only 2 choices remain!");
+            io.println("  " + q.formatForConsole().replace("\n", "\n  "));
+        }
+
+        if (type == QuestionType.NUMERIC) {
+            double correct = q.getNumericAnswer();
+            // Generate a gap between 1 and 10% of the correct ansews
+            double percent = 1 + random.nextInt(10); // 1 to 10%
+            percent = percent / 100.0;
+            double fake;
+
+            if (correct == 0) {
+                // si la réponse est 0, créer un faux nombre entre 1 et 10
+                fake = 1 + random.nextInt(10);
+            } else {
+                boolean add = random.nextBoolean();
+                fake = add ? correct * (1 + percent) : correct * (1 - percent);
+            }
+
+            List<String> options = new ArrayList<>();
+            options.add(String.format(Locale.US, "%.2f", correct));
+            options.add(String.format(Locale.US, "%.2f", fake));
+            q.setChoices(options);
+            io.println("  50/50 applied: 2 numeric options shown!");
+            io.println("  " + q.formatForConsole().replace("\n", "\n  "));
+        }
+
+        if (type == QuestionType.ORDERING) {
+            List<String> ordering = q.getOrderingAnswer();
+            int hintCount = Math.max(1, ordering.size() / 2); // nombre d’indices à montrer
+            List<String> hintElements = ordering.subList(0, hintCount); // les éléments à montrer
+
+            io.println(
+                "  50/50 applied: here is the start of the correct order!"
+            );
+            io.println(
+                "  Hint (first " + hintCount + " elements): " + hintElements
+            );
+            io.println("  Full question remains to be answered by player:");
+            io.println("  " + q.formatForConsole().replace("\n", "\n  "));
+        }
+    }
+
+    private void applyNewQuestion(Player player, Question currentQuestion) {
+        Question newQ = null;
+        int tries = 0;
+
+        // Cherche une nouvelle question valide (max 10 essais)
+        while ((newQ == null || newQ.getAnswer() == null) && tries < 10) {
+            newQ = questionBank.getQuestion(
+                currentQuestion.getCategory(),
+                currentQuestion.getDifficulty()
+            );
+            tries++;
+        }
+
+        if (newQ == null || newQ.getAnswer() == null) {
+            io.println("  No valid new question available!");
+            return;
+        }
+
+        // Clone la question pour que le joueur ait sa propre copie
+        Question cloned = newQ.cloneQuestion();
+        currentQuestion.copyFrom(cloned);
+
+        io.println("\n  New question loaded!");
+        io.println(
+            "  " + currentQuestion.formatForConsole().replace("\n", "\n  ")
+        );
+    }
+
+    private void showClue(Question question) {
+        String clue = question.getClue();
+        if (clue == null || clue.isEmpty()) {
+            io.println("  No clue available for this question.");
+        } else {
+            io.println(
+                "  " + question.formatForConsole().replace("\n", "\n  ")
+            );
+            io.println("  Clue: " + clue);
+        }
+    }
+}
