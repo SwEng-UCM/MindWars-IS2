@@ -468,6 +468,8 @@ public class Game {
             // Final results
             determineWinner();
 
+            showPlayerStatistics();
+
             // option to play again
             String choice = io
                 .readNonEmptyString(
@@ -862,6 +864,7 @@ public class Game {
         long elapsedTimeMs
     ) {
         if (isCorrect) {
+            player.addCorrectAnswer(elapsedTimeMs);
             if (wager > 0) {
                 // Wager logic: Double the bet
                 int winAmount = wager * 2;
@@ -900,6 +903,7 @@ public class Game {
                 }
             }
         } else {
+            player.addWrongAnswer(elapsedTimeMs);
             if (wager > 0) {
                 // Failure logic: Subtract the bet
                 player.subtractScore(wager);
@@ -914,6 +918,27 @@ public class Game {
                 // Failure logic: Reset streak, no points lost
                 player.resetStreak();
             }
+        }
+    }
+
+    private void showPlayerStatistics() {
+        io.println("\n=== PLAYER STATISTICS ===\n");
+        for (Player player : gameState.getPlayers()) {
+            io.println("Statistics for " + player.getName() + ":");
+            io.println("  Correct Answers   : " + player.getCorrectAnswers());
+            io.println("  Wrong Answers     : " + player.getWrongAnswers());
+            io.println(
+                "  Average Response  : " +
+                    String.format(
+                        "%.2f seconds",
+                        player.getAverageResponseTime()
+                    )
+            );
+            io.println(
+                "  Fastest Response  : " +
+                    String.format("%.2f seconds", player.getFastestResponse())
+            );
+            io.println("");
         }
     }
 }
