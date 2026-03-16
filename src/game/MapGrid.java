@@ -4,23 +4,56 @@ import ui.ConsoleIO;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class MapGrid {
     private final char[][] grid;
+    private final boolean[][] bonus_cells; // matrix for power-up
     private final int size;
     private static final char EMPTY = '.';
 
-    private final Map<Character,boolean[][]> visibility;
+    private final Map<Character, boolean[][]> visibility;
 
     public MapGrid(int size) {
         this.size = size;
         this.grid = new char[size][size];
-        this.visibility = new HashMap<>(); //Fog of war
+        this.bonus_cells = new boolean[size][size]; // false
+        this.visibility = new HashMap<>(); // Fog of war
+
+        initializeGrid();
+        generateBonus();
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    private void initializeGrid() {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 grid[i][j] = EMPTY;
             }
         }
+    }
+
+    private void generateBonus() {
+        int total_cells = size * size;
+        int nr_bonuses = total_cells / 3;
+        Random rand = new Random();
+        int placed = 0;
+
+        while (placed < nr_bonuses) {
+            int r = rand.nextInt(size);
+            int c = rand.nextInt(size);
+            if (!bonus_cells[r][c]) {
+                bonus_cells[r][c] = true;
+                placed++;
+            }
+        }
+    }
+
+    public boolean hasBonus(int row, int col) {
+        return isInside(row, col) && bonus_cells[row][col];
     }
 
     public boolean isInside(int row, int col) {
@@ -51,21 +84,21 @@ public class MapGrid {
         return count;
     }
 
-    public void initVisibilityForPlayer (char symbol) {
+    public void initVisibilityForPlayer(char symbol) {
         visibility.put(symbol, new boolean[size][size]);
     }
 
-    public void revealCellForPlayer (char symbol, int row, int col) {
+    public void revealCellForPlayer(char symbol, int row, int col) {
         if (!isInside(row, col)) {
             return;
         }
         boolean[][] playerView = visibility.get(symbol);
-        if (playerView!= null) {
+        if (playerView != null) {
             playerView[row][col] = true;
         }
     }
 
-    public void revealNeighbourForPlayer (char symbol, int row, int col) {
+    public void revealNeighbourForPlayer(char symbol, int row, int col) {
         for (int dr = -1; dr <= 1; dr++) {
             for (int dc = -1; dc <= 1; dc++) {
                 revealCellForPlayer(symbol, row + dr, col + dc);
@@ -73,12 +106,17 @@ public class MapGrid {
         }
     }
 
-    public void displayForPlayer (ui.ConsoleIO io, char symbol) {
+    public void displayForPlayer(ui.ConsoleIO io, char symbol) {
         io.println("\n  CURRENT MAP:");
         boolean[][] playerView = visibility.get(symbol);
 
         io.println("");
-        io.println("    0 1 2");
+        StringBuilder header = new StringBuilder("    ");
+        for (int i = 0; i < size; i++) {
+            header.append(i).append(" ");
+        }
+        io.println(header.toString());
+
         for (int i = 0; i < size; i++) {
             StringBuilder line = new StringBuilder();
             line.append(" ").append(i).append("  ");
@@ -95,7 +133,6 @@ public class MapGrid {
         }
         io.println("");
     }
-
 
     public void display(ConsoleIO io) {
         io.println("\n  CURRENT MAP:");
@@ -117,10 +154,37 @@ public class MapGrid {
     }
 
     public void clear() {
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            grid[i][j] = EMPTY;
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                grid[i][j] = EMPTY;
+            }
         }
     }
-}
+
+    public char getOwner(int row, int col) {
+        if (isInside(row, col)) {
+            return grid[row][col];
+        }
+        return EMPTY;
+    }
+
+    public void setOwner(int row, int col, char symbol) {
+        if (isInside(row, col)) {
+            grid[row][col] = symbol;
+        }
+    }
+
+    public boolean isAdjacent(int r1, int c1, int r2, int c2) {
+        return Math.abs(r1 - r2) <= 1 && Math.abs(c1 - c2) <= 1 && !(r1 == r2 && c1 == c2);
+    }
+
+    public boolean isMapFull() {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (grid[i][j] == EMPTY)
+                    return false;
+            }
+        }
+        return true;
+    }
 }
