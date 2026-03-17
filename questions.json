@@ -6,7 +6,7 @@
     "prompt": "What is the boiling point of water?",
     "choices": ["90°C", "100°C", "120°C"],
     "answer": "B",
-    "clue": "Cette température est la même que celle à laquelle l'eau se transforme en vapeur au niveau de la mer."
+    "clue": "This temperature is the same at which water turns into vapor at sea level."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -15,7 +15,7 @@
     "prompt": "What is the chemical formula for water?",
     "choices": ["H2O", "CO2", "O2", "H2O2"],
     "answer": "A",
-    "clue": "Cette formule est composée de deux atomes d'hydrogène et d'un atome d'oxygène."
+    "clue": "This formula consists of two hydrogen atoms and one oxygen atom."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -29,7 +29,7 @@
       "500,000,000 m/s"
     ],
     "answer": "A",
-    "clue": "Cette vitesse est souvent arrondie à 300 000 km/s."
+    "clue": "This speed is often rounded to 300,000 km/s."
   },
   {
     "type": "TRUE_FALSE",
@@ -37,7 +37,7 @@
     "difficulty": "EASY",
     "prompt": "The sun is a star.",
     "answer": "T",
-    "clue": "Le soleil est au centre de notre système solaire et émet sa propre lumière."
+    "clue": "The sun is at the center of our solar system and emits its own light."
   },
   {
     "type": "TRUE_FALSE",
@@ -45,7 +45,7 @@
     "difficulty": "MEDIUM",
     "prompt": "Electrons are larger than protons.",
     "answer": "F",
-    "clue": "Les électrons sont beaucoup plus petits que les protons."
+    "clue": "Electrons are much smaller than protons."
   },
   {
     "type": "NUMERIC",
@@ -54,7 +54,7 @@
     "prompt": "At what temperature (in Celsius) does water freeze?",
     "numericAnswer": 0,
     "tolerance": 0,
-    "clue": "Cette température est le point de congélation de l'eau pure à pression atmosphérique normale."
+    "clue": "This temperature is the freezing point of pure water at normal atmospheric pressure."
   },
   {
     "type": "NUMERIC",
@@ -63,7 +63,7 @@
     "prompt": "In what year did the French Revolution start?",
     "numericAnswer": 1789,
     "tolerance": 0,
-    "clue": "Cette année est marquée par la prise de la Bastille."
+    "clue": "This year is marked by the storming of the Bastille."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -72,7 +72,7 @@
     "prompt": "What is 2+2?",
     "choices": ["3", "4", "5"],
     "answer": "B",
-    "clue": "C'est le résultat de l'addition de deux fois deux."
+    "clue": "This is the result of adding two plus two."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -81,7 +81,7 @@
     "prompt": "What is the capital of France?",
     "choices": ["Paris", "London", "Berlin", "Madrid"],
     "answer": "A",
-    "clue": "Cette ville est connue comme la 'Ville Lumière'."
+    "clue": "This city is known as the 'City of Light'."
   },
   {
     "type": "TRUE_FALSE",
@@ -89,7 +89,7 @@
     "difficulty": "EASY",
     "prompt": "The Earth is flat.",
     "answer": "F",
-    "clue": "La Terre est en réalité une sphère légèrement aplatie aux pôles."
+    "clue": "The Earth is actually a slightly flattened sphere at the poles."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -103,7 +103,7 @@
       "John Adams"
     ],
     "answer": "C",
-    "clue": "Il est souvent appelé le 'Père de la Nation' aux États-Unis."
+    "clue": "He is often called the 'Father of the Nation' in the United States."
   },
   {
     "type": "NUMERIC",
@@ -112,7 +112,7 @@
     "prompt": "In what year did the Berlin Wall fall?",
     "numericAnswer": 1989,
     "tolerance": 1,
-    "clue": "Cet événement a marqué la fin de la Guerre froide et a eu lieu en novembre."
+    "clue": "This event marked the end of the Cold War and took place in November."
   },
   {
     "type": "TRUE_FALSE",
@@ -120,7 +120,7 @@
     "difficulty": "HARD",
     "prompt": "The Hundred Years' War actually lasted exactly 100 years.",
     "answer": "F",
-    "clue": "Cette guerre entre la France et l'Angleterre a en réalité duré 116 ans."
+    "clue": "This war between France and England actually lasted 116 years."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -129,7 +129,7 @@
     "prompt": "Which is the largest continent by land area?",
     "choices": ["Africa", "Asia", "North America", "Europe"],
     "answer": "B",
-    "clue": "Ce continent abrite à la fois le point le plus haut et le plus bas de la Terre."
+    "clue": "This continent is home to both the highest and lowest points on Earth."
   },
   {
     "type": "OPEN_ENDED",
@@ -137,7 +137,7 @@
     "difficulty": "MEDIUM",
     "prompt": "What is the longest river in the world?",
     "answer": "Nile",
-    "clue": "Ce fleuve traverse l'Égypte et est associé à l'une des plus anciennes civilisations."
+    "clue": "This river flows through Egypt and is associated with one of the oldest civilizations."
   },
   {
     "type": "NUMERIC",
@@ -146,7 +146,7 @@
     "prompt": "How many countries does the equator pass through?",
     "numericAnswer": 13,
     "tolerance": 2,
-    "clue": "L'équateur traverse des pays en Amérique du Sud, en Afrique et en Asie."
+    "clue": "The equator passes through countries in South America, Africa, and Asia."
   },
   {
     "type": "TRUE_FALSE",
@@ -154,7 +154,7 @@
     "difficulty": "EASY",
     "prompt": "Mount Everest is the highest mountain in the world.",
     "answer": "T",
-    "clue": "Cette montagne se situe dans la chaîne de l'Himalaya."
+    "clue": "This mountain is located in the Himalayan range."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -163,7 +163,7 @@
     "prompt": "How many colors are in a rainbow?",
     "choices": ["5", "6", "7", "8"],
     "answer": "C",
-    "clue": "Les couleurs sont souvent mémorisées avec l'acronyme ROYGBIV."
+    "clue": "The colors are often remembered with the acronym ROYGBIV."
   },
   {
     "type": "NUMERIC",
@@ -172,7 +172,7 @@
     "prompt": "How many minutes are in a full week?",
     "numericAnswer": 10080,
     "tolerance": 1,
-    "clue": "Il y a 60 minutes dans une heure, 24 heures dans une journée et 7 jours dans une semaine."
+    "clue": "There are 60 minutes in an hour, 24 hours in a day, and 7 days in a week."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -181,7 +181,7 @@
     "prompt": "What is the rarest blood type in humans?",
     "choices": ["O negative", "A positive", "AB negative", "B negative"],
     "answer": "C",
-    "clue": "Ce groupe sanguin est appelé le 'donneur universel de plasma'."
+    "clue": "This blood type is called the 'universal plasma donor'."
   },
   {
     "type": "TRUE_FALSE",
@@ -189,7 +189,7 @@
     "difficulty": "MEDIUM",
     "prompt": "A shrimp's heart is located in its head.",
     "answer": "T",
-    "clue": "Les crevettes ont leur cœur dans leur céphalothorax."
+    "clue": "Shrimps have their heart in their cephalothorax."
   },
   {
     "type": "OPEN_ENDED",
@@ -197,7 +197,7 @@
     "difficulty": "EASY",
     "prompt": "What is the chemical symbol for Gold?",
     "answer": "Au",
-    "clue": "Ce symbole vient du mot latin 'Aurum'."
+    "clue": "This symbol comes from the Latin word 'Aurum'."
   },
   {
     "type": "NUMERIC",
@@ -206,7 +206,7 @@
     "prompt": "How many legs does a spider have?",
     "numericAnswer": 8,
     "tolerance": 0,
-    "clue": "Les araignées ont quatre paires de pattes."
+    "clue": "Spiders have four pairs of legs."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -215,7 +215,7 @@
     "prompt": "Which planet is known as the 'Morning Star'?",
     "choices": ["Mars", "Jupiter", "Venus", "Saturn"],
     "answer": "C",
-    "clue": "Cette planète est souvent visible avant le lever du soleil."
+    "clue": "This planet is often visible before sunrise."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -224,7 +224,7 @@
     "prompt": "Which language is this project in?",
     "choices": ["Python", "C++", "Java", "Ruby"],
     "answer": "C",
-    "clue": "Ce langage est connu pour sa portabilité et son utilisation dans les applications Android."
+    "clue": "This language is known for its portability and use in Android applications."
   },
   {
     "type": "TRUE_FALSE",
@@ -232,7 +232,7 @@
     "difficulty": "EASY",
     "prompt": "Java is an Object-Oriented language.",
     "answer": "T",
-    "clue": "Java utilise des classes et des objets pour organiser le code."
+    "clue": "Java uses classes and objects to organize code."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -241,7 +241,7 @@
     "prompt": "Which keyword is used to create an object in Java?",
     "choices": ["new", "make", "create", "build"],
     "answer": "A",
-    "clue": "Ce mot-clé est suivi du constructeur de la classe."
+    "clue": "This keyword is followed by the class constructor."
   },
   {
     "type": "TRUE_FALSE",
@@ -249,7 +249,7 @@
     "difficulty": "EASY",
     "prompt": "Git is a version control system.",
     "answer": "T",
-    "clue": "Git permet de suivre les modifications du code et de collaborer avec d'autres développeurs."
+    "clue": "Git tracks code changes and allows collaboration with other developers."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -258,7 +258,7 @@
     "prompt": "Which file contains the main entry point of the program?",
     "choices": ["Main.java", "Game.java", "Player.java", "Question.java"],
     "answer": "A",
-    "clue": "Ce fichier contient généralement la méthode 'public static void main(String[] args)'."
+    "clue": "This file usually contains the 'public static void main(String[] args)' method."
   },
   {
     "type": "TRUE_FALSE",
@@ -266,7 +266,7 @@
     "difficulty": "HARD",
     "prompt": "A stack follows FIFO order.",
     "answer": "F",
-    "clue": "Une pile (stack) suit le principe LIFO (Last In, First Out)."
+    "clue": "A stack follows the LIFO (Last In, First Out) principle."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -275,7 +275,7 @@
     "prompt": "Which class manages the game flow?",
     "choices": ["Player", "Game", "Question", "ConsoleIO"],
     "answer": "B",
-    "clue": "Cette classe est généralement responsable de la logique principale du jeu."
+    "clue": "This class is generally responsible for the main game logic."
   },
   {
     "type": "TRUE_FALSE",
@@ -283,7 +283,7 @@
     "difficulty": "MEDIUM",
     "prompt": "In Java, a class can have multiple constructors.",
     "answer": "T",
-    "clue": "Cela s'appelle la surcharge de constructeurs."
+    "clue": "This is called constructor overloading."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -292,7 +292,7 @@
     "prompt": "Which Git command is used to download a remote repository?",
     "choices": ["push", "commit", "clone", "pull"],
     "answer": "C",
-    "clue": "Cette commande crée une copie locale d'un dépôt distant."
+    "clue": "This command creates a local copy of a remote repository."
   },
   {
     "type": "TRUE_FALSE",
@@ -300,7 +300,7 @@
     "difficulty": "MEDIUM",
     "prompt": "The 'main' branch should always be stable.",
     "answer": "T",
-    "clue": "La branche 'main' est souvent protégée pour éviter les modifications non testées."
+    "clue": "The 'main' branch is often protected to prevent untested changes."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -309,7 +309,7 @@
     "prompt": "Which data structure works as LIFO?",
     "choices": ["Queue", "Array", "List", "Stack"],
     "answer": "D",
-    "clue": "Cette structure de données est souvent comparée à une pile d'assiettes."
+    "clue": "This data structure is often compared to a stack of plates."
   },
   {
     "type": "TRUE_FALSE",
@@ -317,7 +317,7 @@
     "difficulty": "MEDIUM",
     "prompt": "In Java, '==' checks object content equality.",
     "answer": "F",
-    "clue": "'==' vérifie l'égalité des références, pas du contenu. Pour vérifier le contenu, on utilise '.equals()'."
+    "clue": "'==' checks reference equality, not content. To check content, use '.equals()'."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -326,7 +326,7 @@
     "prompt": "Which file stores the trivia questions?",
     "choices": ["Game.java", "questions.json", "Main.java", "Player.java"],
     "answer": "B",
-    "clue": "Les questions sont généralement stockées dans un fichier de données au format JSON."
+    "clue": "Questions are usually stored in a JSON data file."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -335,7 +335,7 @@
     "prompt": "In which year did World War II end?",
     "choices": ["1943", "1944", "1945", "1946"],
     "answer": "C",
-    "clue": "La guerre s'est terminée après les bombardements atomiques sur le Japon."
+    "clue": "The war ended after the atomic bombings of Japan."
   },
   {
     "type": "TRUE_FALSE",
@@ -343,7 +343,7 @@
     "difficulty": "MEDIUM",
     "prompt": "The Roman Empire fell in 476 AD.",
     "answer": "T",
-    "clue": "Cette date marque la fin de l'Empire romain d'Occident."
+    "clue": "This date marks the end of the Western Roman Empire."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -352,7 +352,7 @@
     "prompt": "What is the smallest country in the world?",
     "choices": ["Monaco", "Vatican City", "San Marino", "Liechtenstein"],
     "answer": "B",
-    "clue": "Ce pays est le siège de l'Église catholique et est enclavé dans Rome."
+    "clue": "This country is the seat of the Catholic Church and is enclaved within Rome."
   },
   {
     "type": "NUMERIC",
@@ -361,7 +361,7 @@
     "prompt": "How many time zones does Russia have?",
     "numericAnswer": 11,
     "tolerance": 1,
-    "clue": "La Russie s'étend sur deux continents et est le plus grand pays du monde."
+    "clue": "Russia spans two continents and is the largest country in the world."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -370,7 +370,7 @@
     "prompt": "What is the hardest natural substance on Earth?",
     "choices": ["Gold", "Iron", "Diamond", "Platinum"],
     "answer": "C",
-    "clue": "Cette substance est composée de carbone pur et est souvent utilisée dans les outils de coupe."
+    "clue": "This substance is made of pure carbon and is often used in cutting tools."
   },
   {
     "type": "TRUE_FALSE",
@@ -378,7 +378,7 @@
     "difficulty": "HARD",
     "prompt": "Octopuses have three hearts.",
     "answer": "T",
-    "clue": "Deux de ces cœurs s'arrêtent de battre quand le poulpe nage."
+    "clue": "Two of these hearts stop beating when the octopus swims."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -387,7 +387,7 @@
     "prompt": "Which African country has the most pyramids?",
     "choices": ["Egypt", "Sudan", "Libya", "Algeria"],
     "answer": "B",
-    "clue": "Ce pays abrite les pyramides de Méroé, moins connues mais plus nombreuses que celles d'Égypte."
+    "clue": "This country is home to the Meroë pyramids, less known but more numerous than those in Egypt."
   },
   {
     "type": "TRUE_FALSE",
@@ -395,7 +395,7 @@
     "difficulty": "HARD",
     "prompt": "Australia is wider than the moon.",
     "answer": "T",
-    "clue": "Le diamètre de la Lune est d'environ 3 474 km, tandis que l'Australie fait environ 4 000 km de large."
+    "clue": "The moon's diameter is about 3,474 km, while Australia is about 4,000 km wide."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -409,7 +409,7 @@
       "Ferdinand Magellan"
     ],
     "answer": "A",
-    "clue": "Ce navigateur italien était au service des rois catholiques d'Espagne."
+    "clue": "This Italian navigator was in the service of the Catholic Monarchs of Spain."
   },
   {
     "type": "TRUE_FALSE",
@@ -417,7 +417,7 @@
     "difficulty": "MEDIUM",
     "prompt": "The Great Wall of China is visible from space.",
     "answer": "F",
-    "clue": "La Grande Muraille n'est pas visible à l'œil nu depuis l'espace sans aide optique."
+    "clue": "The Great Wall is not visible to the naked eye from space without optical aid."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -426,7 +426,7 @@
     "prompt": "In what year did the Titanic sink?",
     "choices": ["1910", "1912", "1914", "1916"],
     "answer": "B",
-    "clue": "Le naufrage a eu lieu lors de son voyage inaugural, en avril 1912."
+    "clue": "The sinking occurred during its maiden voyage, in April 1912."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -435,7 +435,7 @@
     "prompt": "How many planets are in our solar system?",
     "choices": ["7", "8", "9", "10"],
     "answer": "B",
-    "clue": "Pluton n'est plus considérée comme une planète depuis 2006."
+    "clue": "Pluto is no longer considered a planet since 2006."
   },
   {
     "type": "TRUE_FALSE",
@@ -443,7 +443,7 @@
     "difficulty": "MEDIUM",
     "prompt": "Humans and dinosaurs lived at the same time.",
     "answer": "F",
-    "clue": "Les dinosaures ont disparu il y a environ 65 millions d'années, bien avant l'apparition des humains."
+    "clue": "Dinosaurs went extinct about 65 million years ago, long before humans appeared."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -452,7 +452,7 @@
     "prompt": "What is the most abundant gas in Earth's atmosphere?",
     "choices": ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"],
     "answer": "C",
-    "clue": "Ce gaz représente environ 78 % de l'atmosphère terrestre."
+    "clue": "This gas makes up about 78% of Earth's atmosphere."
   },
   {
     "type": "ORDERING",
@@ -461,7 +461,7 @@
     "prompt": "Classify these events from oldest to newest:",
     "choices": ["American Civil War", "World War II", "World War I"],
     "orderingAnswer": ["American Civil War", "World War I", "World War II"],
-    "clue": "La guerre de Sécession a eu lieu au XIXe siècle, avant les deux guerres mondiales du XXe siècle."
+    "clue": "The American Civil War took place in the 19th century, before the two World Wars of the 20th century."
   },
   {
     "type": "ORDERING",
@@ -478,7 +478,7 @@
       "Moon Landing",
       "Fall of the Berlin Wall"
     ],
-    "clue": "La Guerre froide a commencé juste après la Seconde Guerre mondiale, avant l'alunissage et la chute du mur de Berlin."
+    "clue": "The Cold War began shortly after World War II, before the moon landing and the fall of the Berlin Wall."
   },
   {
     "type": "ORDERING",
@@ -495,7 +495,7 @@
       "Russian Revolution",
       "Treaty of Versailles"
     ],
-    "clue": "L'assassinat de l'archiduc François-Ferdinand en 1914 a déclenché la Première Guerre mondiale, suivie par la révolution russe en 1917 et le traité de Versailles en 1919."
+    "clue": "The assassination of Archduke Franz Ferdinand in 1914 triggered World War I, followed by the Russian Revolution in 1917 and the Treaty of Versailles in 1919."
   },
   {
     "type": "ORDERING",
@@ -504,7 +504,7 @@
     "prompt": "Order these states of matter by increasing molecular movement:",
     "choices": ["Solid", "Gas", "Liquid"],
     "orderingAnswer": ["Solid", "Liquid", "Gas"],
-    "clue": "Dans un solide, les molécules bougent très peu, tandis que dans un gaz, elles sont très mobiles."
+    "clue": "In a solid, molecules move very little, while in a gas, they are highly mobile."
   },
   {
     "type": "ORDERING",
@@ -513,7 +513,7 @@
     "prompt": "Order these layers of the Earth from outermost to innermost:",
     "choices": ["Core", "Crust", "Mantle"],
     "orderingAnswer": ["Crust", "Mantle", "Core"],
-    "clue": "La croûte terrestre est la couche la plus externe, suivie du manteau puis du noyau."
+    "clue": "The Earth's crust is the outermost layer, followed by the mantle and then the core."
   },
   {
     "type": "ORDERING",
@@ -522,7 +522,7 @@
     "prompt": "Order these scientists by year of birth (oldest to youngest):",
     "choices": ["Albert Einstein", "Isaac Newton", "Marie Curie"],
     "orderingAnswer": ["Isaac Newton", "Marie Curie", "Albert Einstein"],
-    "clue": "Isaac Newton est né en 1643, Marie Curie en 1867 et Albert Einstein en 1879."
+    "clue": "Isaac Newton was born in 1643, Marie Curie in 1867, and Albert Einstein in 1879."
   },
   {
     "type": "ORDERING",
@@ -531,7 +531,7 @@
     "prompt": "Order these continents by size (largest to smallest):",
     "choices": ["Africa", "Asia", "Europe"],
     "orderingAnswer": ["Asia", "Africa", "Europe"],
-    "clue": "L'Asie est le plus grand continent, suivie par l'Afrique puis l'Europe."
+    "clue": "Asia is the largest continent, followed by Africa and then Europe."
   },
   {
     "type": "ORDERING",
@@ -540,7 +540,7 @@
     "prompt": "Order these rivers by length (longest to shortest):",
     "choices": ["Danube", "Amazon", "Nile"],
     "orderingAnswer": ["Nile", "Amazon", "Danube"],
-    "clue": "Le Nil est généralement considéré comme le plus long fleuve du monde."
+    "clue": "The Nile is generally considered the longest river in the world."
   },
   {
     "type": "ORDERING",
@@ -549,7 +549,7 @@
     "prompt": "Order these countries by population (largest to smallest):",
     "choices": ["United States", "India", "Brazil"],
     "orderingAnswer": ["India", "United States", "Brazil"],
-    "clue": "L'Inde est le pays le plus peuplé de cette liste, suivie des États-Unis puis du Brésil."
+    "clue": "India is the most populous country in this list, followed by the United States and then Brazil."
   },
   {
     "type": "ORDERING",
@@ -558,7 +558,7 @@
     "prompt": "Order these seasons as they occur in a year (Northern Hemisphere):",
     "choices": ["Summer", "Spring", "Winter"],
     "orderingAnswer": ["Winter", "Spring", "Summer"],
-    "clue": "L'hiver précède le printemps, qui précède l'été dans l'hémisphère nord."
+    "clue": "Winter comes before spring, which comes before summer in the Northern Hemisphere."
   },
   {
     "type": "ORDERING",
@@ -567,6 +567,6 @@
     "prompt": "Order these inventions from oldest to newest:",
     "choices": ["Telephone", "Internet", "Printing Press"],
     "orderingAnswer": ["Printing Press", "Telephone", "Internet"],
-    "clue": "La presse à imprimer a été inventée par Gutenberg au XVe siècle, bien avant le téléphone et l'Internet."
+    "clue": "The printing press was invented by Gutenberg in the 15th century, long before the telephone and the Internet."
   }
 ]
