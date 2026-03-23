@@ -5,7 +5,8 @@
     "difficulty": "EASY",
     "prompt": "What is the boiling point of water?",
     "choices": ["90°C", "100°C", "120°C"],
-    "answer": "B"
+    "answer": "B",
+    "clue": "This temperature is the same at which water turns into vapor at sea level."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -13,29 +14,38 @@
     "difficulty": "MEDIUM",
     "prompt": "What is the chemical formula for water?",
     "choices": ["H2O", "CO2", "O2", "H2O2"],
-    "answer": "A"
+    "answer": "A",
+    "clue": "This formula consists of two hydrogen atoms and one oxygen atom."
   },
   {
     "type": "MULTIPLE_CHOICE",
     "category": "Science",
     "difficulty": "HARD",
     "prompt": "What is the speed of light in vacuum?",
-    "choices": ["299,792,458 m/s", "300,000,000 m/s", "150,000,000 m/s", "500,000,000 m/s"],
-    "answer": "A"
+    "choices": [
+      "299,792,458 m/s",
+      "300,000,000 m/s",
+      "150,000,000 m/s",
+      "500,000,000 m/s"
+    ],
+    "answer": "A",
+    "clue": "This speed is often rounded to 300,000 km/s."
   },
   {
     "type": "TRUE_FALSE",
     "category": "Science",
     "difficulty": "EASY",
     "prompt": "The sun is a star.",
-    "answer": "T"
+    "answer": "T",
+    "clue": "The sun is at the center of our solar system and emits its own light."
   },
   {
     "type": "TRUE_FALSE",
     "category": "Science",
     "difficulty": "MEDIUM",
     "prompt": "Electrons are larger than protons.",
-    "answer": "F"
+    "answer": "F",
+    "clue": "Electrons are much smaller than protons."
   },
   {
     "type": "NUMERIC",
@@ -43,7 +53,17 @@
     "difficulty": "HARD",
     "prompt": "At what temperature (in Celsius) does water freeze?",
     "numericAnswer": 0,
-    "tolerance": 0
+    "tolerance": 0,
+    "clue": "This temperature is the freezing point of pure water at normal atmospheric pressure."
+  },
+  {
+    "type": "NUMERIC",
+    "category": "History",
+    "difficulty": "HARD",
+    "prompt": "In what year did the French Revolution start?",
+    "numericAnswer": 1789,
+    "tolerance": 0,
+    "clue": "This year is marked by the storming of the Bastille."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -51,7 +71,8 @@
     "difficulty": "EASY",
     "prompt": "What is 2+2?",
     "choices": ["3", "4", "5"],
-    "answer": "B"
+    "answer": "B",
+    "clue": "This is the result of adding two plus two."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -59,22 +80,30 @@
     "difficulty": "EASY",
     "prompt": "What is the capital of France?",
     "choices": ["Paris", "London", "Berlin", "Madrid"],
-    "answer": "A"
+    "answer": "A",
+    "clue": "This city is known as the 'City of Light'."
   },
   {
     "type": "TRUE_FALSE",
     "category": "General",
     "difficulty": "EASY",
     "prompt": "The Earth is flat.",
-    "answer": "F"
+    "answer": "F",
+    "clue": "The Earth is actually a slightly flattened sphere at the poles."
   },
   {
     "type": "MULTIPLE_CHOICE",
     "category": "History",
     "difficulty": "EASY",
     "prompt": "Who was the first president of the United States?",
-    "choices": ["Thomas Jefferson", "Abraham Lincoln", "George Washington", "John Adams"],
-    "answer": "C"
+    "choices": [
+      "Thomas Jefferson",
+      "Abraham Lincoln",
+      "George Washington",
+      "John Adams"
+    ],
+    "answer": "C",
+    "clue": "He is often called the 'Father of the Nation' in the United States."
   },
   {
     "type": "NUMERIC",
@@ -82,14 +111,16 @@
     "difficulty": "MEDIUM",
     "prompt": "In what year did the Berlin Wall fall?",
     "numericAnswer": 1989,
-    "tolerance": 1
+    "tolerance": 1,
+    "clue": "This event marked the end of the Cold War and took place in November."
   },
   {
     "type": "TRUE_FALSE",
     "category": "History",
     "difficulty": "HARD",
     "prompt": "The Hundred Years' War actually lasted exactly 100 years.",
-    "answer": "F"
+    "answer": "F",
+    "clue": "This war between France and England actually lasted 116 years."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -97,14 +128,16 @@
     "difficulty": "EASY",
     "prompt": "Which is the largest continent by land area?",
     "choices": ["Africa", "Asia", "North America", "Europe"],
-    "answer": "B"
+    "answer": "B",
+    "clue": "This continent is home to both the highest and lowest points on Earth."
   },
   {
     "type": "OPEN_ENDED",
     "category": "Geography",
     "difficulty": "MEDIUM",
     "prompt": "What is the longest river in the world?",
-    "answer": "Nile"
+    "answer": "Nile",
+    "clue": "This river flows through Egypt and is associated with one of the oldest civilizations."
   },
   {
     "type": "NUMERIC",
@@ -112,14 +145,16 @@
     "difficulty": "HARD",
     "prompt": "How many countries does the equator pass through?",
     "numericAnswer": 13,
-    "tolerance": 2
+    "tolerance": 2,
+    "clue": "The equator passes through countries in South America, Africa, and Asia."
   },
   {
     "type": "TRUE_FALSE",
     "category": "Geography",
     "difficulty": "EASY",
     "prompt": "Mount Everest is the highest mountain in the world.",
-    "answer": "T"
+    "answer": "T",
+    "clue": "This mountain is located in the Himalayan range."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -127,7 +162,8 @@
     "difficulty": "EASY",
     "prompt": "How many colors are in a rainbow?",
     "choices": ["5", "6", "7", "8"],
-    "answer": "C"
+    "answer": "C",
+    "clue": "The colors are often remembered with the acronym ROYGBIV."
   },
   {
     "type": "NUMERIC",
@@ -135,7 +171,8 @@
     "difficulty": "MEDIUM",
     "prompt": "How many minutes are in a full week?",
     "numericAnswer": 10080,
-    "tolerance": 1
+    "tolerance": 1,
+    "clue": "There are 60 minutes in an hour, 24 hours in a day, and 7 days in a week."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -143,21 +180,24 @@
     "difficulty": "MEDIUM",
     "prompt": "What is the rarest blood type in humans?",
     "choices": ["O negative", "A positive", "AB negative", "B negative"],
-    "answer": "C"
+    "answer": "C",
+    "clue": "This blood type is called the 'universal plasma donor'."
   },
   {
     "type": "TRUE_FALSE",
     "category": "General",
     "difficulty": "MEDIUM",
     "prompt": "A shrimp's heart is located in its head.",
-    "answer": "T"
+    "answer": "T",
+    "clue": "Shrimps have their heart in their cephalothorax."
   },
   {
     "type": "OPEN_ENDED",
     "category": "General",
     "difficulty": "EASY",
     "prompt": "What is the chemical symbol for Gold?",
-    "answer": "Au"
+    "answer": "Au",
+    "clue": "This symbol comes from the Latin word 'Aurum'."
   },
   {
     "type": "NUMERIC",
@@ -165,7 +205,8 @@
     "difficulty": "EASY",
     "prompt": "How many legs does a spider have?",
     "numericAnswer": 8,
-    "tolerance": 0
+    "tolerance": 0,
+    "clue": "Spiders have four pairs of legs."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -173,105 +214,119 @@
     "difficulty": "HARD",
     "prompt": "Which planet is known as the 'Morning Star'?",
     "choices": ["Mars", "Jupiter", "Venus", "Saturn"],
-    "answer": "C"
+    "answer": "C",
+    "clue": "This planet is often visible before sunrise."
   },
   {
     "type": "MULTIPLE_CHOICE",
-    "category": "Computer-Science",
+    "category": "ComputerScience",
     "difficulty": "EASY",
     "prompt": "Which language is this project in?",
     "choices": ["Python", "C++", "Java", "Ruby"],
-    "answer": "C"
+    "answer": "C",
+    "clue": "This language is known for its portability and use in Android applications."
   },
   {
     "type": "TRUE_FALSE",
-    "category": "Computer-Science",
+    "category": "ComputerScience",
     "difficulty": "EASY",
     "prompt": "Java is an Object-Oriented language.",
-    "answer": "T"
+    "answer": "T",
+    "clue": "Java uses classes and objects to organize code."
   },
   {
     "type": "MULTIPLE_CHOICE",
-    "category": "Computer-Science",
+    "category": "ComputerScience",
     "difficulty": "EASY",
     "prompt": "Which keyword is used to create an object in Java?",
     "choices": ["new", "make", "create", "build"],
-    "answer": "A"
+    "answer": "A",
+    "clue": "This keyword is followed by the class constructor."
   },
   {
     "type": "TRUE_FALSE",
-    "category": "Computer-Science",
+    "category": "ComputerScience",
     "difficulty": "EASY",
     "prompt": "Git is a version control system.",
-    "answer": "T"
+    "answer": "T",
+    "clue": "Git tracks code changes and allows collaboration with other developers."
   },
   {
     "type": "MULTIPLE_CHOICE",
-    "category": "Computer-Science",
+    "category": "ComputerScience",
     "difficulty": "EASY",
     "prompt": "Which file contains the main entry point of the program?",
     "choices": ["Main.java", "Game.java", "Player.java", "Question.java"],
-    "answer": "A"
+    "answer": "A",
+    "clue": "This file usually contains the 'public static void main(String[] args)' method."
   },
   {
     "type": "TRUE_FALSE",
-    "category": "Computer-Science",
+    "category": "ComputerScience",
     "difficulty": "HARD",
     "prompt": "A stack follows FIFO order.",
-    "answer": "F"
+    "answer": "F",
+    "clue": "A stack follows the LIFO (Last In, First Out) principle."
   },
   {
     "type": "MULTIPLE_CHOICE",
-    "category": "Computer-Science",
+    "category": "ComputerScience",
     "difficulty": "EASY",
     "prompt": "Which class manages the game flow?",
     "choices": ["Player", "Game", "Question", "ConsoleIO"],
-    "answer": "B"
+    "answer": "B",
+    "clue": "This class is generally responsible for the main game logic."
   },
   {
     "type": "TRUE_FALSE",
-    "category": "Computer-Science",
+    "category": "ComputerScience",
     "difficulty": "MEDIUM",
     "prompt": "In Java, a class can have multiple constructors.",
-    "answer": "T"
+    "answer": "T",
+    "clue": "This is called constructor overloading."
   },
   {
     "type": "MULTIPLE_CHOICE",
-    "category": "Computer-Science",
+    "category": "ComputerScience",
     "difficulty": "HARD",
     "prompt": "Which Git command is used to download a remote repository?",
     "choices": ["push", "commit", "clone", "pull"],
-    "answer": "C"
+    "answer": "C",
+    "clue": "This command creates a local copy of a remote repository."
   },
   {
     "type": "TRUE_FALSE",
-    "category": "Computer-Science",
+    "category": "ComputerScience",
     "difficulty": "MEDIUM",
     "prompt": "The 'main' branch should always be stable.",
-    "answer": "T"
+    "answer": "T",
+    "clue": "The 'main' branch is often protected to prevent untested changes."
   },
   {
     "type": "MULTIPLE_CHOICE",
-    "category": "Computer-Science",
+    "category": "ComputerScience",
     "difficulty": "HARD",
     "prompt": "Which data structure works as LIFO?",
     "choices": ["Queue", "Array", "List", "Stack"],
-    "answer": "D"
+    "answer": "D",
+    "clue": "This data structure is often compared to a stack of plates."
   },
   {
     "type": "TRUE_FALSE",
-    "category": "Computer-Science",
+    "category": "ComputerScience",
     "difficulty": "MEDIUM",
     "prompt": "In Java, '==' checks object content equality.",
-    "answer": "F"
+    "answer": "F",
+    "clue": "'==' checks reference equality, not content. To check content, use '.equals()'."
   },
   {
     "type": "MULTIPLE_CHOICE",
-    "category": "Computer-Science",
+    "category": "ComputerScience",
     "difficulty": "EASY",
     "prompt": "Which file stores the trivia questions?",
-    "choices": ["Game.java", "Questions.json", "Main.java", "Player.java"],
-    "answer": "B"
+    "choices": ["Game.java", "questions.json", "Main.java", "Player.java"],
+    "answer": "B",
+    "clue": "Questions are usually stored in a JSON data file."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -279,14 +334,16 @@
     "difficulty": "EASY",
     "prompt": "In which year did World War II end?",
     "choices": ["1943", "1944", "1945", "1946"],
-    "answer": "C"
+    "answer": "C",
+    "clue": "The war ended after the atomic bombings of Japan."
   },
   {
     "type": "TRUE_FALSE",
     "category": "History",
     "difficulty": "MEDIUM",
     "prompt": "The Roman Empire fell in 476 AD.",
-    "answer": "T"
+    "answer": "T",
+    "clue": "This date marks the end of the Western Roman Empire."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -294,7 +351,8 @@
     "difficulty": "MEDIUM",
     "prompt": "What is the smallest country in the world?",
     "choices": ["Monaco", "Vatican City", "San Marino", "Liechtenstein"],
-    "answer": "B"
+    "answer": "B",
+    "clue": "This country is the seat of the Catholic Church and is enclaved within Rome."
   },
   {
     "type": "NUMERIC",
@@ -302,22 +360,25 @@
     "difficulty": "HARD",
     "prompt": "How many time zones does Russia have?",
     "numericAnswer": 11,
-    "tolerance": 1
+    "tolerance": 1,
+    "clue": "Russia spans two continents and is the largest country in the world."
   },
   {
     "type": "MULTIPLE_CHOICE",
     "category": "General",
-    "difficulty": "MEDIUM",
+    "difficulty": "HARD",
     "prompt": "What is the hardest natural substance on Earth?",
     "choices": ["Gold", "Iron", "Diamond", "Platinum"],
-    "answer": "C"
+    "answer": "C",
+    "clue": "This substance is made of pure carbon and is often used in cutting tools."
   },
   {
     "type": "TRUE_FALSE",
     "category": "General",
-    "difficulty": "MEDIUM",
+    "difficulty": "HARD",
     "prompt": "Octopuses have three hearts.",
-    "answer": "T"
+    "answer": "T",
+    "clue": "Two of these hearts stop beating when the octopus swims."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -325,29 +386,38 @@
     "difficulty": "MEDIUM",
     "prompt": "Which African country has the most pyramids?",
     "choices": ["Egypt", "Sudan", "Libya", "Algeria"],
-    "answer": "B"
+    "answer": "B",
+    "clue": "This country is home to the Meroë pyramids, less known but more numerous than those in Egypt."
   },
   {
     "type": "TRUE_FALSE",
     "category": "Geography",
     "difficulty": "HARD",
     "prompt": "Australia is wider than the moon.",
-    "answer": "T"
+    "answer": "T",
+    "clue": "The moon's diameter is about 3,474 km, while Australia is about 4,000 km wide."
   },
   {
     "type": "MULTIPLE_CHOICE",
     "category": "History",
     "difficulty": "EASY",
     "prompt": "Who discovered America in 1492?",
-    "choices": ["Christopher Columbus", "Amerigo Vespucci", "Marco Polo", "Ferdinand Magellan"],
-    "answer": "A"
+    "choices": [
+      "Christopher Columbus",
+      "Amerigo Vespucci",
+      "Marco Polo",
+      "Ferdinand Magellan"
+    ],
+    "answer": "A",
+    "clue": "This Italian navigator was in the service of the Catholic Monarchs of Spain."
   },
   {
     "type": "TRUE_FALSE",
     "category": "History",
     "difficulty": "MEDIUM",
     "prompt": "The Great Wall of China is visible from space.",
-    "answer": "F"
+    "answer": "F",
+    "clue": "The Great Wall is not visible to the naked eye from space without optical aid."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -355,7 +425,8 @@
     "difficulty": "HARD",
     "prompt": "In what year did the Titanic sink?",
     "choices": ["1910", "1912", "1914", "1916"],
-    "answer": "B"
+    "answer": "B",
+    "clue": "The sinking occurred during its maiden voyage, in April 1912."
   },
   {
     "type": "MULTIPLE_CHOICE",
@@ -363,85 +434,139 @@
     "difficulty": "EASY",
     "prompt": "How many planets are in our solar system?",
     "choices": ["7", "8", "9", "10"],
-    "answer": "B"
+    "answer": "B",
+    "clue": "Pluto is no longer considered a planet since 2006."
   },
   {
     "type": "TRUE_FALSE",
     "category": "Science",
-    "difficulty": "EASY",
+    "difficulty": "MEDIUM",
     "prompt": "Humans and dinosaurs lived at the same time.",
-    "answer": "F"
+    "answer": "F",
+    "clue": "Dinosaurs went extinct about 65 million years ago, long before humans appeared."
   },
   {
     "type": "MULTIPLE_CHOICE",
     "category": "Science",
-    "difficulty": "MEDIUM",
+    "difficulty": "HARD",
     "prompt": "What is the most abundant gas in Earth's atmosphere?",
     "choices": ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"],
-    "answer": "C"
+    "answer": "C",
+    "clue": "This gas makes up about 78% of Earth's atmosphere."
   },
   {
-    "type": "MULTIPLE_CHOICE",
-    "category": "General",
+    "type": "ORDERING",
+    "category": "History",
+    "difficulty": "EASY",
+    "prompt": "Classify these events from oldest to newest:",
+    "choices": ["American Civil War", "World War II", "World War I"],
+    "orderingAnswer": ["American Civil War", "World War I", "World War II"],
+    "clue": "The American Civil War took place in the 19th century, before the two World Wars of the 20th century."
+  },
+  {
+    "type": "ORDERING",
+    "category": "History",
+    "difficulty": "MEDIUM",
+    "prompt": "Classify these events from oldest to newest:",
+    "choices": [
+      "Fall of the Berlin Wall",
+      "Moon Landing",
+      "Start of the Cold War"
+    ],
+    "orderingAnswer": [
+      "Start of the Cold War",
+      "Moon Landing",
+      "Fall of the Berlin Wall"
+    ],
+    "clue": "The Cold War began shortly after World War II, before the moon landing and the fall of the Berlin Wall."
+  },
+  {
+    "type": "ORDERING",
+    "category": "History",
     "difficulty": "HARD",
-    "prompt": "Which country is the only one in the world to have a non-quadrilateral flag?",
-    "choices": ["Bhutan", "Nepal", "Vatican City", "Switzerland"],
-    "answer": "B"
+    "prompt": "Classify these events from oldest to newest:",
+    "choices": [
+      "Treaty of Versailles",
+      "Russian Revolution",
+      "Assassination of Archduke Franz Ferdinand"
+    ],
+    "orderingAnswer": [
+      "Assassination of Archduke Franz Ferdinand",
+      "Russian Revolution",
+      "Treaty of Versailles"
+    ],
+    "clue": "The assassination of Archduke Franz Ferdinand in 1914 triggered World War I, followed by the Russian Revolution in 1917 and the Treaty of Versailles in 1919."
   },
   {
-    "type": "MULTIPLE_CHOICE",
-    "category": "General",
+    "type": "ORDERING",
+    "category": "Science",
+    "difficulty": "EASY",
+    "prompt": "Order these states of matter by increasing molecular movement:",
+    "choices": ["Solid", "Gas", "Liquid"],
+    "orderingAnswer": ["Solid", "Liquid", "Gas"],
+    "clue": "In a solid, molecules move very little, while in a gas, they are highly mobile."
+  },
+  {
+    "type": "ORDERING",
+    "category": "Science",
+    "difficulty": "MEDIUM",
+    "prompt": "Order these layers of the Earth from outermost to innermost:",
+    "choices": ["Core", "Crust", "Mantle"],
+    "orderingAnswer": ["Crust", "Mantle", "Core"],
+    "clue": "The Earth's crust is the outermost layer, followed by the mantle and then the core."
+  },
+  {
+    "type": "ORDERING",
+    "category": "Science",
     "difficulty": "HARD",
-    "prompt": "Who is credited with inventing the World Wide Web (WWW) in 1989?",
-    "choices": ["Bill Gates", "Tim Berners-Lee", "Steve Jobs", "Alan Turing"],
-    "answer": "B"
+    "prompt": "Order these scientists by year of birth (oldest to youngest):",
+    "choices": ["Albert Einstein", "Isaac Newton", "Marie Curie"],
+    "orderingAnswer": ["Isaac Newton", "Marie Curie", "Albert Einstein"],
+    "clue": "Isaac Newton was born in 1643, Marie Curie in 1867, and Albert Einstein in 1879."
   },
   {
-    "type": "MULTIPLE_CHOICE",
-    "category": "General",
+    "type": "ORDERING",
+    "category": "Geography",
+    "difficulty": "EASY",
+    "prompt": "Order these continents by size (largest to smallest):",
+    "choices": ["Africa", "Asia", "Europe"],
+    "orderingAnswer": ["Asia", "Africa", "Europe"],
+    "clue": "Asia is the largest continent, followed by Africa and then Europe."
+  },
+  {
+    "type": "ORDERING",
+    "category": "Geography",
+    "difficulty": "MEDIUM",
+    "prompt": "Order these rivers by length (longest to shortest):",
+    "choices": ["Danube", "Amazon", "Nile"],
+    "orderingAnswer": ["Nile", "Amazon", "Danube"],
+    "clue": "The Nile is generally considered the longest river in the world."
+  },
+  {
+    "type": "ORDERING",
+    "category": "Geography",
     "difficulty": "HARD",
-    "prompt": "What is the chemical element with the highest melting point?",
-    "choices": ["Gold", "Platinum", "Carbon", "Tungsten"],
-    "answer": "D"
+    "prompt": "Order these countries by population (largest to smallest):",
+    "choices": ["United States", "India", "Brazil"],
+    "orderingAnswer": ["India", "United States", "Brazil"],
+    "clue": "India is the most populous country in this list, followed by the United States and then Brazil."
   },
   {
-    "type": "MULTIPLE_CHOICE",
+    "type": "ORDERING",
     "category": "General",
-    "difficulty": "HARD",
-    "prompt": "What is the name of the first artificial satellite launched into orbit in 1957?",
-    "choices": ["Sputnik 1", "Explorer 1", "Vostok 1", "Apollo 11"],
-    "answer": "A"
+    "difficulty": "EASY",
+    "prompt": "Order these seasons as they occur in a year (Northern Hemisphere):",
+    "choices": ["Summer", "Spring", "Winter"],
+    "orderingAnswer": ["Winter", "Spring", "Summer"],
+    "clue": "Winter comes before spring, which comes before summer in the Northern Hemisphere."
   },
   {
-    "type": "TRUE_FALSE",
-    "category": "General",
-    "difficulty": "HARD",
-    "prompt": "The total surface area of a human's lungs is roughly the same size as a tennis court.",
-    "choices": ["True", "False"],
-    "answer": "A"
-  },
-  {
-    "type": "SHORT_ANSWER",
+    "type": "ORDERING",
     "category": "General",
     "difficulty": "MEDIUM",
-    "prompt": "Which chemical element has the symbol 'Hg'?",
-    "choices": [],
-    "answer": "Mercury"
-  },
-  {
-    "type": "MULTIPLE_CHOICE",
-    "category": "General",
-    "difficulty": "HARD",
-    "prompt": "What is the capital city of Australia?",
-    "choices": ["Sydney", "Melbourne", "Canberra", "Perth"],
-    "answer": "C"
-  },
-  {
-    "type": "SHORT_ANSWER",
-    "category": "General",
-    "difficulty": "HARD",
-    "prompt": "In which year did the French Revolution begin?",
-    "choices": [],
-    "answer": "1789"
+    "prompt": "Order these inventions from oldest to newest:",
+    "choices": ["Telephone", "Internet", "Printing Press"],
+    "orderingAnswer": ["Printing Press", "Telephone", "Internet"],
+    "clue": "The printing press was invented by Gutenberg in the 15th century, long before the telephone and the Internet."
   }
 ]
