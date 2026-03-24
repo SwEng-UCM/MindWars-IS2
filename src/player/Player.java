@@ -18,6 +18,7 @@ public class Player {
     private int correctAnswers = 0;
     private int wrongAnswers = 0;
     private List<Long> responseTimes = new ArrayList<>();
+    private List<WeaponType> inventory = new ArrayList<>();
 
     public Player(String name) {
         this.name = name;
@@ -136,5 +137,21 @@ public class Player {
         long min = Long.MAX_VALUE;
         for (long t : responseTimes) if (t < min) min = t;
         return min / 1000.0; // secondes
+    }
+
+    public void addWeapon(WeaponType weapon) {
+        inventory.add(weapon);
+    }
+
+    public boolean hasWeapon(WeaponType weapon) {
+        return inventory.contains(weapon);
+    }
+
+    public void useWeapon(WeaponType weapon) {
+        inventory.remove(weapon);
+    }
+
+    public List<WeaponType> getInventory() {
+        return new ArrayList<>(inventory);
     }
 }
