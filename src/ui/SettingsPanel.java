@@ -255,19 +255,21 @@ public class SettingsPanel extends JPanel {
      * This method connects the UI actions with the application logic.
      */
     private void registerListeners() {
-        /*
-         * When Save is clicked:
-         * 1. Read the state from the two cards
-         * 2. Store it in GameSettings
-         * 3. Notify SoundManager so active sounds react immediately
-         * 4. Show a confirmation dialog
-         */
         saveButton.addActionListener(e -> {
+
+            // Παίρνω τις τιμές από τα cards και τις περνάω στο settings model
             settings.setSoundEffectsEnabled(soundEffectsCard.isSelectedOption());
             settings.setMusicEnabled(musicCard.isSelectedOption());
 
+            // Ενημερώνω τον SoundManager ώστε να σταματήσει ήχους αν χρειάζεται
             soundManager.refreshAudioState();
 
+            // Αν η μουσική είναι ενεργοποιημένη, ξεκινάει (ή ξαναξεκινάει)
+            if (settings.isMusicEnabled()) {
+                soundManager.startBackground();
+            }
+
+            // Μήνυμα επιβεβαίωσης στον χρήστη
             JOptionPane.showMessageDialog(
                     this,
                     "Settings saved successfully.",
