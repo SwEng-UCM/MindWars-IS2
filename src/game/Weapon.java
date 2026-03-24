@@ -1,15 +1,13 @@
 package game;
 
+package game;
+
 public class Weapon {
 
     private final WeaponType type;
-    private final String name;
-    private final int cost;
 
-    public Weapon(WeaponType type, String name, int cost) {
+    public Weapon(WeaponType type) {
         this.type = type;
-        this.name = name;
-        this.cost = cost;
     }
 
     public WeaponType getType() {
@@ -17,10 +15,15 @@ public class Weapon {
     }
 
     public String getName() {
-        return name;
+        return type.toString(); // utilise le nom défini dans WeaponType
     }
 
     public int getCost() {
-        return cost;
+        return type.getCost(); // utilise le coût défini dans WeaponType
+    }
+
+    @Override
+    public String toString() {
+        return getName() + " (" + getCost() + " pts)";
     }
 }

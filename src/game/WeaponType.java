@@ -1,10 +1,35 @@
 package game;
 
 public enum WeaponType {
-    CANNON, // increases difficulty of opponent's question
-    CROSSBOW, // choose opponent's question category
-    BURST, // opponent has only 7 seconds to answer
-    SHIELD, // cancels opponent's attack
-    LASER_SIGHT, // choose your own question category
-    HELMET, // lowers difficulty of your question
+    // Offensive weapons
+    CANNON(30), // Increases the difficulty of the opponent's question
+    CROSSBOW(30), // Allows you to choose the opponent's question category
+    BURST(45), // Forces the opponent to answer in 7 seconds
+
+    // Defensive weapons
+    SHIELD(45), // Cancels an incoming attack
+    LASER_SIGHT(30), // Allows you to choose your own question category
+    HELMET(30); // Lowers the difficulty of your question
+
+    private final int cost;
+
+    WeaponType(int cost) {
+        this.cost = cost;
+    }
+
+    public int getCost() {
+        return cost;
+    }
+
+    @Override
+    public String toString() {
+        return switch (this) {
+            case CANNON -> "Cannon";
+            case CROSSBOW -> "Crossbow";
+            case BURST -> "Burst";
+            case SHIELD -> "Shield";
+            case LASER_SIGHT -> "Laser Sight";
+            case HELMET -> "Helmet";
+        };
+    }
 }
