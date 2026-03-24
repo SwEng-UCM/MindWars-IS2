@@ -11,7 +11,6 @@ public class SoundManager {
 
     private static final String ASSETS_DIR = "assets/";
 
-    // Sound file constants — add matching .wav files to assets/
     public static final String CORRECT = "CORRECT.wav";
     public static final String INCORRECT = "INCORRECT.wav";
     public static final String LIGHTNING = "LIGHTNING.wav";
@@ -23,28 +22,33 @@ public class SoundManager {
 
     private Clip backgroundClip;
     private Clip timerClip;
-    private boolean isMuted = false; // Default is not muted
+
+    private final GameSettings settings;
+
+    public SoundManager(GameSettings settings) {
+        this.settings = settings;
+    }
 
     /**
-     * Plays a WAV sound file asynchronously (non-blocking).
-     * If the file doesn't exist or playback fails, it is silently ignored.
+     * Optional compatibility constructor if other existing code
+     * still creates SoundManager with no arguments.
      */
-    public void setMuted(boolean muted) {
-        this.isMuted = muted;
-        // If we mute while music is playing, stop the music immediately
-        if (isMuted) {
-            stopBackground();
-            stopTimer();
-        }
+    public SoundManager() {
+        this(new GameSettings());
     }
 
-    public boolean isMuted() {
-        return isMuted;
+    public GameSettings getSettings() {
+        return settings;
     }
 
+    /**
+     * Plays a one-shot sound effect asynchronously.
+     */
     public void play(String soundFileName) {
-        if (isMuted)
-            return; // Skip if muted
+        if (!settings.isSoundEffectsEnabled()) {
+            return;
+        }
+
         File file = new File(ASSETS_DIR + soundFileName);
         if (!file.exists()) {
             return;
@@ -62,19 +66,21 @@ public class SoundManager {
                 });
                 clip.start();
             } catch (Exception e) {
-                // silently ignore — game should never break due to sound
+                // silently ignore
             }
         }).start();
     }
 
     /**
-     * Starts background music on a continuous loop.
-     * Call stopBackground() to stop it.
+     * Starts looping background music.
      */
     public void startBackground() {
-        if (isMuted)
-            return; // Skip if muted
+        if (!settings.isMusicEnabled()) {
+            return;
+        }
+
         stopBackground();
+
         File file = new File(ASSETS_DIR + BACKGROUND);
         if (!file.exists()) {
             return;
@@ -85,16 +91,14 @@ public class SoundManager {
             backgroundClip = AudioSystem.getClip();
             backgroundClip.open(stream);
             backgroundClip.loop(Clip.LOOP_CONTINUOUSLY);
+            backgroundClip.start();
         } catch (Exception e) {
             // silently ignore
         }
     }
 
-    /**
-     * Stops background music if currently playing.
-     */
     public void stopBackground() {
-        if (backgroundClip != null && backgroundClip.isRunning()) {
+        if (backgroundClip != null) {
             backgroundClip.stop();
             backgroundClip.close();
             backgroundClip = null;
@@ -102,14 +106,16 @@ public class SoundManager {
     }
 
     /**
-     * Starts the timer ticking sound on loop.
-     * The tick plays continuously until stopTimer() is called
-     * (when the player answers or time runs out).
+     * Starts looping timer sound.
+     * Treated as sound effect, not music.
      */
     public void startTimer() {
-        if (isMuted)
+        if (!settings.isSoundEffectsEnabled()) {
             return;
+        }
+
         stopTimer();
+
         File file = new File(ASSETS_DIR + TIMER);
         if (!file.exists()) {
             return;
@@ -120,19 +126,31 @@ public class SoundManager {
             timerClip = AudioSystem.getClip();
             timerClip.open(stream);
             timerClip.loop(Clip.LOOP_CONTINUOUSLY);
+            timerClip.start();
         } catch (Exception e) {
             // silently ignore
         }
     }
 
-    /**
-     * Stops the timer ticking sound.
-     */
     public void stopTimer() {
-        if (timerClip != null && timerClip.isRunning()) {
+        if (timerClip != null) {
             timerClip.stop();
             timerClip.close();
             timerClip = null;
+        }
+    }
+
+    /**
+     * Call this after settings change so currently playing sounds
+     * react immediately.
+     */
+    public void refreshAudioState() {
+        if (!settings.isMusicEnabled()) {
+            stopBackground();
+        }
+
+        if (!settings.isSoundEffectsEnabled()) {
+            stopTimer();
         }
     }
 }
