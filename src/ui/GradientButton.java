@@ -1,27 +1,13 @@
 package ui;
-
-// JButton is the base Swing button class
 import javax.swing.*;
-// AWT is used for colors, painting, fonts, cursor, dimensions
 import java.awt.*;
 
 /*
  * This is a custom button component.
- * I created it because the default Swing button looks too plain
- * compared to the Figma-inspired design.
- *
- * Its main purpose is to provide:
- * - rounded corners
- * - gradient background
- * - modern typography
  */
 public class GradientButton extends JButton {
 
-    /*
-     * Constructor:
-     * I pass the button text when creating the button,
-     * for example "Save →"
-     */
+
     public GradientButton(String text) {
         super(text);
 
@@ -68,11 +54,6 @@ public class GradientButton extends JButton {
         // Smooth edges for rounded corners
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        /*
-         * Create a left-to-right gradient:
-         * pink -> orange
-         * which matches the style in the screenshot.
-         */
         GradientPaint gp = new GradientPaint(
                 0, 0, new Color(255, 85, 170),
                 getWidth(), 0, new Color(214, 104, 0)
@@ -84,12 +65,8 @@ public class GradientButton extends JButton {
         // Draw the rounded button background
         g2.fillRoundRect(0, 0, getWidth(), getHeight(), 24, 24);
 
-        /*
-         * Let Swing paint the button text on top.
-         */
-        super.paintComponent(g2);
 
-        // Clean up the copied graphics object
+        super.paintComponent(g2);
         g2.dispose();
     }
 }

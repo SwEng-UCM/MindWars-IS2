@@ -5,16 +5,11 @@ import javax.swing.*;
 
 /*
  * This class is only for testing the SettingsPanel in isolation.
- * It allows me to run and preview the settings screen
- * without needing the whole application to be finished.
  */
 public class SettingsDemo {
 
     public static void main(String[] args) {
-        /*
-         * Swing UI should be created on the Event Dispatch Thread.
-         * SwingUtilities.invokeLater ensures that.
-         */
+       
         SwingUtilities.invokeLater(() -> {
             // Create the shared settings object used by the panel
             GameSettings settings = new GameSettings();
