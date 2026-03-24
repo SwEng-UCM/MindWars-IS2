@@ -64,4 +64,11 @@ public class SettingOptionCard extends JPanel {
             }
         });
     }
+
+    public boolean isSelectedOption() {
+        return toggle.isSelected();
+    }
+
+    
+
 }
