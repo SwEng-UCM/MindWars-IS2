@@ -74,7 +74,30 @@ public class SettingOptionCard extends JPanel {
         toggle.setSelected(selected);
         repaint();
     }
-
     
+    @Override
+    protected void paintComponent(Graphics g) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        int arc = 26;
+
+        Color fillColor = new Color(252, 248, 250);
+        Color borderColor = selected
+                ? new Color(255, 44, 156)
+                : new Color(210, 210, 210);
+
+        g2.setColor(fillColor);
+        g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, arc, arc);
+
+        g2.setStroke(new BasicStroke(selected ? 2.4f : 1.8f));
+        g2.setColor(borderColor);
+        g2.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 3, arc, arc);
+
+        g2.dispose();
+        super.paintComponent(g);
+    }
+
+
 
 }
