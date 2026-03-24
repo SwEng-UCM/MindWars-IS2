@@ -69,6 +69,12 @@ public class SettingOptionCard extends JPanel {
         return toggle.isSelected();
     }
 
+     public void setSelectedOption(boolean selected) {
+        this.selected = selected;
+        toggle.setSelected(selected);
+        repaint();
+    }
+
     
 
 }
