@@ -478,6 +478,11 @@ public class Game {
                 );
 
                 if (map.isMapFull()) {
+                    io.println("\n=== SHOP TIME ===");
+                    for (Player p : gameState.getPlayers()) {
+                        displayHotSeatHeader(p);
+                        openShop(p);
+                    }
                     handleAttackPhase();
                     break;
                 }
@@ -1178,5 +1183,74 @@ public class Game {
             );
             io.println("");
         }
+    }
+
+    private void openShop(Player player) {
+        boolean shopping = true;
+
+        while (shopping) {
+            io.println("\n=== SHOP ===");
+            io.println("Your current score: " + player.getScore());
+
+            for (WeaponType w : WeaponType.values()) {
+                io.println(
+                    (w.ordinal() + 1) + ". " + w + " (" + w.getCost() + ")"
+                );
+            }
+            io.println("0. Exit Shop");
+
+            String choice = io.readNonEmptyString("Select item (0 to exit):");
+
+            if (choice.equals("0")) {
+                shopping = false;
+                continue;
+            }
+
+            WeaponType selected = null;
+            try {
+                int index = Integer.parseInt(choice) - 1;
+                if (index >= 0 && index < WeaponType.values().length) {
+                    selected = WeaponType.values()[index];
+                }
+            } catch (NumberFormatException ignored) {}
+
+            if (selected != null) {
+                int cost = selected.getCost();
+                if (player.getScore() >= cost) {
+                    player.subtractScore(cost);
+                    player.addWeapon(selected);
+                    io.println(
+                        "Item purchased: " +
+                            selected +
+                            " (remaining score: " +
+                            player.getScore() +
+                            ")"
+                    );
+                } else {
+                    io.println("Not enough points to buy this weapon!");
+                }
+            } else {
+                io.println("Invalid selection. Please choose a valid item.");
+            }
+
+            // Optionally: exit automatically if player has no points for any weapon
+            boolean affordable = false;
+            for (WeaponType w : WeaponType.values()) {
+                if (player.getScore() >= w.getCost()) {
+                    affordable = true;
+                    break;
+                }
+            }
+            if (!affordable) {
+                io.println(
+                    "You don't have enough points to buy any more weapons. Exiting shop."
+                );
+                shopping = false;
+            }
+        }
+
+        io.println(
+            "Exiting shop. Your current inventory: " + player.getInventory()
+        );
     }
 }
