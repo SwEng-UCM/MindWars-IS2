@@ -6,41 +6,47 @@ import java.awt.*;
 
 public class SettingOptionCard extends JPanel {
 
+    // Main title shown on the card
     private final String title;
+
+    // Secondary description shown under the title
     private final String description;
+
+    // This is now the only source of truth for whether the card is selected
     private boolean selected;
-    private final JCheckBox toggle;
 
     public SettingOptionCard(String title, String description, boolean initialState) {
         this.title = title;
         this.description = description;
         this.selected = initialState;
 
+        // I want to draw the card myself, so I make it non-opaque
         setOpaque(false);
+
+        // BorderLayout lets me place text nicely inside the card
         setLayout(new BorderLayout());
+
+        // Internal spacing so the text does not touch the edges
         setBorder(new EmptyBorder(18, 22, 18, 22));
+
+        // Fixed size for consistent card appearance
         setPreferredSize(new Dimension(670, 110));
         setMaximumSize(new Dimension(670, 110));
+
+        // Hand cursor to show that the whole card is clickable
         setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        toggle = new JCheckBox();
-        toggle.setSelected(initialState);
-        toggle.setOpaque(false);
-        toggle.setFocusPainted(false);
-        toggle.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        toggle.addActionListener(e -> {
-            selected = toggle.isSelected();
-            repaint();
-        });
-
+        // Main title label
         JLabel titleLabel = new JLabel(title);
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
         titleLabel.setForeground(new Color(20, 20, 20));
 
+        // Description label
         JLabel descLabel = new JLabel(description);
         descLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
         descLabel.setForeground(new Color(95, 95, 95));
 
+        // Text container for vertical stacking
         JPanel textPanel = new JPanel();
         textPanel.setOpaque(false);
         textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
@@ -48,33 +54,30 @@ public class SettingOptionCard extends JPanel {
         textPanel.add(Box.createVerticalStrut(10));
         textPanel.add(descLabel);
 
-        JPanel rightPanel = new JPanel(new GridBagLayout());
-        rightPanel.setOpaque(false);
-        rightPanel.add(toggle);
-
+        // Add text panel to the card center
         add(textPanel, BorderLayout.CENTER);
-        add(rightPanel, BorderLayout.EAST);
 
+        // Make the whole card clickable
         addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                toggle.setSelected(!toggle.isSelected());
-                selected = toggle.isSelected();
+                selected = !selected;
                 repaint();
             }
         });
     }
 
+    // Allows the parent screen to read the current state
     public boolean isSelectedOption() {
-        return toggle.isSelected();
+        return selected;
     }
 
-     public void setSelectedOption(boolean selected) {
+    // Allows the parent screen to set the state programmatically
+    public void setSelectedOption(boolean selected) {
         this.selected = selected;
-        toggle.setSelected(selected);
         repaint();
     }
-    
+
     @Override
     protected void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
@@ -97,7 +100,4 @@ public class SettingOptionCard extends JPanel {
         g2.dispose();
         super.paintComponent(g);
     }
-
-
-
 }
