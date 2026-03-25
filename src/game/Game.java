@@ -1115,13 +1115,17 @@ public class Game {
                     io.println("Do you want to use a weapon?");
                     String choiceAtt = io.readNonEmptyString("1) Yes\n2) No");
 
-                    if (choiceAtt.equals("1") || choiceAtt.equals("yes")) {
+                    if (
+                        choiceAtt.equals("1") ||
+                        choiceAtt.equals("yes") ||
+                        choiceAtt.equals("Yes")
+                    ) {
                         attacked = true;
                         List<WeaponType> attackWeapons =
                             attacker.getAttackWeapon();
 
                         if (!attackWeapons.isEmpty()) {
-                            io.println("Choose a weapon to use:");
+                            io.println("\nChoose a weapon to use:");
                             for (int i = 0; i < attackWeapons.size(); i++) {
                                 io.println(
                                     (i + 1) + ") " + attackWeapons.get(i)
@@ -1129,7 +1133,7 @@ public class Game {
                             }
 
                             int weaponChoice = io.readInt(
-                                "Enter the number of the weapon: ",
+                                "\nEnter the number of the weapon: ",
                                 1,
                                 attackWeapons.size()
                             );
@@ -1159,6 +1163,7 @@ public class Game {
                             if (selectedWeapon != null) attacker.useWeapon(
                                 selectedWeapon
                             );
+                            io.println(q.formatForConsole());
                         } else {
                             io.println("You have no attack weapons available.");
                         }
@@ -1188,12 +1193,16 @@ public class Game {
                             "1) Yes\n2) No"
                         );
 
-                        if (choiceDef.equals("1") || choiceDef.equals("yes")) {
+                        if (
+                            choiceDef.equals("1") ||
+                            choiceDef.equals("yes") ||
+                            choiceDef.equals("Yes")
+                        ) {
                             List<WeaponType> defenseWeapons =
                                 defender.getDefendWeapon();
 
                             if (!defenseWeapons.isEmpty()) {
-                                io.println("Choose a defense weapon to use:");
+                                io.println("\nChoose a defense weapon to use:");
                                 for (
                                     int i = 0;
                                     i < defenseWeapons.size();
@@ -1205,7 +1214,7 @@ public class Game {
                                 }
 
                                 int weaponChoice = io.readInt(
-                                    "Enter the number of the weapon: ",
+                                    "\nEnter the number of the weapon: ",
                                     1,
                                     defenseWeapons.size()
                                 );
@@ -1322,13 +1331,13 @@ public class Game {
         while (shopping) {
             io.println("\n=== SHOP ===");
             io.println("Your current score: " + player.getScore());
-
+            io.println("\n");
             for (WeaponType w : WeaponType.values()) {
                 io.println(
                     (w.ordinal() + 1) + ". " + w + " (" + w.getCost() + ")"
                 );
             }
-            io.println("0. Exit Shop");
+            io.println("0. Exit Shop\n");
 
             String choice = io.readNonEmptyString("Select item (0 to exit):");
 
@@ -1357,8 +1366,11 @@ public class Game {
                             player.getScore() +
                             ")"
                     );
+                    io.println(
+                        "Your current inventory: " + player.getInventory()
+                    );
                 } else {
-                    io.println("Not enough points to buy this weapon!");
+                    io.println("\nNot enough points to buy this weapon!");
                 }
             } else {
                 io.println("Invalid selection. Please choose a valid item.");
