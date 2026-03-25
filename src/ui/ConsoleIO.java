@@ -11,7 +11,8 @@ public class ConsoleIO {
 
     private static ConsoleIO instance;
 
-    private final BlockingQueue<String> inputQueue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<String> inputQueue =
+        new LinkedBlockingQueue<>();
 
     private ConsoleIO() {
         // Single background thread reads all System.in input into a queue.
@@ -57,7 +58,8 @@ public class ConsoleIO {
      * Reads a line within the given timeout in milliseconds.
      * Throws TimeoutException if no input is provided in time.
      */
-    public String readLineWithTimeout(String prompt, long timeoutMs) throws TimeoutException {
+    public String readLineWithTimeout(String prompt, long timeoutMs)
+        throws TimeoutException {
         System.out.println(prompt);
         System.out.print("> ");
         try {
@@ -76,11 +78,12 @@ public class ConsoleIO {
      * The countdown shows remaining seconds in real-time.
      * Throws TimeoutException if no input is provided in time.
      */
-    public String readLineWithTimeoutAndCountdown(String prompt, long timeoutMs) throws TimeoutException {
+    public String readLineWithTimeoutAndCountdown(String prompt, long timeoutMs)
+        throws TimeoutException {
         // Flag to signal when input is received
-        final boolean[] inputReceived = {false};
-        final long[] lastDisplayedSecond = {-1};
-        
+        final boolean[] inputReceived = { false };
+        final long[] lastDisplayedSecond = { -1 };
+
         // Display initial countdown line
         long initialSeconds = timeoutMs / 1000;
         System.out.println("");
@@ -88,34 +91,39 @@ public class ConsoleIO {
         System.out.println("");
         System.out.print("  Answer: ");
         System.out.flush();
-        
+
         // Start countdown thread that updates the timer display
         Thread countdownThread = new Thread(() -> {
             long startTime = System.currentTimeMillis();
             lastDisplayedSecond[0] = initialSeconds;
-            
+
             while (!inputReceived[0]) {
                 long elapsed = System.currentTimeMillis() - startTime;
                 long remaining = timeoutMs - elapsed;
-                
+
                 if (remaining <= 0) {
                     break;
                 }
-                
+
                 long secondsRemaining = remaining / 1000;
-                
+
                 // Only update display when the second changes
-                if (secondsRemaining != lastDisplayedSecond[0] && secondsRemaining >= 0) {
+                if (
+                    secondsRemaining != lastDisplayedSecond[0] &&
+                    secondsRemaining >= 0
+                ) {
                     lastDisplayedSecond[0] = secondsRemaining;
-                    
+
                     // Save cursor position, move up 2 lines, update timer, restore position
-                    System.out.print("\0337");  // Save cursor position
+                    System.out.print("\0337"); // Save cursor position
                     System.out.print("\033[2A"); // Move up two lines
-                    System.out.print("\r  ⏱ Time remaining: " + secondsRemaining + "s      ");
-                    System.out.print("\0338");  // Restore cursor position
+                    System.out.print(
+                        "\r  ⏱ Time remaining: " + secondsRemaining + "s      "
+                    );
+                    System.out.print("\0338"); // Restore cursor position
                     System.out.flush();
                 }
-                
+
                 try {
                     Thread.sleep(100); // Check every 100ms
                 } catch (InterruptedException e) {
@@ -125,16 +133,16 @@ public class ConsoleIO {
         });
         countdownThread.setDaemon(true);
         countdownThread.start();
-        
+
         try {
             String result = inputQueue.poll(timeoutMs, TimeUnit.MILLISECONDS);
             inputReceived[0] = true;
-            
+
             if (result == null) {
                 System.out.println(); // Move to next line after timeout
                 throw new TimeoutException();
             }
-            
+
             System.out.println(); // Move to next line after input
             return result.trim();
         } catch (InterruptedException e) {
@@ -160,7 +168,11 @@ public class ConsoleIO {
 
     // helper function to safely read a number in a range (useful for choosing how
     // many rounds the players want to play)
-    public int readIntInRange(String prompt, int minInclusive, int maxInclusive) {
+    public int readIntInRange(
+        String prompt,
+        int minInclusive,
+        int maxInclusive
+    ) {
         int result;
         while (true) {
             String input = readLine(prompt);
@@ -169,7 +181,13 @@ public class ConsoleIO {
                 if (result >= minInclusive && result <= maxInclusive) {
                     break;
                 } else {
-                    println("Please enter a number between " + minInclusive + " and " + maxInclusive + ".");
+                    println(
+                        "Please enter a number between " +
+                            minInclusive +
+                            " and " +
+                            maxInclusive +
+                            "."
+                    );
                 }
             } catch (NumberFormatException e) {
                 println("Invalid input. Please enter a valid number.");
@@ -184,7 +202,23 @@ public class ConsoleIO {
         for (int i = 0; i < options.size(); i++) {
             println("  " + (i + 1) + ") " + options.get(i));
         }
-        int choice = readIntInRange("  Enter your choice (1-" + options.size() + "):", 1, options.size());
+        int choice = readIntInRange(
+            "  Enter your choice (1-" + options.size() + "):",
+            1,
+            options.size()
+        );
         return options.get(choice - 1);
+    }
+
+    public int readInt(String prompt, int min, int max) {
+        while (true) {
+            try {
+                int value = Integer.parseInt(readNonEmptyString(prompt));
+                if (value >= min && value <= max) {
+                    return value;
+                }
+            } catch (Exception ignored) {}
+            println("Invalid number. Try again.");
+        }
     }
 }
