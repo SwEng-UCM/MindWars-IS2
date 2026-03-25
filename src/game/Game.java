@@ -1338,12 +1338,30 @@ public class Game {
                 );
             }
             io.println("0. Exit Shop\n");
+            io.println("H. to see the help\n");
 
             String choice = io.readNonEmptyString("Select item (0 to exit):");
 
             if (choice.equals("0")) {
                 shopping = false;
                 continue;
+            }
+            if (
+                choice.equals("H") ||
+                choice.equals("h") ||
+                choice.equals("help") ||
+                choice.equals("Help")
+            ) {
+                io.println(
+                    "// Offensive weapons //\n" +
+                        "CANNON(30) -> Increases the difficulty of the opponent's question\n" +
+                        "CROSSBOW(30) -> Allows you to choose the opponent's question category\n" +
+                        "BURST(65) -> Can choose the category and difficulty max, works 50% of the time\n\n" +
+                        "// Defensive weapons //\n" +
+                        "SHIELD(60) -> Cancels an incoming attack of CANNON and CROSSBOW, 50% chance to cancel BURST\n" +
+                        "LASER_SIGHT(30) -> Allows you to choose your own question category\n" +
+                        "HELMET(30) -> Lowers the difficulty of your question\n"
+                );
             }
 
             WeaponType selected = null;
