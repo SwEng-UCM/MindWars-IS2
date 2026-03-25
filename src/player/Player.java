@@ -1,5 +1,7 @@
 package player;
 
+import game.Weapon;
+import game.WeaponType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -153,5 +155,49 @@ public class Player {
 
     public List<WeaponType> getInventory() {
         return new ArrayList<>(inventory);
+    }
+
+    public List<WeaponType> getAttackWeapon() {
+        List<WeaponType> attackWeapons = new ArrayList<>();
+        for (WeaponType w : getInventory()) {
+            switch (w) {
+                case CANNON, CROSSBOW, BURST -> attackWeapons.add(w);
+            }
+        }
+        return attackWeapons;
+    }
+
+    public List<WeaponType> getDefendWeapon() {
+        List<WeaponType> defenseWeapons = new ArrayList<>();
+        for (WeaponType w : getInventory()) {
+            switch (w) {
+                case SHIELD, LASER_SIGHT, HELMET -> defenseWeapons.add(w);
+            }
+        }
+        return defenseWeapons;
+    }
+
+    public boolean hasAttackWeapon() {
+        for (WeaponType weapon : inventory) {
+            switch (weapon) {
+                case CANNON:
+                case CROSSBOW:
+                case BURST:
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasDefendWeapon() {
+        for (WeaponType weapon : inventory) {
+            switch (weapon) {
+                case SHIELD:
+                case LASER_SIGHT:
+                case HELMET:
+                    return true;
+            }
+        }
+        return false;
     }
 }
