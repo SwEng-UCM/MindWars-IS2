@@ -4,10 +4,10 @@ public enum WeaponType {
     // Offensive weapons
     CANNON(30), // Increases the difficulty of the opponent's question
     CROSSBOW(30), // Allows you to choose the opponent's question category
-    BURST(45), // Forces the opponent to answer in 7 seconds
+    BURST(65), // can choose the category ans difficulty max and shell work on 50% of case
 
     // Defensive weapons
-    SHIELD(45), // Cancels an incoming attack
+    SHIELD(60), // Cancels an incoming attack
     LASER_SIGHT(30), // Allows you to choose your own question category
     HELMET(30); // Lowers the difficulty of your question
 
