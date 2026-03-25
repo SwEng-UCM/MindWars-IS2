@@ -1083,13 +1083,22 @@ public class Game {
 
             int attempts = 0;
             boolean battleResolved = false;
+            boolean attacked = false;
+            WeaponType weapon_use = null;
 
             while (attempts < 2 && !battleResolved) {
                 attempts++;
+                attacked = false;
+                weapon_use = null;
                 Question q = questionBank.getAllQuestionsAsList().get(0);
+                Question q_defender = q.cloneQuestion();
                 String correctAnswer = (q.getType() == QuestionType.NUMERIC)
                     ? String.valueOf(q.getNumericAnswer())
                     : q.getAnswer();
+                String correctAnswer_defender = (q_defender.getType() ==
+                    QuestionType.NUMERIC)
+                    ? String.valueOf(q_defender.getNumericAnswer())
+                    : q_defender.getAnswer();
 
                 if (attempts == 2) {
                     io.println(
@@ -1102,6 +1111,59 @@ public class Game {
                 displayHotSeatHeader(attacker);
                 io.println("  ATTACKER [" + attacker.getName() + "]:");
                 io.println(q.formatForConsole());
+                if (attacker.hasAttackWeapon()) {
+                    io.println("Do you want to use a weapon?");
+                    String choiceAtt = io.readNonEmptyString("1) Yes\n2) No");
+
+                    if (choiceAtt.equals("1") || choiceAtt.equals("yes")) {
+                        attacked = true;
+                        List<WeaponType> attackWeapons =
+                            attacker.getAttackWeapon();
+
+                        if (!attackWeapons.isEmpty()) {
+                            io.println("Choose a weapon to use:");
+                            for (int i = 0; i < attackWeapons.size(); i++) {
+                                io.println(
+                                    (i + 1) + ") " + attackWeapons.get(i)
+                                );
+                            }
+
+                            int weaponChoice = io.readInt(
+                                "Enter the number of the weapon: ",
+                                1,
+                                attackWeapons.size()
+                            );
+                            WeaponType selectedWeapon = attackWeapons.get(
+                                weaponChoice - 1
+                            );
+                            weapon_use = selectedWeapon;
+
+                            // Use the weapon
+                            Weapon currentWeapon = new Weapon(
+                                selectedWeapon,
+                                io
+                            );
+
+                            q_defender = currentWeapon.useWeapon(
+                                q_defender,
+                                selectedWeapon,
+                                questionBank,
+                                weapon_use,
+                                q
+                            );
+                            correctAnswer_defender = (q_defender.getType() ==
+                                QuestionType.NUMERIC)
+                                ? String.valueOf(q_defender.getNumericAnswer())
+                                : q_defender.getAnswer();
+                            io.println("You used: " + selectedWeapon);
+                            if (selectedWeapon != null) attacker.useWeapon(
+                                selectedWeapon
+                            );
+                        } else {
+                            io.println("You have no attack weapons available.");
+                        }
+                    }
+                }
                 String attAns = readAnswerWithTimeout(q);
                 boolean attCorrect =
                     !attAns.equals("__TIMEOUT__") &&
@@ -1117,17 +1179,86 @@ public class Game {
 
                 displayHotSeatHeader(defender);
                 io.println("  DEFENDER [" + defender.getName() + "]:");
-                io.println(q.formatForConsole());
-                String defAns = readAnswerWithTimeout(q);
+                if (attacked) {
+                    if (defender.hasDefendWeapon()) {
+                        io.println(
+                            "You were attacked by do you want to use a weapon of defense?"
+                        );
+                        String choiceDef = io.readNonEmptyString(
+                            "1) Yes\n2) No"
+                        );
+
+                        if (choiceDef.equals("1") || choiceDef.equals("yes")) {
+                            List<WeaponType> defenseWeapons =
+                                defender.getDefendWeapon();
+
+                            if (!defenseWeapons.isEmpty()) {
+                                io.println("Choose a defense weapon to use:");
+                                for (
+                                    int i = 0;
+                                    i < defenseWeapons.size();
+                                    i++
+                                ) {
+                                    io.println(
+                                        (i + 1) + ") " + defenseWeapons.get(i)
+                                    );
+                                }
+
+                                int weaponChoice = io.readInt(
+                                    "Enter the number of the weapon: ",
+                                    1,
+                                    defenseWeapons.size()
+                                );
+                                WeaponType selectedWeapon = defenseWeapons.get(
+                                    weaponChoice - 1
+                                );
+
+                                // Use the weapon
+                                Weapon currentWeapon = new Weapon(
+                                    selectedWeapon,
+                                    io
+                                );
+
+                                q_defender = currentWeapon.useWeapon(
+                                    q_defender,
+                                    selectedWeapon,
+                                    questionBank,
+                                    weapon_use,
+                                    q
+                                );
+                                correctAnswer_defender =
+                                    (q_defender.getType() ==
+                                        QuestionType.NUMERIC)
+                                        ? String.valueOf(
+                                              q_defender.getNumericAnswer()
+                                          )
+                                        : q_defender.getAnswer();
+                                io.println("You used: " + selectedWeapon);
+                                if (selectedWeapon != null) defender.useWeapon(
+                                    selectedWeapon
+                                );
+                            } else {
+                                io.println(
+                                    "You have no defense weapons available."
+                                );
+                            }
+                        }
+                    } else {
+                        io.println("You have no defense weapons.");
+                    }
+                }
+                io.println(q_defender.formatForConsole());
+                String defAns = readAnswerWithTimeout(q_defender);
                 boolean defCorrect =
                     !defAns.equals("__TIMEOUT__") &&
-                    AnswerValidator.isCorrect(q, defAns);
+                    AnswerValidator.isCorrect(q_defender, defAns);
 
                 if (defCorrect) {
                     io.println("   >> CORRECT!");
                 } else {
                     io.println(
-                        "   >> WRONG! The correct answer was: " + correctAnswer
+                        "   >> WRONG! The correct answer was: " +
+                            correctAnswer_defender
                     );
                 }
 
