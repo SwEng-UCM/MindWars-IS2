@@ -67,8 +67,20 @@ public class Game {
             io.println("  ----------------------------------------");
             io.println(
                     "  " + question.formatForConsole().replace("\n", "\n  "));
-            // Ask for bonus
-            bonus.offerBonusIfAvailable(p, question);
+
+            if (p.getBonusTokens() > 0) {
+                io.println("\n  [!] You have " + p.getBonusTokens() + " bonus token(s) available!");
+                String use = io.readNonEmptyString("  Use a lifeline for this question? (yes/no): ").toLowerCase();
+                if (use.startsWith("y")) {
+                    p.setHasUsedBonus(false); // Reset to track if they actually picked a bonus
+                    bonus.offerBonusIfAvailable(p, question);
+
+                    if (p.hasUsedBonus()) {
+                        p.useBonusToken();
+                        io.println("  Token used! Remaining: " + p.getBonusTokens());
+                    }
+                }
+            }
 
             // Capture start time to measure response speed
             long startTime = System.currentTimeMillis();
@@ -366,10 +378,26 @@ public class Game {
                                         playerQuestion
                                                 .formatForConsole()
                                                 .replace("\n", "\n  "));
-                        // asking for bonus
-                        bonus.offerBonusIfAvailable(
-                                currentPlayer,
-                                playerQuestion);
+
+                        if (currentPlayer.getBonusTokens() > 0) {
+                            io.println("\n  [!] You have " + currentPlayer.getBonusTokens()
+                                    + " bonus token(s) available!");
+                            String use = io.readNonEmptyString("  Use a lifeline for this question? (yes/no): ")
+                                    .toLowerCase();
+
+                            if (use.startsWith("y")) {
+                                // reset flag to ensure we only consume token if a bonus is actually selected
+                                currentPlayer.setHasUsedBonus(false);
+
+                                bonus.offerBonusIfAvailable(currentPlayer, playerQuestion);
+
+                                if (currentPlayer.hasUsedBonus()) {
+                                    currentPlayer.useBonusToken();
+                                    io.println("  Token consumed! Remaining: " + currentPlayer.getBonusTokens());
+                                }
+                            }
+                        }
+
                         io.println(
                                 "  You have " +
                                         (TIME_LIMIT_MS / 1000) +
@@ -663,10 +691,10 @@ public class Game {
                 int c = Integer.parseInt(parts[1].trim());
 
                 boolean cellHasBonus = map.hasBonus(r, c);
-                map.revealCellForPlayer(symbol, r, c);
 
                 if (map.claimCell(symbol, r, c)) {
                     sound.play(SoundManager.TERRITORY);
+                    // reveal the zone
                     map.revealNeighbourForPlayer(symbol, r, c);
                     map.revealCellForPlayer(symbol, r, c);
 
@@ -681,16 +709,16 @@ public class Game {
                     io.println("");
 
                     if (cellHasBonus) {
-                        io.println("\n BONUS FOUND!");
+                        io.println("\n BONUS TOKEN FOUND!");
                         io.println(
                                 "  Congratulations " + currentPlayer.getName() + "!");
-                        io.println("  You found a power-up in this region!");
 
-                        // to be implemented in Player as issue #58
-                        // currentPlayer.addPowerUp();
+                        currentPlayer.addBonusToken();
 
-                        // io.println(" Power-ups stored: " + currentPlayer.getPowerUpCount());
+                        io.println("  You found a power-up! You now have " +
+                                currentPlayer.getBonusTokens() + " token(s) stored.");
                     }
+
                     done = true;
                     io.println("");
                 } else {

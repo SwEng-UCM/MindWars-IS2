@@ -28,31 +28,38 @@ public class Bonus {
     }
 
     public void offerBonusIfAvailable(Player player, Question q) {
-        if (player.hasUsedBonus())
-            return;
+        // if (player.hasUsedBonus()) return;
 
-        boolean bonusApplied = false;
-        String choice = "";
+        player.setHasUsedBonus(false);
+        boolean menuActive = true;
+        // boolean bonusApplied = false;
+        // String choice = "";
 
-        while (!bonusApplied) {
+        while (menuActive) {
             io.println("\n  Bonus available! Choose one or skip:");
-            io.println("   1) 50/50");
+
+            boolean canUse5050 = (q.getType() != QuestionType.TRUE_FALSE && q.getType() != QuestionType.OPEN_ENDED);
+            if (canUse5050) {
+                io.println("  1) 50/50");
+            } else {
+                io.println("  1) [50/50 Not Available for this question type]");
+            }
+
             io.println("   2) New Question (same category & difficulty)");
             io.println("   3) Clue (get a hint)");
             io.println("   4) Skip");
 
-            choice = io.readNonEmptyString("  Your choice (1-4):");
+            String choice = io.readNonEmptyString("  Your choice (1-4):");
 
             switch (choice) {
                 case "1":
-                    if (q.getType() == QuestionType.TRUE_FALSE ||
-                            q.getType() == QuestionType.OPEN_ENDED) {
-                        io.println(
-                                "50/50 cannot be used on True/False or Open-Ended questions. Choose another bonus.");
+                    if (!canUse5050) {
+                        io.println("  Selection unavailable for True/False or Open-Ended. Try another.");
                         continue;
                     }
                     apply5050(q);
-                    bonusApplied = true;
+                    player.setHasUsedBonus(true);
+                    menuActive = false;
                     break;
                 case "2":
                     if (q.getType() == QuestionType.NUMERIC ||
@@ -62,24 +69,23 @@ public class Bonus {
                         continue;
                     }
                     applyNewQuestion(player, q);
-                    bonusApplied = true;
+                    player.setHasUsedBonus(true);
+                    menuActive = false;
                     break;
                 case "3":
                     showClue(q);
-                    bonusApplied = true;
+                    player.setHasUsedBonus(true);
+                    menuActive = false;
                     break;
                 case "4":
                     io.println("  Skipped bonus.");
-                    bonusApplied = true;
+                    menuActive = false;
                     break;
                 default:
                     io.println("  Invalid choice. Try again.");
             }
         }
 
-        if (bonusApplied && !choice.equals("4")) {
-            player.setHasUsedBonus(true);
-        }
     }
 
     private void apply5050(Question q) {
