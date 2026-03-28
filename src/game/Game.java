@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeoutException;
 
-import bot.BotStrategy;
+import bot.*;
 import player.Player;
 import trivia.AnswerValidator;
 import trivia.Question;
@@ -326,6 +326,24 @@ public class Game {
 
             // Play multiple rounds with pre-selected questions
             for (int round = 0; round < roundQuestions.size(); round++) {
+                String checkSettings = io.readNonEmptyString(
+                        "\n  Press ENTER to start Round " + (round + 1) + " or type 's' for Bot Settings:");
+                if (checkSettings.equalsIgnoreCase("s")) {
+                    for (Player p : gameState.getPlayers()) {
+                        if (p.isBot()) {
+                            io.println("\n SETTINGS: " + p.getName().toUpperCase() + " ");
+                            String newDiff = io.selectFromList("  Choose new difficulty:",
+                                    List.of("Easy", "Medium", "Hard", "Keep Current"));
+
+                            switch (newDiff) {
+                                case "Easy" -> changeBotDifficulty(p, new bot.EasyBot());
+                                case "Medium" -> changeBotDifficulty(p, new bot.MediumBot());
+                                case "Hard" -> changeBotDifficulty(p, new bot.HardBot());
+                            }
+                        }
+                    }
+                }
+
                 io.println("");
                 io.println("");
                 io.println(
