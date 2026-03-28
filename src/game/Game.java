@@ -81,8 +81,6 @@ public class Game {
                     }
                 }
             }
-            // Ask for bonus
-            bonus.offerBonusIfAvailable(p, question);
 
             // Capture start time to measure response speed
             long startTime = System.currentTimeMillis();
@@ -400,15 +398,6 @@ public class Game {
                             }
                         }
 
-                        io.println(
-                                "  You have " +
-                                        (TIME_LIMIT_MS / 1000) +
-                                        " seconds to answer!");
-
-                        // asking for bonus
-                        bonus.offerBonusIfAvailable(
-                                currentPlayer,
-                                playerQuestion);
                         io.println(
                                 "  You have " +
                                         (TIME_LIMIT_MS / 1000) +
