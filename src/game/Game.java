@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeoutException;
+
+import bot.BotStrategy;
 import player.Player;
 import trivia.AnswerValidator;
 import trivia.Question;
@@ -1323,4 +1325,12 @@ public class Game {
         io.println(
                 "Exiting shop. Your current inventory: " + player.getInventory());
     }
+
+    public void changeBotDifficulty(Player player, BotStrategy newStrategy) {
+        if (player.isBot()) {
+            player.setStrategy(newStrategy);
+            io.println("  [SETTINGS] Bot difficulty changed to: " + newStrategy.getDifficultyName());
+        }
+    }
+
 }

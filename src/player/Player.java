@@ -4,6 +4,7 @@ import game.Weapon;
 import game.WeaponType;
 import java.util.ArrayList;
 import java.util.List;
+import bot.BotStrategy;
 
 public class Player {
 
@@ -22,6 +23,8 @@ public class Player {
     private int wrongAnswers = 0;
     private List<Long> responseTimes = new ArrayList<>();
     private List<WeaponType> inventory = new ArrayList<>();
+    private BotStrategy strategy;
+    private boolean isBot;
 
     public Player(String name) {
         this.name = name;
@@ -221,4 +224,18 @@ public class Player {
         }
         return false;
     }
+
+    public void setStrategy(BotStrategy strategy) {
+        this.strategy = strategy;
+        this.isBot = (strategy != null);
+    }
+
+    public BotStrategy getStrategy() {
+        return strategy;
+    }
+
+    public boolean isBot() {
+        return isBot;
+    }
+
 }
