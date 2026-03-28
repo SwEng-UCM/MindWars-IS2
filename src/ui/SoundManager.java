@@ -155,10 +155,9 @@ public class SoundManager {
     }
 
     public void setMuted(boolean muted) {
-    settings.setSoundEffectsEnabled(!muted);
-    settings.setMusicEnabled(!muted);
-    refreshAudioState();
+        settings.setSoundEffectsEnabled(!muted);
+        settings.setMusicEnabled(!muted);
+        refreshAudioState();
     }
-
 
 }

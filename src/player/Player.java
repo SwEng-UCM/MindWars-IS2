@@ -78,7 +78,8 @@ public class Player {
 
     public void subtractScore(int points) {
         this.score -= points;
-        if (this.score < 0) this.score = 0;
+        if (this.score < 0)
+            this.score = 0;
     }
 
     public void resetStreak() {
@@ -128,16 +129,21 @@ public class Player {
     }
 
     public double getAverageResponseTime() {
-        if (responseTimes.isEmpty()) return 0;
+        if (responseTimes.isEmpty())
+            return 0;
         long sum = 0;
-        for (long t : responseTimes) sum += t;
+        for (long t : responseTimes)
+            sum += t;
         return sum / (double) responseTimes.size() / 1000.0; // secondes
     }
 
     public double getFastestResponse() {
-        if (responseTimes.isEmpty()) return 0;
+        if (responseTimes.isEmpty())
+            return 0;
         long min = Long.MAX_VALUE;
-        for (long t : responseTimes) if (t < min) min = t;
+        for (long t : responseTimes)
+            if (t < min)
+                min = t;
         return min / 1000.0; // secondes
     }
 

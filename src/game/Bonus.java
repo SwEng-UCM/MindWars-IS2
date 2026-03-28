@@ -28,7 +28,8 @@ public class Bonus {
     }
 
     public void offerBonusIfAvailable(Player player, Question q) {
-        if (player.hasUsedBonus()) return;
+        if (player.hasUsedBonus())
+            return;
 
         boolean bonusApplied = false;
         String choice = "";
@@ -44,26 +45,20 @@ public class Bonus {
 
             switch (choice) {
                 case "1":
-                    if (
-                        q.getType() == QuestionType.TRUE_FALSE ||
-                        q.getType() == QuestionType.OPEN_ENDED
-                    ) {
+                    if (q.getType() == QuestionType.TRUE_FALSE ||
+                            q.getType() == QuestionType.OPEN_ENDED) {
                         io.println(
-                            "50/50 cannot be used on True/False or Open-Ended questions. Choose another bonus."
-                        );
+                                "50/50 cannot be used on True/False or Open-Ended questions. Choose another bonus.");
                         continue;
                     }
                     apply5050(q);
                     bonusApplied = true;
                     break;
                 case "2":
-                    if (
-                        q.getType() == QuestionType.NUMERIC ||
-                        q.getType() == QuestionType.ORDERING
-                    ) {
+                    if (q.getType() == QuestionType.NUMERIC ||
+                            q.getType() == QuestionType.ORDERING) {
                         io.println(
-                            "New question cannot be used on numeric or ordering questions. Choose another bonus."
-                        );
+                                "New question cannot be used on numeric or ordering questions. Choose another bonus.");
                         continue;
                     }
                     applyNewQuestion(player, q);
@@ -92,7 +87,7 @@ public class Bonus {
 
         if (type == QuestionType.MULTIPLE_CHOICE) {
             List<String> choices = new ArrayList<>(q.getChoices());
-            //convert the answer in index
+            // convert the answer in index
             int correctIndex = q.getAnswer().toUpperCase().charAt(0) - 'A';
 
             String correctChoice = choices.get(correctIndex);
@@ -107,7 +102,7 @@ public class Bonus {
             // mix
             java.util.Collections.shuffle(newChoices, random);
 
-            //update the lettre of the ansews
+            // update the lettre of the ansews
             int newIndex = newChoices.indexOf(correctChoice);
             char newAnswer = (char) ('A' + newIndex);
             q.setAnswer(String.valueOf(newAnswer));
@@ -145,11 +140,9 @@ public class Bonus {
             List<String> hintElements = ordering.subList(0, hintCount);
 
             io.println(
-                "  50/50 applied: here is the start of the correct order!"
-            );
+                    "  50/50 applied: here is the start of the correct order!");
             io.println(
-                "  Hint (first " + hintCount + " elements): " + hintElements
-            );
+                    "  Hint (first " + hintCount + " elements): " + hintElements);
             io.println("  Full question remains to be answered by player:");
             io.println("  " + q.formatForConsole().replace("\n", "\n  "));
         }
@@ -161,9 +154,8 @@ public class Bonus {
 
         while ((newQ == null || newQ.getAnswer() == null) && tries < 10) {
             newQ = questionBank.getQuestion(
-                currentQuestion.getCategory(),
-                currentQuestion.getDifficulty()
-            );
+                    currentQuestion.getCategory(),
+                    currentQuestion.getDifficulty());
             tries++;
         }
 
@@ -177,8 +169,7 @@ public class Bonus {
 
         io.println("\n  New question loaded!");
         io.println(
-            "  " + currentQuestion.formatForConsole().replace("\n", "\n  ")
-        );
+                "  " + currentQuestion.formatForConsole().replace("\n", "\n  "));
     }
 
     private void showClue(Question question) {
@@ -187,8 +178,7 @@ public class Bonus {
             io.println("  No clue available for this question.");
         } else {
             io.println(
-                "  " + question.formatForConsole().replace("\n", "\n  ")
-            );
+                    "  " + question.formatForConsole().replace("\n", "\n  "));
             io.println("  Clue: " + clue);
         }
     }

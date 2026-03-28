@@ -39,12 +39,11 @@ public class Weapon {
     }
 
     public Question useWeapon(
-        Question q,
-        WeaponType w,
-        QuestionBank qb,
-        WeaponType attack_weapon,
-        Question q_att
-    ) {
+            Question q,
+            WeaponType w,
+            QuestionBank qb,
+            WeaponType attack_weapon,
+            Question q_att) {
         switch (w) {
             case CANNON:
                 return cannon(q, qb);
@@ -85,9 +84,8 @@ public class Weapon {
     private Question crossbow(Question q, QuestionBank qb) {
         List<String> categories = new ArrayList<>(qb.getCategories());
         String selectedCategory = io.selectFromList(
-            "  Choose a CATEGORY:",
-            categories
-        );
+                "  Choose a CATEGORY:",
+                categories);
         io.println("  Category selected: " + selectedCategory);
         io.println("");
         Question newQ = qb.getQuestion(selectedCategory, q.getDifficulty());
@@ -115,9 +113,8 @@ public class Weapon {
     private Question laserSight(Question q, QuestionBank qb) {
         List<String> categories = new ArrayList<>(qb.getCategories());
         String selectedCategory = io.selectFromList(
-            "  Choose a CATEGORY:",
-            categories
-        );
+                "  Choose a CATEGORY:",
+                categories);
         io.println("  Category selected: " + selectedCategory);
         io.println("");
         Question newQ = qb.getQuestion(selectedCategory, q.getDifficulty());
@@ -125,10 +122,9 @@ public class Weapon {
     }
 
     private Question shield(
-        Question q_att,
-        Question q_deff,
-        WeaponType attack_weapon
-    ) {
+            Question q_att,
+            Question q_deff,
+            WeaponType attack_weapon) {
         if (attack_weapon == WeaponType.BURST && random.nextDouble() >= 0.5) {
             return q_att;
         }
@@ -138,9 +134,8 @@ public class Weapon {
     private Question burst(Question q, QuestionBank qb) {
         List<String> categories = new ArrayList<>(qb.getCategories());
         String selectedCategory = io.selectFromList(
-            "  Choose a CATEGORY:",
-            categories
-        );
+                "  Choose a CATEGORY:",
+                categories);
         io.println("  Category selected: " + selectedCategory);
         io.println("");
         Question newQ = qb.getQuestion(selectedCategory, "HARD");

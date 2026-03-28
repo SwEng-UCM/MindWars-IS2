@@ -75,8 +75,7 @@ public class GradientButton extends JButton {
          */
         GradientPaint gp = new GradientPaint(
                 0, 0, new Color(255, 85, 170),
-                getWidth(), 0, new Color(214, 104, 0)
-        );
+                getWidth(), 0, new Color(214, 104, 0));
 
         // Use the gradient as the paint source
         g2.setPaint(gp);
