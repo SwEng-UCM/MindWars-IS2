@@ -326,7 +326,7 @@ public class Game {
 
             // Play multiple rounds with pre-selected questions
             for (int round = 0; round < roundQuestions.size(); round++) {
-                String checkSettings = io.readNonEmptyString(
+                String checkSettings = io.readLine(
                         "\n  Press ENTER to start Round " + (round + 1) + " or type 's' for Bot Settings:");
                 if (checkSettings.equalsIgnoreCase("s")) {
                     boolean botFound = false;
