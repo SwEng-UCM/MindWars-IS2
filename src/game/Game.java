@@ -723,7 +723,6 @@ public class Game {
                         io.println("\n BONUS TOKEN FOUND!");
                         io.println(
                                 "  Congratulations " + currentPlayer.getName() + "!");
-                        io.println("  You found a power-up in this region!");
 
                         currentPlayer.addBonusToken();
 
