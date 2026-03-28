@@ -329,8 +329,10 @@ public class Game {
                 String checkSettings = io.readNonEmptyString(
                         "\n  Press ENTER to start Round " + (round + 1) + " or type 's' for Bot Settings:");
                 if (checkSettings.equalsIgnoreCase("s")) {
+                    boolean botFound = false;
                     for (Player p : gameState.getPlayers()) {
                         if (p.isBot()) {
+                            botFound = true;
                             io.println("\n SETTINGS: " + p.getName().toUpperCase() + " ");
                             String newDiff = io.selectFromList("  Choose new difficulty:",
                                     List.of("Easy", "Medium", "Hard", "Keep Current"));
@@ -341,6 +343,9 @@ public class Game {
                                 case "Hard" -> changeBotDifficulty(p, new bot.HardBot());
                             }
                         }
+                    }
+                    if (!botFound) {
+                        io.println("  [!] No Bots found in the current game. Settings ignored.");
                     }
                 }
 
