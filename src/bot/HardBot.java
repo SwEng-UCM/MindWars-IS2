@@ -1,6 +1,8 @@
 package bot;
 
 import trivia.Question;
+
+import java.util.List;
 import java.util.Random;
 
 public class HardBot implements BotStrategy {
@@ -10,14 +12,31 @@ public class HardBot implements BotStrategy {
     public String getAnswer(Question question) {
         int chance = random.nextInt(100);
 
-        // 80% chances to give the right answer
         if (chance < 80) {
             return question.getAnswer();
         } else {
-            // 20% chances to give a wrong answer (not finished bcs there are multiple types
-            // of questions)
-            return "I am not sure, but I will guess A";
+            return getSmartWrongAnswer(question);
         }
+    }
+
+    private String getSmartWrongAnswer(Question question) {
+        List<String> options = question.getChoices();
+        String correctAnswer = question.getAnswer();
+
+        // if we have options (multiple choice or true/false)
+        if (options != null && !options.isEmpty()) {
+            List<String> wrongOptions = options.stream()
+                    .filter(opt -> !opt.equalsIgnoreCase(correctAnswer))
+                    .toList();
+
+            if (!wrongOptions.isEmpty()) {
+                return wrongOptions.get(random.nextInt(wrongOptions.size()));
+            }
+        }
+
+        // if it s an open-ended question or we do not have an option list (to be
+        // implemented)
+        return "I'm not sure";
     }
 
     @Override
