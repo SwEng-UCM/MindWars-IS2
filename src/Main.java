@@ -23,6 +23,6 @@ public class Main {
         });
         Game engine = new Game(io, bank);
 
-        // engine.run();
+        engine.run();
     }
 }

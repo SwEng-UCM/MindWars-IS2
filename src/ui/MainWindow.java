@@ -17,8 +17,6 @@ public class MainWindow extends JFrame {
         cardLayout = new CardLayout();
         mainContainer = new JPanel(cardLayout);
 
-        // Add our new, updated MenuPanel (assuming MVC approach later)
-        // Passes 'this' so MenuPanel can call showScreen()
         mainContainer.add(new MenuPanel(this), "MENU");
 
         add(mainContainer);
