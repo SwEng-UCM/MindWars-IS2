@@ -1,6 +1,9 @@
+import javax.swing.SwingUtilities;
+
 import game.Game;
 import trivia.QuestionBank;
 import ui.ConsoleIO;
+import ui.MainWindow;
 
 /**
  * PURPOSE:
@@ -13,7 +16,11 @@ public class Main {
 
         ConsoleIO io = ConsoleIO.getConsole();
         QuestionBank bank = new QuestionBank("questions.json");
+        SwingUtilities.invokeLater(() -> {
+            MainWindow window = new MainWindow();
 
+            window.setVisible(true);
+        });
         Game engine = new Game(io, bank);
 
         engine.run();
