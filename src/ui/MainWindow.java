@@ -9,7 +9,6 @@ public class MainWindow extends JFrame {
     private JPanel mainContainer;
 
     public MainWindow() {
-
         setTitle("MindWars Trivia");
         setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -18,7 +17,11 @@ public class MainWindow extends JFrame {
         cardLayout = new CardLayout();
         mainContainer = new JPanel(cardLayout);
 
+        mainContainer.add(new MenuPanel(this), "MENU");
+
         add(mainContainer);
+
+        cardLayout.show(mainContainer, "MENU");
     }
 
     public void showScreen(String screenName) {
