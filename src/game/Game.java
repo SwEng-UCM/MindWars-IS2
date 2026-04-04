@@ -217,49 +217,30 @@ public class Game {
             List<Question> roundQuestions = new ArrayList<>();
 
             if (!randomRound) {
-                // Randomly decide which player chooses category and which chooses difficulty
-                boolean player1ChoosesCategory = random.nextBoolean();
+                List<String> categories = new ArrayList<>(questionBank.getCategories());
+                String selectedCategory = io.selectFromList("  Choose a CATEGORY for this match:", categories);
 
-                Player categoryChooser = player1ChoosesCategory
-                        ? gameState.getPlayers().get(0)
-                        : gameState.getPlayers().get(1);
-                Player difficultyChooser = player1ChoosesCategory
-                        ? gameState.getPlayers().get(1)
-                        : gameState.getPlayers().get(0);
+                String selectedDifficulty;
+                Player p2 = gameState.getPlayers().get(1);
 
-                // Category selection
-                io.println(
-                        "  " +
-                                categoryChooser.getName() +
-                                ", you will choose the CATEGORY for all questions!");
-                io.println("");
-                List<String> categories = new ArrayList<>(
-                        questionBank.getCategories());
-                String selectedCategory = io.selectFromList(
-                        "  Choose a CATEGORY:",
-                        categories);
-                io.println("  Category selected: " + selectedCategory);
+                if (p2.isBot()) {
+                    selectedDifficulty = p2.getStrategy().getDifficultyName().toUpperCase();
+
+                    io.println("\n  [SYSTEM] Opponent is a " + selectedDifficulty + " BOT.");
+                    io.println("  [SYSTEM] Match difficulty set to " + selectedDifficulty + " automatically.");
+                } else {
+                    Player difficultyChooser = random.nextBoolean() ? gameState.getPlayers().get(0) : p2;
+                    io.println("\n  " + difficultyChooser.getName() + ", you choose the DIFFICULTY!");
+
+                    List<String> difficulties = new ArrayList<>(questionBank.getDifficulties(selectedCategory));
+                    selectedDifficulty = io.selectFromList("  Choose DIFFICULTY (EASY/MEDIUM/HARD):", difficulties);
+                }
+
+                io.println("  Final match settings: " + selectedCategory + " | " + selectedDifficulty);
                 io.println("");
 
-                // Difficulty selection
-                io.println(
-                        "  " +
-                                difficultyChooser.getName() +
-                                ", you will choose the DIFFICULTY for all questions!");
-                io.println("");
-                List<String> difficulties = new ArrayList<>(
-                        questionBank.getDifficulties(selectedCategory));
-                String selectedDifficulty = io.selectFromList(
-                        "  Choose a DIFFICULTY:",
-                        difficulties);
-                io.println("  Difficulty selected: " + selectedDifficulty);
-                io.println("");
-
-                // Get questions for the game based on selections
                 for (int i = 0; i < questionsPerPlayer; i++) {
-                    Question q = questionBank.getQuestion(
-                            selectedCategory,
-                            selectedDifficulty);
+                    Question q = questionBank.getQuestion(selectedCategory, selectedDifficulty);
                     if (q != null) {
                         roundQuestions.add(q);
                     }
@@ -327,7 +308,6 @@ public class Game {
             // Play multiple rounds with pre-selected questions
             for (int round = 0; round < roundQuestions.size(); round++) {
 
-                // --- BOT SETTINGS CHECK ---
                 String checkSettings = io
                         .readLine("\n  Press ENTER to start Round " + (round + 1) + " or type 's' for Bot Settings:");
                 if (checkSettings.equalsIgnoreCase("s")) {
