@@ -40,8 +40,8 @@ public class GameState {
     }
 
     public void reset() {
-    this.players.clear();
-    this.roundNumber = 1;
-    this.currentPlayerIndex = 0;
-}
+        this.players.clear();
+        this.roundNumber = 1;
+        this.currentPlayerIndex = 0;
+    }
 }

@@ -153,4 +153,11 @@ public class SoundManager {
             stopTimer();
         }
     }
+
+    public void setMuted(boolean muted) {
+        settings.setSoundEffectsEnabled(!muted);
+        settings.setMusicEnabled(!muted);
+        refreshAudioState();
+    }
+
 }

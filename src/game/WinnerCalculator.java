@@ -33,7 +33,7 @@ public final class WinnerCalculator {
         Player winner = players.get(0);
         for (int i = 1; i < players.size(); i++) {
             Player currentPlayer = players.get(i);
-            
+
             // compare scores
             if (currentPlayer.getScore() > winner.getScore()) {
                 winner = currentPlayer;
@@ -45,12 +45,12 @@ public final class WinnerCalculator {
                 if (currentTerritory > winnerTerritory) {
                     winner = currentPlayer;
                 } else if (currentTerritory == winnerTerritory) {
-                    //  Tie (Territory + points)
+                    // Tie (Territory + points)
                     return null;
                 }
             }
         }
-        
+
         return winner;
     }
 }

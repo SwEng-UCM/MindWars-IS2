@@ -39,12 +39,10 @@ public class AnswerValidator {
 
         // validation for TRUE_FALSE type: must be T, F, TRUE, or FALSE
         if (q.getType() == QuestionType.TRUE_FALSE) {
-            return (
-                input.equals("T") ||
-                input.equals("F") ||
-                input.equals("TRUE") ||
-                input.equals("FALSE")
-            );
+            return (input.equals("T") ||
+                    input.equals("F") ||
+                    input.equals("TRUE") ||
+                    input.equals("FALSE"));
         }
 
         // validation for MULTIPLE_CHOICE: must match available options (A-D or 1-4)
@@ -52,10 +50,8 @@ public class AnswerValidator {
             int numChoices = q.getChoices().size();
             // regex to match a single letter within range or a single digit within range
 
-            return (
-                input.matches("^[A-" + (char) ('A' + numChoices - 1) + "]$") ||
-                input.matches("^[1-" + numChoices + "]$")
-            );
+            return (input.matches("^[A-" + (char) ('A' + numChoices - 1) + "]$") ||
+                    input.matches("^[1-" + numChoices + "]$"));
         }
 
         // Validation for OPEN_ENDED: any non-empty string is considered valid
@@ -140,8 +136,7 @@ public class AnswerValidator {
             // crash
             try {
                 double userVal = Double.parseDouble(
-                    playerAnswer.replace(",", ".")
-                ); // transforms 3,14 to 3.14
+                        playerAnswer.replace(",", ".")); // transforms 3,14 to 3.14
                 double correctVal = q.getNumericAnswer();
                 // success if the absolute difference is within the allowed tolerance range
                 return Math.abs(userVal - correctVal) <= q.getTolerance();
@@ -156,27 +151,29 @@ public class AnswerValidator {
 
         // normalize TRUE_FALSE input/answer to short format (T/F)
         if (q.getType() == QuestionType.TRUE_FALSE) {
-            if (playerAnswer.equals("TRUE")) playerAnswer = "T";
-            if (playerAnswer.equals("FALSE")) playerAnswer = "F";
-            if (correctAnswer.equals("TRUE")) correctAnswer = "T";
-            if (correctAnswer.equals("FALSE")) correctAnswer = "F";
+            if (playerAnswer.equals("TRUE"))
+                playerAnswer = "T";
+            if (playerAnswer.equals("FALSE"))
+                playerAnswer = "F";
+            if (correctAnswer.equals("TRUE"))
+                correctAnswer = "T";
+            if (correctAnswer.equals("FALSE"))
+                correctAnswer = "F";
         }
 
         // normalize MULTIPLE_CHOICE numeric input (e.g., "1" becomes "A")
-        if (
-            q.getType() == QuestionType.MULTIPLE_CHOICE &&
-            playerAnswer.matches("^[1-9]$")
-        ) {
+        if (q.getType() == QuestionType.MULTIPLE_CHOICE &&
+                playerAnswer.matches("^[1-9]$")) {
             int index = Integer.parseInt(playerAnswer) - 1;
             playerAnswer = String.valueOf((char) ('A' + index));
         }
 
         // Validation for OPEN_ENDED: any non-empty string is considered valid
         if (q.getType() == QuestionType.OPEN_ENDED) {
-            //Removal of punctuation
+            // Removal of punctuation
             playerAnswer = playerAnswer.replaceAll("[^A-Z0-9 ]", "");
             correctAnswer = correctAnswer.replaceAll("[^A-Z0-9 ]", "");
-            //Ignore double spaces
+            // Ignore double spaces
             playerAnswer = playerAnswer.replaceAll("\\s+", " ").trim();
             correctAnswer = correctAnswer.replaceAll("\\s+", " ").trim();
         }
