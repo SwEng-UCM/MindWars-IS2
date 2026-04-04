@@ -61,22 +61,21 @@ public class RegisterPanel extends JPanel {
         // subtitle
         gbc.gridy = 1;
         gbc.insets = new Insets(0, 30, 20, 30);
-        JLabel sub = new JLabel("Join the adventure! Create an account:", SwingConstants.CENTER);
+        JLabel sub = new JLabel("Join the adventure! Create an account", SwingConstants.CENTER);
         sub.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         sub.setForeground(Color.GRAY);
         card.add(sub, gbc);
 
         // tab panel
         gbc.gridy = 2;
-        gbc.insets = new Insets(10, 30, 20, 30);
+        gbc.insets = new Insets(5, 30, 10, 30);
         card.add(createTabPanel(), gbc);
-
         gbc.insets = new Insets(2, 30, 0, 30);
 
         gbc.gridy = 3;
         card.add(createLabel("Username"), gbc);
         gbc.gridy = 4;
-        card.add(createStyledTextField("John Doe"), gbc);
+        card.add(createStyledTextField("Choose a username"), gbc);
 
         gbc.gridy = 5;
         card.add(createLabel("Email Address"), gbc);
@@ -96,7 +95,7 @@ public class RegisterPanel extends JPanel {
         // register button
         gbc.gridy = 11;
         gbc.insets = new Insets(15, 30, 20, 30);
-        JButton regBtn = createGradientButton("Create Account →");
+        JButton regBtn = createGradientButton("Create Account");
         regBtn.addActionListener(e -> {
             JOptionPane.showMessageDialog(this, "Account Created!");
             parent.showScreen("MENU");
@@ -163,7 +162,7 @@ public class RegisterPanel extends JPanel {
     }
 
     private JPasswordField createStyledPasswordField() {
-        JPasswordField pf = new JPasswordField("********");
+        JPasswordField pf = new JPasswordField("******");
         pf.setPreferredSize(new Dimension(300, 35));
         pf.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(220, 220, 220), 1, true),
