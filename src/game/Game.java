@@ -326,17 +326,18 @@ public class Game {
 
             // Play multiple rounds with pre-selected questions
             for (int round = 0; round < roundQuestions.size(); round++) {
-                String checkSettings = io.readLine(
-                        "\n  Press ENTER to start Round " + (round + 1) + " or type 's' for Bot Settings:");
+
+                // --- BOT SETTINGS CHECK ---
+                String checkSettings = io
+                        .readLine("\n  Press ENTER to start Round " + (round + 1) + " or type 's' for Bot Settings:");
                 if (checkSettings.equalsIgnoreCase("s")) {
                     boolean botFound = false;
                     for (Player p : gameState.getPlayers()) {
                         if (p.isBot()) {
                             botFound = true;
-                            io.println("\n SETTINGS: " + p.getName().toUpperCase() + " ");
+                            io.println("\n  --- SETTINGS: " + p.getName().toUpperCase() + " ---");
                             String newDiff = io.selectFromList("  Choose new difficulty:",
                                     List.of("Easy", "Medium", "Hard", "Keep Current"));
-
                             switch (newDiff) {
                                 case "Easy" -> changeBotDifficulty(p, new bot.EasyBot());
                                 case "Medium" -> changeBotDifficulty(p, new bot.MediumBot());
@@ -344,9 +345,8 @@ public class Game {
                             }
                         }
                     }
-                    if (!botFound) {
-                        io.println("  [!] No Bots found in the current game. Settings ignored.");
-                    }
+                    if (!botFound)
+                        io.println("  [!] No Bots found to configure.");
                 }
 
                 io.println("");
@@ -373,6 +373,7 @@ public class Game {
                         .size()];
                 long[] roundTimes = new long[gameState.getPlayers().size()];
                 boolean isLastRound = (round == roundQuestions.size() - 1);
+
                 if (currentQuestion.getType() == QuestionType.NUMERIC) {
                     handleNumericRound(currentQuestion, isLastRound);
                 } else {
@@ -381,95 +382,124 @@ public class Game {
                         gameState.setCurrentPlayerIndex(p);
                         Player currentPlayer = gameState.getPlayers().get(p);
                         Question playerQuestion = currentQuestion.cloneQuestion();
+
                         displayHotSeatHeader(currentPlayer);
                         int wager = 0;
-                        if (isLastRound) {
-                            wager = handleBetting(
-                                    currentPlayer,
-                                    currentQuestion);
-                        }
-                        io.println("");
-                        io.println(
-                                "  " +
-                                        currentPlayer.getName() +
-                                        " - Question " +
-                                        (round + 1) +
-                                        " of " +
-                                        roundQuestions.size());
-                        io.println(
-                                "  ----------------------------------------");
-                        io.println(
-                                "  " +
-                                        playerQuestion
-                                                .formatForConsole()
-                                                .replace("\n", "\n  "));
 
-                        if (currentPlayer.getBonusTokens() > 0) {
-                            io.println("\n  [!] You have " + currentPlayer.getBonusTokens()
-                                    + " bonus token(s) available!");
-                            String use = io.readNonEmptyString("  Use a lifeline for this question? (yes/no): ")
-                                    .toLowerCase();
+                        if (currentPlayer.isBot()) {
+                            io.println("\n  " + currentPlayer.getName() + " (BOT) is thinking...");
 
-                            if (use.startsWith("y")) {
-                                // reset flag to ensure we only consume token if a bonus is actually selected
-                                currentPlayer.setHasUsedBonus(false);
+                            bot.BotStrategy strat = currentPlayer.getStrategy();
+                            String response = strat.getAnswer(playerQuestion);
+                            long elapsedTime = strat.getResponseTime();
 
-                                bonus.offerBonusIfAvailable(currentPlayer, playerQuestion);
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                            }
 
-                                if (currentPlayer.hasUsedBonus()) {
-                                    currentPlayer.useBonusToken();
-                                    io.println("  Token consumed! Remaining: " + currentPlayer.getBonusTokens());
+                            io.println("  [BOT] Answered: " + response + " in " + (elapsedTime / 1000.0) + "s");
+
+                            roundTimes[p] = elapsedTime;
+                            currentPlayer.setTimer(currentPlayer.getTimer() + elapsedTime);
+
+                            boolean isCorrect = AnswerValidator.isCorrect(playerQuestion, response);
+                            roundResults[p] = isCorrect;
+
+                            processScore(currentPlayer, playerQuestion, isCorrect, 0, elapsedTime);
+
+                            if (!isCorrect) {
+                                io.println("   >> BOT WRONG! The correct answer was: " + playerQuestion.getAnswer());
+                            }
+                        } else {
+                            if (isLastRound) {
+                                wager = handleBetting(
+                                        currentPlayer,
+                                        currentQuestion);
+                            }
+                            io.println("");
+                            io.println(
+                                    "  " +
+                                            currentPlayer.getName() +
+                                            " - Question " +
+                                            (round + 1) +
+                                            " of " +
+                                            roundQuestions.size());
+                            io.println(
+                                    "  ----------------------------------------");
+                            io.println(
+                                    "  " +
+                                            playerQuestion
+                                                    .formatForConsole()
+                                                    .replace("\n", "\n  "));
+
+                            if (currentPlayer.getBonusTokens() > 0) {
+                                io.println("\n  [!] You have " + currentPlayer.getBonusTokens()
+                                        + " bonus token(s) available!");
+                                String use = io.readNonEmptyString("  Use a lifeline for this question? (yes/no): ")
+                                        .toLowerCase();
+
+                                if (use.startsWith("y")) {
+                                    // reset flag to ensure we only consume token if a bonus is actually selected
+                                    currentPlayer.setHasUsedBonus(false);
+
+                                    bonus.offerBonusIfAvailable(currentPlayer, playerQuestion);
+
+                                    if (currentPlayer.hasUsedBonus()) {
+                                        currentPlayer.useBonusToken();
+                                        io.println("  Token consumed! Remaining: " + currentPlayer.getBonusTokens());
+                                    }
                                 }
                             }
-                        }
 
-                        io.println(
-                                "  You have " +
-                                        (TIME_LIMIT_MS / 1000) +
-                                        " seconds to answer!");
-                        long startTime = System.currentTimeMillis();
-                        String response = readAnswerWithTimeout(playerQuestion);
-                        long endTime = System.currentTimeMillis();
-                        long elapsedTime = endTime - startTime;
-
-                        roundTimes[p] = elapsedTime;
-                        currentPlayer.setTimer(
-                                currentPlayer.getTimer() + elapsedTime);
-
-                        boolean isCorrect;
-                        if (response.equals("__TIMEOUT__")) {
-                            isCorrect = false;
-                            int penalty = calculatePoints(currentQuestion);
-                            currentPlayer.subtractScore(penalty);
                             io.println(
-                                    "   >> TIME'S UP! -" +
-                                            penalty +
-                                            " points penalty.");
-                        } else {
-                            isCorrect = AnswerValidator.isCorrect(
-                                    playerQuestion,
-                                    response);
-                        }
+                                    "  You have " +
+                                            (TIME_LIMIT_MS / 1000) +
+                                            " seconds to answer!");
+                            long startTime = System.currentTimeMillis();
+                            String response = readAnswerWithTimeout(playerQuestion);
+                            long endTime = System.currentTimeMillis();
+                            long elapsedTime = endTime - startTime;
 
-                        roundResults[p] = isCorrect;
-                        processScore(
-                                currentPlayer,
-                                playerQuestion,
-                                isCorrect,
-                                wager,
-                                elapsedTime);
+                            roundTimes[p] = elapsedTime;
+                            currentPlayer.setTimer(
+                                    currentPlayer.getTimer() + elapsedTime);
 
-                        if (!isCorrect) {
-                            String correctAnswer;
-                            if (playerQuestion.getType() == QuestionType.NUMERIC) {
-                                correctAnswer = String.valueOf(
-                                        currentQuestion.getNumericAnswer());
+                            boolean isCorrect;
+                            if (response.equals("__TIMEOUT__")) {
+                                isCorrect = false;
+                                int penalty = calculatePoints(currentQuestion);
+                                currentPlayer.subtractScore(penalty);
+                                io.println(
+                                        "   >> TIME'S UP! -" +
+                                                penalty +
+                                                " points penalty.");
                             } else {
-                                correctAnswer = playerQuestion.getAnswer();
+                                isCorrect = AnswerValidator.isCorrect(
+                                        playerQuestion,
+                                        response);
                             }
-                            io.println(
-                                    "   >> WRONG or TIMEOUT! The correct answer was: " +
-                                            correctAnswer);
+
+                            roundResults[p] = isCorrect;
+                            processScore(
+                                    currentPlayer,
+                                    playerQuestion,
+                                    isCorrect,
+                                    wager,
+                                    elapsedTime);
+
+                            if (!isCorrect) {
+                                String correctAnswer;
+                                if (playerQuestion.getType() == QuestionType.NUMERIC) {
+                                    correctAnswer = String.valueOf(
+                                            currentQuestion.getNumericAnswer());
+                                } else {
+                                    correctAnswer = playerQuestion.getAnswer();
+                                }
+                                io.println(
+                                        "   >> WRONG or TIMEOUT! The correct answer was: " +
+                                                correctAnswer);
+                            }
                         }
 
                         io.println("  Score: " + currentPlayer.getScore());
@@ -625,7 +655,7 @@ public class Game {
             List<String> difficulties = List.of("Easy", "Medium", "Hard");
             String diff = io.selectFromList("  Select Bot Difficulty:", difficulties);
 
-            Player botPlayer = new Player("BOT");
+            Player botPlayer = new Player("Optimus Prime");
             botPlayer.setSymbol('O');
             map.initVisibilityForPlayer('O');
 
