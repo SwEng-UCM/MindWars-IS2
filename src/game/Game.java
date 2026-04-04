@@ -311,22 +311,38 @@ public class Game {
                 String checkSettings = io
                         .readLine("\n  Press ENTER to start Round " + (round + 1) + " or type 's' for Bot Settings:");
                 if (checkSettings.equalsIgnoreCase("s")) {
-                    boolean botFound = false;
+                    boolean difficultyChanged = false;
+                    String newDiffUpper = "";
+
                     for (Player p : gameState.getPlayers()) {
                         if (p.isBot()) {
-                            botFound = true;
-                            io.println("\n  --- SETTINGS: " + p.getName().toUpperCase() + " ---");
+                            io.println("\n  SETTINGS: " + p.getName().toUpperCase());
                             String newDiff = io.selectFromList("  Choose new difficulty:",
                                     List.of("Easy", "Medium", "Hard", "Keep Current"));
-                            switch (newDiff) {
-                                case "Easy" -> changeBotDifficulty(p, new bot.EasyBot());
-                                case "Medium" -> changeBotDifficulty(p, new bot.MediumBot());
-                                case "Hard" -> changeBotDifficulty(p, new bot.HardBot());
+
+                            if (!newDiff.equals("Keep Current")) {
+                                switch (newDiff) {
+                                    case "Easy" -> changeBotDifficulty(p, new bot.EasyBot());
+                                    case "Medium" -> changeBotDifficulty(p, new bot.MediumBot());
+                                    case "Hard" -> changeBotDifficulty(p, new bot.HardBot());
+                                }
+                                difficultyChanged = true;
+                                newDiffUpper = newDiff.toUpperCase();
                             }
                         }
                     }
-                    if (!botFound)
-                        io.println("  [!] No Bots found to configure.");
+
+                    if (difficultyChanged && !randomRound) {
+                        io.println("  [REGENERATING] Updating questions to " + newDiffUpper + " level...");
+                        String currentCat = roundQuestions.get(round).getCategory();
+
+                        for (int i = round; i < roundQuestions.size(); i++) {
+                            Question newQ = questionBank.getQuestion(currentCat, newDiffUpper);
+                            if (newQ != null) {
+                                roundQuestions.set(i, newQ);
+                            }
+                        }
+                    }
                 }
 
                 io.println("");
