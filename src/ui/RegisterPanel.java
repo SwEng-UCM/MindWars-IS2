@@ -40,14 +40,16 @@ public class RegisterPanel extends JPanel {
         card.setPreferredSize(new Dimension(420, 600));
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 30, 8, 30);
+        gbc.insets = new Insets(2, 30, 2, 30);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
 
         // logo
         gbc.gridy = 0;
+        gbc.insets = new Insets(20, 30, 10, 30);
         JLabel logoLabel = new JLabel();
         if (logoImage != null) {
+
             int targetHeight = 150;
             int targetWidth = (int) (logoImage.getWidth() * ((double) targetHeight / logoImage.getHeight()));
             Image scaledLogo = logoImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
@@ -58,43 +60,46 @@ public class RegisterPanel extends JPanel {
 
         // subtitle
         gbc.gridy = 1;
-        JLabel sub = new JLabel("Join the adventure! Create an account", SwingConstants.CENTER);
-        sub.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        gbc.insets = new Insets(0, 30, 20, 30);
+        JLabel sub = new JLabel("Join the adventure! Create an account:", SwingConstants.CENTER);
+        sub.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         sub.setForeground(Color.GRAY);
         card.add(sub, gbc);
 
-        // tab panel (navigation to login)
+        // tab panel
         gbc.gridy = 2;
+        gbc.insets = new Insets(10, 30, 20, 30);
         card.add(createTabPanel(), gbc);
 
-        // register
+        gbc.insets = new Insets(2, 30, 0, 30);
+
         gbc.gridy = 3;
-        card.add(createLabel("👤 Username"), gbc);
+        card.add(createLabel("Username"), gbc);
         gbc.gridy = 4;
-        card.add(createStyledTextField("Choose a username"), gbc);
+        card.add(createStyledTextField("John Doe"), gbc);
 
         gbc.gridy = 5;
-        card.add(createLabel("✉ Email Address"), gbc);
+        card.add(createLabel("Email Address"), gbc);
         gbc.gridy = 6;
         card.add(createStyledTextField("email@example.com"), gbc);
 
         gbc.gridy = 7;
-        card.add(createLabel("🔒 Password"), gbc);
+        card.add(createLabel("Password"), gbc);
         gbc.gridy = 8;
         card.add(createStyledPasswordField(), gbc);
 
         gbc.gridy = 9;
-        card.add(createLabel("🔄 Confirm Password"), gbc);
+        card.add(createLabel("Confirm Password"), gbc);
         gbc.gridy = 10;
         card.add(createStyledPasswordField(), gbc);
 
         // register button
         gbc.gridy = 11;
-        gbc.insets = new Insets(25, 30, 30, 30);
+        gbc.insets = new Insets(15, 30, 20, 30);
         JButton regBtn = createGradientButton("Create Account →");
         regBtn.addActionListener(e -> {
             JOptionPane.showMessageDialog(this, "Account Created!");
-            parent.showScreen("LOGIN");
+            parent.showScreen("MENU");
         });
         card.add(regBtn, gbc);
 
@@ -111,24 +116,21 @@ public class RegisterPanel extends JPanel {
         g2d.fillRect(0, 0, getWidth(), getHeight());
     }
 
+    // helpers
     private JLabel createLabel(String text) {
         JLabel l = new JLabel(text);
-        l.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        l.setFont(new Font("Segoe UI", Font.BOLD, 12));
         return l;
     }
 
     private JPanel createTabPanel() {
         JPanel panel = new JPanel(new GridLayout(1, 2, 12, 0));
         panel.setOpaque(false);
-
         JButton btnL = new JButton("Login");
-        JButton btnR = new JButton("👤 Register");
-
-        styleTabButton(btnL, false); // login not active on register page
-        styleTabButton(btnR, true); // register is active
-
+        JButton btnR = new JButton("Register");
+        styleTabButton(btnL, false);
+        styleTabButton(btnR, true);
         btnL.addActionListener(e -> parent.showScreen("MENU"));
-
         panel.add(btnL);
         panel.add(btnR);
         return panel;
@@ -136,7 +138,7 @@ public class RegisterPanel extends JPanel {
 
     private void styleTabButton(JButton btn, boolean active) {
         btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btn.setPreferredSize(new Dimension(100, 45));
+        btn.setPreferredSize(new Dimension(100, 40));
         btn.setFocusPainted(false);
         btn.setContentAreaFilled(false);
         btn.setOpaque(true);
@@ -153,7 +155,7 @@ public class RegisterPanel extends JPanel {
 
     private JTextField createStyledTextField(String placeholder) {
         JTextField tf = new JTextField(placeholder);
-        tf.setPreferredSize(new Dimension(300, 42));
+        tf.setPreferredSize(new Dimension(300, 35));
         tf.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(220, 220, 220), 1, true),
                 BorderFactory.createEmptyBorder(0, 15, 0, 15)));
@@ -161,8 +163,8 @@ public class RegisterPanel extends JPanel {
     }
 
     private JPasswordField createStyledPasswordField() {
-        JPasswordField pf = new JPasswordField("");
-        pf.setPreferredSize(new Dimension(300, 42));
+        JPasswordField pf = new JPasswordField("********");
+        pf.setPreferredSize(new Dimension(300, 35));
         pf.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(220, 220, 220), 1, true),
                 BorderFactory.createEmptyBorder(0, 15, 0, 15)));
@@ -184,11 +186,11 @@ public class RegisterPanel extends JPanel {
             }
         };
         btn.setForeground(Color.WHITE);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 16));
         btn.setContentAreaFilled(false);
         btn.setBorderPainted(false);
         btn.setFocusPainted(false);
-        btn.setPreferredSize(new Dimension(300, 55));
+        btn.setPreferredSize(new Dimension(300, 45));
         return btn;
     }
 }
