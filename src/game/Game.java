@@ -604,16 +604,41 @@ public class Game {
     private void setupPlayers() {
         io.println("  The game requires 2 players.");
         io.println("");
-        for (int i = 1; i <= 2; i++) {
-            String name = io.readNonEmptyString(
-                    "  Enter name for Player " + i + ":");
-            Player newPlayer = new Player(name);
-            char symbol = (i == 1) ? 'X' : 'O';
-            newPlayer.setSymbol(symbol);
-            map.initVisibilityForPlayer(symbol);
-            gameState.addPlayer(newPlayer);
-            io.println("");
+
+        List<String> gameModes = List.of("Human vs Human", "Human vs Bot");
+        String modeChoice = io.selectFromList("  Select Game Mode:", gameModes);
+
+        String name1 = io.readNonEmptyString("  Enter name for Player 1:");
+        Player p1 = new Player(name1);
+        p1.setSymbol('X');
+        map.initVisibilityForPlayer('X');
+        gameState.addPlayer(p1);
+        io.println("");
+
+        if (modeChoice.equals("Human vs Human")) {
+            String name2 = io.readNonEmptyString("  Enter name for Player 2:");
+            Player p2 = new Player(name2);
+            p2.setSymbol('O');
+            map.initVisibilityForPlayer('O');
+            gameState.addPlayer(p2);
+        } else {
+            List<String> difficulties = List.of("Easy", "Medium", "Hard");
+            String diff = io.selectFromList("  Select Bot Difficulty:", difficulties);
+
+            Player botPlayer = new Player("BOT");
+            botPlayer.setSymbol('O');
+            map.initVisibilityForPlayer('O');
+
+            switch (diff) {
+                case "Easy" -> botPlayer.setStrategy(new bot.EasyBot());
+                case "Medium" -> botPlayer.setStrategy(new bot.MediumBot());
+                case "Hard" -> botPlayer.setStrategy(new bot.HardBot());
+            }
+
+            gameState.addPlayer(botPlayer);
+            io.println("  [SETUP] Player 2 set as " + diff + " Bot.");
         }
+        io.println("");
     }
 
     private void setStartingPlayer() {
