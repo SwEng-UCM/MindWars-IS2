@@ -8,31 +8,29 @@ import java.io.File;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 
-public class MenuPanel extends JPanel {
+public class RegisterPanel extends JPanel {
 
     private MainWindow parent;
     private BufferedImage logoImage;
 
-    public MenuPanel(MainWindow parent) {
+    public RegisterPanel(MainWindow parent) {
         this.parent = parent;
         setLayout(new GridBagLayout());
         setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        // Load logo.png from assets
+        // logo
         try {
             logoImage = ImageIO.read(new File("assets/logo.png"));
         } catch (Exception e) {
-            System.err.println("Could not load logo.png. Ensure it is in the assets/ folder.");
+            System.err.println("Could not load logo.png.");
         }
 
-        // Main White Container
         JPanel card = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2d.setColor(Color.WHITE);
-                // Draw rounded rectangle
                 g2d.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 40, 40));
                 g2d.dispose();
             }
@@ -42,16 +40,14 @@ public class MenuPanel extends JPanel {
         card.setPreferredSize(new Dimension(420, 600));
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 30, 10, 30);
+        gbc.insets = new Insets(8, 30, 8, 30);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
 
-        // 1. Logo (Simple Image, no circle)
+        // logo
         gbc.gridy = 0;
-        gbc.insets = new Insets(20, 30, 10, 30);
         JLabel logoLabel = new JLabel();
         if (logoImage != null) {
-
             int targetHeight = 150;
             int targetWidth = (int) (logoImage.getWidth() * ((double) targetHeight / logoImage.getHeight()));
             Image scaledLogo = logoImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
@@ -60,52 +56,51 @@ public class MenuPanel extends JPanel {
         logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
         card.add(logoLabel, gbc);
 
-        // 2. Subtitle
+        // subtitle
         gbc.gridy = 1;
-        gbc.insets = new Insets(0, 30, 20, 30);
-        JLabel sub = new JLabel("Welcome back! Login to continue", SwingConstants.CENTER);
-        sub.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        JLabel sub = new JLabel("Join the adventure! Create an account", SwingConstants.CENTER);
+        sub.setFont(new Font("Segoe UI", Font.PLAIN, 15));
         sub.setForeground(Color.GRAY);
         card.add(sub, gbc);
 
-        // 3. Tab Panel (Login / Register)
+        // tab panel (navigation to login)
         gbc.gridy = 2;
-        gbc.insets = new Insets(10, 30, 20, 30);
         card.add(createTabPanel(), gbc);
 
-        // 4. Email Section
+        // register
         gbc.gridy = 3;
-        gbc.insets = new Insets(5, 30, 2, 30);
-        JLabel emailLabel = new JLabel("✉ Email Address");
-        emailLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        card.add(emailLabel, gbc);
-
+        card.add(createLabel("👤 Username"), gbc);
         gbc.gridy = 4;
-        gbc.insets = new Insets(0, 30, 15, 30);
-        card.add(createStyledTextField("your.email@example.com"), gbc);
+        card.add(createStyledTextField("Choose a username"), gbc);
 
-        // 5. Password Section
         gbc.gridy = 5;
-        gbc.insets = new Insets(5, 30, 2, 30);
-        JLabel passLabel = new JLabel("🔒 Password");
-        passLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        card.add(passLabel, gbc);
-
+        card.add(createLabel("✉ Email Address"), gbc);
         gbc.gridy = 6;
-        gbc.insets = new Insets(0, 30, 15, 30);
+        card.add(createStyledTextField("email@example.com"), gbc);
+
+        gbc.gridy = 7;
+        card.add(createLabel("🔒 Password"), gbc);
+        gbc.gridy = 8;
         card.add(createStyledPasswordField(), gbc);
 
-        // 6. Main Action Button
-        gbc.gridy = 7;
-        gbc.insets = new Insets(30, 30, 40, 30);
-        JButton loginBtn = createGradientButton("→ Login to Game");
-        loginBtn.addActionListener(e -> parent.showScreen("GAME"));
-        card.add(loginBtn, gbc);
+        gbc.gridy = 9;
+        card.add(createLabel("🔄 Confirm Password"), gbc);
+        gbc.gridy = 10;
+        card.add(createStyledPasswordField(), gbc);
+
+        // register button
+        gbc.gridy = 11;
+        gbc.insets = new Insets(25, 30, 30, 30);
+        JButton regBtn = createGradientButton("Create Account →");
+        regBtn.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this, "Account Created!");
+            parent.showScreen("LOGIN");
+        });
+        card.add(regBtn, gbc);
 
         add(card);
     }
 
-    // Background Paint (Gradient)
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -116,20 +111,26 @@ public class MenuPanel extends JPanel {
         g2d.fillRect(0, 0, getWidth(), getHeight());
     }
 
-    // Helpers
+    private JLabel createLabel(String text) {
+        JLabel l = new JLabel(text);
+        l.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        return l;
+    }
+
     private JPanel createTabPanel() {
         JPanel panel = new JPanel(new GridLayout(1, 2, 12, 0));
         panel.setOpaque(false);
 
-        JButton loginTab = new JButton("→ Login");
-        JButton regTab = new JButton("👤 Register");
-        regTab.addActionListener(e -> parent.showScreen("REGISTER"));
+        JButton btnL = new JButton("Login");
+        JButton btnR = new JButton("👤 Register");
 
-        styleTabButton(loginTab, true);
-        styleTabButton(regTab, false);
+        styleTabButton(btnL, false); // login not active on register page
+        styleTabButton(btnR, true); // register is active
 
-        panel.add(loginTab);
-        panel.add(regTab);
+        btnL.addActionListener(e -> parent.showScreen("MENU"));
+
+        panel.add(btnL);
+        panel.add(btnR);
         return panel;
     }
 
@@ -152,7 +153,7 @@ public class MenuPanel extends JPanel {
 
     private JTextField createStyledTextField(String placeholder) {
         JTextField tf = new JTextField(placeholder);
-        tf.setPreferredSize(new Dimension(300, 45));
+        tf.setPreferredSize(new Dimension(300, 42));
         tf.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(220, 220, 220), 1, true),
                 BorderFactory.createEmptyBorder(0, 15, 0, 15)));
@@ -160,8 +161,8 @@ public class MenuPanel extends JPanel {
     }
 
     private JPasswordField createStyledPasswordField() {
-        JPasswordField pf = new JPasswordField("********");
-        pf.setPreferredSize(new Dimension(300, 45));
+        JPasswordField pf = new JPasswordField("");
+        pf.setPreferredSize(new Dimension(300, 42));
         pf.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(220, 220, 220), 1, true),
                 BorderFactory.createEmptyBorder(0, 15, 0, 15)));

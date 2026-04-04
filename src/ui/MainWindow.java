@@ -18,6 +18,7 @@ public class MainWindow extends JFrame {
         mainContainer = new JPanel(cardLayout);
 
         mainContainer.add(new MenuPanel(this), "MENU");
+        mainContainer.add(new RegisterPanel(this), "REGISTER");
 
         add(mainContainer);
     }
