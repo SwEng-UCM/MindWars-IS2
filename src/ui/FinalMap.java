@@ -52,7 +52,6 @@ public class FinalMap extends JPanel {
 
                     g2.setColor(new Color(150, 140, 140));
                     g2.drawRoundRect(x, y, cellSize, cellSize, 12, 12);
-                    
                 }
             }
 
