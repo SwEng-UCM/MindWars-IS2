@@ -748,62 +748,63 @@ public class Game {
         char symbol = currentPlayer.getSymbol();
 
         while (!done) {
-            map.displayForPlayer(io, symbol);
-            String input = io.readNonEmptyString(
-                    "  " +
-                            currentPlayer.getName() +
-                            " (" +
-                            symbol +
-                            "), enter coordinates row,col:");
+            int r, c;
 
-            if (!input.contains(",")) {
-                io.println("  Invalid format! Please use: row,col");
-                continue;
+            if (currentPlayer.isBot()) {
+                map.displayForPlayer(io, symbol);
+                io.println("  [BOT] " + currentPlayer.getName() + " is selecting a territory...");
+
+                int[] move = getBotMove();
+                if (move == null)
+                    break;
+
+                r = move[0];
+                c = move[1];
+
+                try {
+                    Thread.sleep(1500);
+                } catch (InterruptedException e) {
+                }
+                io.println("  [BOT] Chose coordinates: " + r + "," + c);
+            } else {
+                map.displayForPlayer(io, symbol);
+                String input = io.readNonEmptyString(
+                        "  " + currentPlayer.getName() + " (" + symbol + "), enter coordinates row,col:");
+
+                if (!input.contains(",")) {
+                    io.println("  Invalid format! Please use: row,col");
+                    continue;
+                }
+
+                try {
+                    String[] parts = input.split(",");
+                    r = Integer.parseInt(parts[0].trim());
+                    c = Integer.parseInt(parts[1].trim());
+                } catch (NumberFormatException e) {
+                    io.println("  Error: Please enter valid numbers.");
+                    continue;
+                }
             }
 
-            try {
-                String[] parts = input.split(",");
-                int r = Integer.parseInt(parts[0].trim());
-                int c = Integer.parseInt(parts[1].trim());
+            boolean cellHasBonus = map.hasBonus(r, c);
 
-                boolean cellHasBonus = map.hasBonus(r, c);
+            if (map.claimCell(symbol, r, c)) {
+                sound.play(SoundManager.TERRITORY);
+                map.revealNeighbourForPlayer(symbol, r, c);
+                map.revealCellForPlayer(symbol, r, c);
 
-                if (map.claimCell(symbol, r, c)) {
-                    sound.play(SoundManager.TERRITORY);
-                    // reveal the zone
-                    map.revealNeighbourForPlayer(symbol, r, c);
-                    map.revealCellForPlayer(symbol, r, c);
+                io.println("  Success! Cell [" + r + "," + c + "] is marked with '" + symbol + "'.");
 
-                    io.println(
-                            "  Success! Cell [" +
-                                    r +
-                                    "," +
-                                    c +
-                                    "] is now marked with '" +
-                                    symbol +
-                                    "'.");
-                    io.println("");
-
-                    if (cellHasBonus) {
-                        io.println("\n BONUS TOKEN FOUND!");
-                        io.println(
-                                "  Congratulations " + currentPlayer.getName() + "!");
-
-                        currentPlayer.addBonusToken();
-
-                        io.println("  You found a power-up! You now have " +
-                                currentPlayer.getBonusTokens() + " token(s) stored.");
-                    }
-
-                    done = true;
-                    io.println("");
-                } else {
-                    io.println(
-                            "  That cell is either outside the map or already taken! Try again.");
+                if (cellHasBonus) {
+                    io.println("\n  BONUS TOKEN FOUND!");
+                    currentPlayer.addBonusToken();
+                    io.println("  You found a power-up! You now have " + currentPlayer.getBonusTokens() + " token(s).");
                 }
-            } catch (NumberFormatException e) {
-                io.println(
-                        "  Error: Please enter valid numbers for row and column.");
+                done = true;
+            } else {
+                if (!currentPlayer.isBot()) {
+                    io.println("  That cell is either outside the map or already taken! Try again.");
+                }
             }
         }
     }
@@ -1055,60 +1056,77 @@ public class Game {
             io.println("  " + attacker.getName() + ", choose your move!");
             map.display(io);
 
-            int attR = -1,
-                    attC = -1,
-                    defR = -1,
-                    defC = -1;
+            int attR = -1, attC = -1, defR = -1, defC = -1;
 
-            boolean sourceValid = false;
-            while (!sourceValid) {
-                try {
-                    String input = io.readNonEmptyString(
-                            "  Select YOUR territory to attack FROM (row,col) or 'd' to see map:");
+            if (attacker.isBot()) {
+                io.println("  [BOT] " + attacker.getName() + " is scanning for targets...");
+                int[][] move = getBotAttackMove(attackerSym, defenderSym);
 
-                    if (input.equalsIgnoreCase("d")) {
-                        map.display(io);
-                        continue;
+                if (move != null) {
+                    attR = move[0][0];
+                    attC = move[0][1];
+                    defR = move[1][0];
+                    defC = move[1][1];
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
                     }
-
-                    String[] p = input.split(",");
-                    attR = Integer.parseInt(p[0].trim());
-                    attC = Integer.parseInt(p[1].trim());
-
-                    if (map.getOwner(attR, attC) == attackerSym) {
-                        sourceValid = true;
-                    } else {
-                        io.println("  Error: You don't own that cell!");
-                    }
-                } catch (Exception e) {
-                    io.println("  Invalid format. Use row,col or 'd'.");
+                    io.println("  [BOT] Attacking FROM [" + attR + "," + attC + "] TO [" + defR + "," + defC + "]");
+                } else {
+                    io.println("  [BOT] No valid adjacent targets found. Skipping turn.");
+                    continue;
                 }
-            }
+            } else {
+                boolean sourceValid = false;
+                while (!sourceValid) {
+                    try {
+                        String input = io.readNonEmptyString(
+                                "  Select YOUR territory to attack FROM (row,col) or 'd' to see map:");
 
-            boolean targetValid = false;
-            while (!targetValid) {
-                try {
-                    String input = io.readNonEmptyString(
-                            "  Select ADJACENT enemy territory to ATTACK (row,col) or 'd' to see map:");
+                        if (input.equalsIgnoreCase("d")) {
+                            map.display(io);
+                            continue;
+                        }
 
-                    if (input.equalsIgnoreCase("d")) {
-                        map.display(io);
-                        continue;
+                        String[] p = input.split(",");
+                        attR = Integer.parseInt(p[0].trim());
+                        attC = Integer.parseInt(p[1].trim());
+
+                        if (map.getOwner(attR, attC) == attackerSym) {
+                            sourceValid = true;
+                        } else {
+                            io.println("  Error: You don't own that cell!");
+                        }
+                    } catch (Exception e) {
+                        io.println("  Invalid format. Use row,col or 'd'.");
                     }
+                }
 
-                    String[] p = input.split(",");
-                    defR = Integer.parseInt(p[0].trim());
-                    defC = Integer.parseInt(p[1].trim());
+                boolean targetValid = false;
+                while (!targetValid) {
+                    try {
+                        String input = io.readNonEmptyString(
+                                "  Select ADJACENT enemy territory to ATTACK (row,col) or 'd' to see map:");
 
-                    if (map.getOwner(defR, defC) != defenderSym) {
-                        io.println("  Error: That's not an enemy territory!");
-                    } else if (!map.isAdjacent(attR, attC, defR, defC)) {
-                        io.println("  Error: Cell is not adjacent!");
-                    } else {
-                        targetValid = true;
+                        if (input.equalsIgnoreCase("d")) {
+                            map.display(io);
+                            continue;
+                        }
+
+                        String[] p = input.split(",");
+                        defR = Integer.parseInt(p[0].trim());
+                        defC = Integer.parseInt(p[1].trim());
+
+                        if (map.getOwner(defR, defC) != defenderSym) {
+                            io.println("  Error: That's not an enemy territory!");
+                        } else if (!map.isAdjacent(attR, attC, defR, defC)) {
+                            io.println("  Error: Cell is not adjacent!");
+                        } else {
+                            targetValid = true;
+                        }
+                    } catch (Exception e) {
+                        io.println("  Invalid format. Use row,col or 'd'.");
                     }
-                } catch (Exception e) {
-                    io.println("  Invalid format. Use row,col or 'd'.");
                 }
             }
 
@@ -1121,8 +1139,10 @@ public class Game {
                 attempts++;
                 attacked = false;
                 weapon_use = null;
+
                 Question q = questionBank.getAllQuestionsAsList().get(0);
                 Question q_defender = q.cloneQuestion();
+
                 String correctAnswer = (q.getType() == QuestionType.NUMERIC)
                         ? String.valueOf(q.getNumericAnswer())
                         : q.getAnswer();
@@ -1131,168 +1151,133 @@ public class Game {
                         : q_defender.getAnswer();
 
                 if (attempts == 2) {
-                    io.println(
-                            "\n  !!! TIE-BREAKER QUESTION (Final attempt) !!!");
+                    io.println("\n  !!! TIE-BREAKER QUESTION (Final attempt) !!!");
                 } else {
                     io.println("\n BATTLE QUESTION ");
                 }
 
                 displayHotSeatHeader(attacker);
                 io.println("  ATTACKER [" + attacker.getName() + "]:");
-                io.println(q.formatForConsole());
-                if (attacker.hasAttackWeapon()) {
+
+                // bot doesn't use weapons in this version to keep it simple,
+                // but humans still can.
+                if (!attacker.isBot() && attacker.hasAttackWeapon()) {
+                    io.println(q.formatForConsole());
                     io.println("Do you want to use a weapon?");
                     String choiceAtt = io.readNonEmptyString("1) Yes\n2) No");
 
-                    if (choiceAtt.equals("1") ||
-                            choiceAtt.equals("yes") ||
-                            choiceAtt.equals("Yes")) {
+                    if (choiceAtt.equals("1") || choiceAtt.equalsIgnoreCase("yes")) {
                         attacked = true;
                         List<WeaponType> attackWeapons = attacker.getAttackWeapon();
 
                         if (!attackWeapons.isEmpty()) {
                             io.println("\nChoose a weapon to use:");
                             for (int i = 0; i < attackWeapons.size(); i++) {
-                                io.println(
-                                        (i + 1) + ") " + attackWeapons.get(i));
+                                io.println((i + 1) + ") " + attackWeapons.get(i));
                             }
 
-                            int weaponChoice = io.readInt(
-                                    "\nEnter the number of the weapon: ",
-                                    1,
+                            int weaponChoice = io.readInt("\nEnter the number of the weapon: ", 1,
                                     attackWeapons.size());
-                            WeaponType selectedWeapon = attackWeapons.get(
-                                    weaponChoice - 1);
+                            WeaponType selectedWeapon = attackWeapons.get(weaponChoice - 1);
                             weapon_use = selectedWeapon;
 
-                            // Use the weapon
-                            Weapon currentWeapon = new Weapon(
-                                    selectedWeapon,
-                                    io);
-
-                            q_defender = currentWeapon.useWeapon(
-                                    q_defender,
-                                    selectedWeapon,
-                                    questionBank,
-                                    weapon_use,
+                            Weapon currentWeapon = new Weapon(selectedWeapon, io);
+                            q_defender = currentWeapon.useWeapon(q_defender, selectedWeapon, questionBank, weapon_use,
                                     q);
+
                             correctAnswer_defender = (q_defender.getType() == QuestionType.NUMERIC)
                                     ? String.valueOf(q_defender.getNumericAnswer())
                                     : q_defender.getAnswer();
+
                             io.println("You used: " + selectedWeapon);
-                            if (selectedWeapon != null)
-                                attacker.useWeapon(
-                                        selectedWeapon);
-                            io.println(q.formatForConsole());
-                        } else {
-                            io.println("You have no attack weapons available.");
+                            attacker.useWeapon(selectedWeapon);
                         }
                     }
                 }
-                String attAns = readAnswerWithTimeout(q);
-                boolean attCorrect = !attAns.equals("__TIMEOUT__") &&
-                        AnswerValidator.isCorrect(q, attAns);
 
-                if (attCorrect) {
-                    io.println("   >> CORRECT!");
+                String attAns;
+                if (attacker.isBot()) {
+                    attAns = attacker.getStrategy().getAnswer(q);
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                    }
+                    io.println("  [BOT] Attacker answered: " + attAns);
                 } else {
-                    io.println(
-                            "   >> WRONG! The correct answer was: " + correctAnswer);
+                    io.println(q.formatForConsole());
+                    attAns = readAnswerWithTimeout(q);
                 }
+
+                boolean attCorrect = !attAns.equals("__TIMEOUT__") && AnswerValidator.isCorrect(q, attAns);
+
+                if (attCorrect)
+                    io.println("   >> CORRECT!");
+                else
+                    io.println("   >> WRONG! Correct was: " + correctAnswer);
 
                 displayHotSeatHeader(defender);
                 io.println("  DEFENDER [" + defender.getName() + "]:");
-                if (attacked) {
-                    if (defender.hasDefendWeapon()) {
-                        io.println(
-                                "You were attacked by do you want to use a weapon of defense?");
-                        String choiceDef = io.readNonEmptyString(
-                                "1) Yes\n2) No");
 
-                        if (choiceDef.equals("1") ||
-                                choiceDef.equals("yes") ||
-                                choiceDef.equals("Yes")) {
-                            List<WeaponType> defenseWeapons = defender.getDefendWeapon();
+                if (!defender.isBot() && attacked && defender.hasDefendWeapon()) {
+                    io.println("You were attacked! Do you want to use a defense weapon?");
+                    String choiceDef = io.readNonEmptyString("1) Yes\n2) No");
 
-                            if (!defenseWeapons.isEmpty()) {
-                                io.println("\nChoose a defense weapon to use:");
-                                for (int i = 0; i < defenseWeapons.size(); i++) {
-                                    io.println(
-                                            (i + 1) + ") " + defenseWeapons.get(i));
-                                }
-
-                                int weaponChoice = io.readInt(
-                                        "\nEnter the number of the weapon: ",
-                                        1,
-                                        defenseWeapons.size());
-                                WeaponType selectedWeapon = defenseWeapons.get(
-                                        weaponChoice - 1);
-
-                                // Use the weapon
-                                Weapon currentWeapon = new Weapon(
-                                        selectedWeapon,
-                                        io);
-
-                                q_defender = currentWeapon.useWeapon(
-                                        q_defender,
-                                        selectedWeapon,
-                                        questionBank,
-                                        weapon_use,
-                                        q);
-                                correctAnswer_defender = (q_defender.getType() == QuestionType.NUMERIC)
-                                        ? String.valueOf(
-                                                q_defender.getNumericAnswer())
-                                        : q_defender.getAnswer();
-                                io.println("You used: " + selectedWeapon);
-                                if (selectedWeapon != null)
-                                    defender.useWeapon(
-                                            selectedWeapon);
-                            } else {
-                                io.println(
-                                        "You have no defense weapons available.");
+                    if (choiceDef.equals("1") || choiceDef.equalsIgnoreCase("yes")) {
+                        List<WeaponType> defenseWeapons = defender.getDefendWeapon();
+                        if (!defenseWeapons.isEmpty()) {
+                            io.println("\nChoose a defense weapon:");
+                            for (int i = 0; i < defenseWeapons.size(); i++) {
+                                io.println((i + 1) + ") " + defenseWeapons.get(i));
                             }
+                            int weaponChoice = io.readInt("\nEnter weapon number: ", 1, defenseWeapons.size());
+                            WeaponType selectedWeapon = defenseWeapons.get(weaponChoice - 1);
+                            Weapon currentWeapon = new Weapon(selectedWeapon, io);
+                            q_defender = currentWeapon.useWeapon(q_defender, selectedWeapon, questionBank, weapon_use,
+                                    q);
+
+                            correctAnswer_defender = (q_defender.getType() == QuestionType.NUMERIC)
+                                    ? String.valueOf(q_defender.getNumericAnswer())
+                                    : q_defender.getAnswer();
+
+                            io.println("You used: " + selectedWeapon);
+                            defender.useWeapon(selectedWeapon);
                         }
-                    } else {
-                        io.println("You have no defense weapons.");
                     }
                 }
-                io.println(q_defender.formatForConsole());
-                String defAns = readAnswerWithTimeout(q_defender);
-                boolean defCorrect = !defAns.equals("__TIMEOUT__") &&
-                        AnswerValidator.isCorrect(q_defender, defAns);
 
-                if (defCorrect) {
-                    io.println("   >> CORRECT!");
+                String defAns;
+                if (defender.isBot()) {
+                    defAns = defender.getStrategy().getAnswer(q_defender);
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                    }
+                    io.println("  [BOT] Defender answered: " + defAns);
                 } else {
-                    io.println(
-                            "   >> WRONG! The correct answer was: " +
-                                    correctAnswer_defender);
+                    io.println(q_defender.formatForConsole());
+                    defAns = readAnswerWithTimeout(q_defender);
                 }
 
+                boolean defCorrect = !defAns.equals("__TIMEOUT__") && AnswerValidator.isCorrect(q_defender, defAns);
+
+                if (defCorrect)
+                    io.println("   >> CORRECT!");
+                else
+                    io.println("   >> WRONG! Correct was: " + correctAnswer_defender);
+
                 if (attCorrect && !defCorrect) {
-                    io.println(
-                            "\n  >> SUCCESS! " +
-                                    attacker.getName() +
-                                    " conquered the territory!");
+                    io.println("\n  >> SUCCESS! " + attacker.getName() + " conquered the territory!");
                     map.setOwner(defR, defC, attackerSym);
                     sound.play(SoundManager.TERRITORY);
                     battleResolved = true;
                 } else if (!attCorrect && defCorrect) {
-                    io.println(
-                            "\n  >> REPELLED! " +
-                                    defender.getName() +
-                                    " defended successfully!");
+                    io.println("\n  >> REPELLED! " + defender.getName() + " defended successfully!");
                     battleResolved = true;
                 } else {
-                    if (attempts < 2) {
-                        io.println(
-                                "\n  >> TIE! Moving to the final tie-breaker question...");
-                    } else {
-                        io.println(
-                                "\n  >> DOUBLE TIE! Attack failed. The territory remains with " +
-                                        defender.getName() +
-                                        ".");
-                    }
+                    if (attempts < 2)
+                        io.println("\n  >> TIE! Final tie-breaker...");
+                    else
+                        io.println("\n  >> DOUBLE TIE! Attack failed. Territory stays with " + defender.getName());
                 }
             }
         }
@@ -1405,6 +1390,45 @@ public class Game {
             player.setStrategy(newStrategy);
             io.println("  [SETTINGS] Bot difficulty changed to: " + newStrategy.getDifficultyName());
         }
+    }
+
+    private int[] getBotMove() {
+        Random r = new Random();
+        int size = map.getSize();
+        List<int[]> freeCells = new ArrayList<>();
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (map.isFree(i, j)) {
+                    freeCells.add(new int[] { i, j });
+                }
+            }
+        }
+
+        if (!freeCells.isEmpty()) {
+            return freeCells.get(r.nextInt(freeCells.size()));
+        }
+        return null;
+    }
+
+    private int[][] getBotAttackMove(char botSym, char enemySym) {
+        int size = map.getSize();
+        for (int r = 0; r < size; r++) {
+            for (int c = 0; c < size; c++) {
+                if (map.getOwner(r, c) == botSym) {
+                    for (int dr = -1; dr <= 1; dr++) {
+                        for (int dc = -1; dc <= 1; dc++) {
+                            int tr = r + dr;
+                            int tc = c + dc;
+                            if (map.isInside(tr, tc) && map.getOwner(tr, tc) == enemySym) {
+                                return new int[][] { { r, c }, { tr, tc } };
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
 }
