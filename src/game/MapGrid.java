@@ -187,4 +187,8 @@ public class MapGrid {
         }
         return true;
     }
+
+    public char getCell(int row, int col) {
+        return grid[row][col];
+    }
 }
