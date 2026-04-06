@@ -14,7 +14,7 @@ public class MainMenuFrame extends JFrame {
         GradientBackgroundPanel background = new GradientBackgroundPanel();
         background.setLayout(new GridBagLayout());
 
-        MainMenuPanel menuPanel = new MainMenuPanel();
+        MainMenuPanel menuPanel = new MainMenuPanel(null);
 
         background.add(menuPanel);
         setContentPane(background);
