@@ -748,62 +748,63 @@ public class Game {
         char symbol = currentPlayer.getSymbol();
 
         while (!done) {
-            map.displayForPlayer(io, symbol);
-            String input = io.readNonEmptyString(
-                    "  " +
-                            currentPlayer.getName() +
-                            " (" +
-                            symbol +
-                            "), enter coordinates row,col:");
+            int r, c;
 
-            if (!input.contains(",")) {
-                io.println("  Invalid format! Please use: row,col");
-                continue;
+            if (currentPlayer.isBot()) {
+                map.displayForPlayer(io, symbol);
+                io.println("  [BOT] " + currentPlayer.getName() + " is selecting a territory...");
+
+                int[] move = getBotMove();
+                if (move == null)
+                    break;
+
+                r = move[0];
+                c = move[1];
+
+                try {
+                    Thread.sleep(1500);
+                } catch (InterruptedException e) {
+                }
+                io.println("  [BOT] Chose coordinates: " + r + "," + c);
+            } else {
+                map.displayForPlayer(io, symbol);
+                String input = io.readNonEmptyString(
+                        "  " + currentPlayer.getName() + " (" + symbol + "), enter coordinates row,col:");
+
+                if (!input.contains(",")) {
+                    io.println("  Invalid format! Please use: row,col");
+                    continue;
+                }
+
+                try {
+                    String[] parts = input.split(",");
+                    r = Integer.parseInt(parts[0].trim());
+                    c = Integer.parseInt(parts[1].trim());
+                } catch (NumberFormatException e) {
+                    io.println("  Error: Please enter valid numbers.");
+                    continue;
+                }
             }
 
-            try {
-                String[] parts = input.split(",");
-                int r = Integer.parseInt(parts[0].trim());
-                int c = Integer.parseInt(parts[1].trim());
+            boolean cellHasBonus = map.hasBonus(r, c);
 
-                boolean cellHasBonus = map.hasBonus(r, c);
+            if (map.claimCell(symbol, r, c)) {
+                sound.play(SoundManager.TERRITORY);
+                map.revealNeighbourForPlayer(symbol, r, c);
+                map.revealCellForPlayer(symbol, r, c);
 
-                if (map.claimCell(symbol, r, c)) {
-                    sound.play(SoundManager.TERRITORY);
-                    // reveal the zone
-                    map.revealNeighbourForPlayer(symbol, r, c);
-                    map.revealCellForPlayer(symbol, r, c);
+                io.println("  Success! Cell [" + r + "," + c + "] is marked with '" + symbol + "'.");
 
-                    io.println(
-                            "  Success! Cell [" +
-                                    r +
-                                    "," +
-                                    c +
-                                    "] is now marked with '" +
-                                    symbol +
-                                    "'.");
-                    io.println("");
-
-                    if (cellHasBonus) {
-                        io.println("\n BONUS TOKEN FOUND!");
-                        io.println(
-                                "  Congratulations " + currentPlayer.getName() + "!");
-
-                        currentPlayer.addBonusToken();
-
-                        io.println("  You found a power-up! You now have " +
-                                currentPlayer.getBonusTokens() + " token(s) stored.");
-                    }
-
-                    done = true;
-                    io.println("");
-                } else {
-                    io.println(
-                            "  That cell is either outside the map or already taken! Try again.");
+                if (cellHasBonus) {
+                    io.println("\n  BONUS TOKEN FOUND!");
+                    currentPlayer.addBonusToken();
+                    io.println("  You found a power-up! You now have " + currentPlayer.getBonusTokens() + " token(s).");
                 }
-            } catch (NumberFormatException e) {
-                io.println(
-                        "  Error: Please enter valid numbers for row and column.");
+                done = true;
+            } else {
+                if (!currentPlayer.isBot()) {
+                    io.println("  That cell is either outside the map or already taken! Try again.");
+                }
             }
         }
     }
