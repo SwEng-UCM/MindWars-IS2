@@ -1,6 +1,9 @@
 package controller;
 
+import command.AnswerCommand;
+import command.ClaimCellCommand;
 import command.CommandHistory;
+import command.InvasionCommand;
 import model.AnswerResult;
 import model.GameModel;
 import model.GamePhase;
@@ -55,11 +58,16 @@ public class GameController {
     }
 
     /**
-     * The view submits an answer. Returns the result so the view can flash
-     * correct/wrong feedback before calling {@link #onAnswerAcknowledged()}.
+     * The view submits an answer. Wraps the call in an {@link AnswerCommand}
+     * so the player can undo it while the feedback is on screen (#82).
+     * Returns the result so the view can flash correct/wrong feedback
+     * before calling {@link #onAnswerAcknowledged()}.
      */
     public AnswerResult onAnswerSubmitted(String rawAnswer, long elapsedMs) {
-        return model.submitAnswer(rawAnswer, elapsedMs);
+        AnswerCommand cmd = new AnswerCommand(model, rawAnswer, elapsedMs);
+        cmd.execute();
+        history.push(cmd);
+        return cmd.getResult();
     }
 
     public void onAnswerAcknowledged() {
@@ -68,7 +76,13 @@ public class GameController {
 
     /** The player clicked a cell during the territory claim phase. */
     public boolean onCellClaimed(int playerIndex, int row, int col) {
-        return model.claimCell(playerIndex, row, col);
+        ClaimCellCommand cmd = new ClaimCellCommand(model, playerIndex, row, col);
+        cmd.execute();
+        if (cmd.wasAccepted()) {
+            history.push(cmd);
+            return true;
+        }
+        return false;
     }
 
     public void onTerritoryPhaseFinished() {
@@ -86,22 +100,24 @@ public class GameController {
     }
 
     public void onInvasionResolved(String attackerAnswer, String defenderAnswer) {
-        model.resolveInvasion(attackerAnswer, defenderAnswer);
+        InvasionCommand cmd = new InvasionCommand(model, attackerAnswer, defenderAnswer);
+        cmd.execute();
+        history.push(cmd);
         if (model.getPhase() == GamePhase.GAME_OVER) {
             nav.showGameOver();
         }
     }
 
-    // ── Undo (wired up fully in #81/#82) ──
+    // ── Undo (#82) ──
 
     /** Whether there is an action on the history stack that can be undone. */
     public boolean canUndo() {
-        return false;
+        return history.canUndo();
     }
 
     /** Undoes the most recent action. Returns true if something was undone. */
     public boolean undoLast() {
-        return false;
+        return history.undo();
     }
 
     // ── Game over ──
