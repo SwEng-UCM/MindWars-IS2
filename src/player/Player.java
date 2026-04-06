@@ -172,6 +172,19 @@ public class Player {
         return wrongAnswers;
     }
 
+    /** Sets the correct-answer counter directly — used by undo. */
+    public void setCorrectAnswers(int n) { this.correctAnswers = n; }
+
+    /** Sets the wrong-answer counter directly — used by undo. */
+    public void setWrongAnswers(int n) { this.wrongAnswers = n; }
+
+    /** Removes the most recent response time, if any — used by undo. */
+    public void popLastResponseTime() {
+        if (!responseTimes.isEmpty()) {
+            responseTimes.remove(responseTimes.size() - 1);
+        }
+    }
+
     public double getAverageResponseTime() {
         if (responseTimes.isEmpty())
             return 0;

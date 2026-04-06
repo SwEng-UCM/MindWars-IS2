@@ -1,5 +1,6 @@
 package controller;
 
+import command.CommandHistory;
 import model.AnswerResult;
 import model.GameModel;
 import model.GamePhase;
@@ -18,6 +19,7 @@ public class GameController {
 
     private final GameModel model;
     private final NavigationController nav;
+    private final CommandHistory history = new CommandHistory();
 
     public GameController(GameModel model, NavigationController nav) {
         this.model = model;
@@ -26,10 +28,12 @@ public class GameController {
 
     public GameModel getModel() { return model; }
     public NavigationController getNav() { return nav; }
+    public CommandHistory getHistory() { return history; }
 
     // ── Entry points from menu/setup ──
 
     public void startNewGame(GameSettings settings) {
+        history.clear();
         model.startGame(settings);
         nav.showGame();
     }

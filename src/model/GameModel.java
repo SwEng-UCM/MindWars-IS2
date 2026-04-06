@@ -100,6 +100,15 @@ public class GameModel {
     public int getAttackToRow() { return attackToRow; }
     public int getAttackToCol() { return attackToCol; }
 
+    // ── Round-tracker access (used by undo Commands) ──
+    public boolean getRoundCorrect(int playerIndex) { return roundCorrect[playerIndex]; }
+    public long getRoundTime(int playerIndex) { return roundTimes[playerIndex]; }
+    public void setRoundCorrect(int playerIndex, boolean v) { roundCorrect[playerIndex] = v; }
+    public void setRoundTime(int playerIndex, long v) { roundTimes[playerIndex] = v; }
+    public void setCurrentPlayerIndex(int i) { this.currentPlayerIndex = i; }
+    public void forcePhase(GamePhase p) { setPhase(p); }
+    public void setInvaderIndex(int i) { this.invaderIndex = i; }
+
     // ── Game lifecycle ──
 
     /** Starts a brand new game using the given settings. */
