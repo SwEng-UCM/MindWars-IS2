@@ -489,6 +489,7 @@ public class Game {
 
                                 if (playerQuestion.getType() == QuestionType.ORDERING) {
                                     List<String> correctList = playerQuestion.getOrderingAnswer();
+
                                     // String.join will transform ["Asia", "Africa", "Europe"] in "Asia -> Africa ->
                                     // Europe"
                                     correctAnswer = String.join(" -> ", correctList);
