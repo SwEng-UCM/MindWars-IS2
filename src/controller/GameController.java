@@ -88,6 +88,18 @@ public class GameController {
         }
     }
 
+    // ── Undo (wired up fully in #81/#82) ──
+
+    /** Whether there is an action on the history stack that can be undone. */
+    public boolean canUndo() {
+        return false;
+    }
+
+    /** Undoes the most recent action. Returns true if something was undone. */
+    public boolean undoLast() {
+        return false;
+    }
+
     // ── Game over ──
 
     public void onGameOverAcknowledged() {
