@@ -1407,4 +1407,23 @@ public class Game {
         }
     }
 
+    private int[] getBotMove() {
+        Random r = new Random();
+        int size = map.getSize();
+        List<int[]> freeCells = new ArrayList<>();
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (map.isFree(i, j)) {
+                    freeCells.add(new int[] { i, j });
+                }
+            }
+        }
+
+        if (!freeCells.isEmpty()) {
+            return freeCells.get(r.nextInt(freeCells.size()));
+        }
+        return null;
+    }
+
 }
