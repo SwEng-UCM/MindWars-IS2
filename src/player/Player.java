@@ -4,6 +4,7 @@ import game.Weapon;
 import game.WeaponType;
 import java.util.ArrayList;
 import java.util.List;
+import bot.BotStrategy;
 
 public class Player {
 
@@ -15,12 +16,15 @@ public class Player {
     private boolean hasUsedBet = false;
     private boolean hasUsedBonus = false;
     private char symbol;
+    private int bonusTokens = 0;
     private static final int STREAK_TARGET = 3;
     public static final int STREAK_BONUS = 3;
     private int correctAnswers = 0;
     private int wrongAnswers = 0;
     private List<Long> responseTimes = new ArrayList<>();
     private List<WeaponType> inventory = new ArrayList<>();
+    private BotStrategy strategy;
+    private boolean isBot;
 
     public Player(String name) {
         this.name = name;
@@ -78,7 +82,8 @@ public class Player {
 
     public void subtractScore(int points) {
         this.score -= points;
-        if (this.score < 0) this.score = 0;
+        if (this.score < 0)
+            this.score = 0;
     }
 
     public void resetStreak() {
@@ -99,6 +104,20 @@ public class Player {
 
     public void setSymbol(char symbol) {
         this.symbol = symbol;
+    }
+
+    public void addBonusToken() {
+        this.bonusTokens++;
+    }
+
+    public int getBonusTokens() {
+        return bonusTokens;
+    }
+
+    public void useBonusToken() {
+        if (bonusTokens > 0) {
+            bonusTokens--;
+        }
     }
 
     public boolean hasUsedBonus() {
@@ -128,16 +147,21 @@ public class Player {
     }
 
     public double getAverageResponseTime() {
-        if (responseTimes.isEmpty()) return 0;
+        if (responseTimes.isEmpty())
+            return 0;
         long sum = 0;
-        for (long t : responseTimes) sum += t;
+        for (long t : responseTimes)
+            sum += t;
         return sum / (double) responseTimes.size() / 1000.0; // secondes
     }
 
     public double getFastestResponse() {
-        if (responseTimes.isEmpty()) return 0;
+        if (responseTimes.isEmpty())
+            return 0;
         long min = Long.MAX_VALUE;
-        for (long t : responseTimes) if (t < min) min = t;
+        for (long t : responseTimes)
+            if (t < min)
+                min = t;
         return min / 1000.0; // secondes
     }
 
@@ -200,4 +224,18 @@ public class Player {
         }
         return false;
     }
+
+    public void setStrategy(BotStrategy strategy) {
+        this.strategy = strategy;
+        this.isBot = (strategy != null);
+    }
+
+    public BotStrategy getStrategy() {
+        return strategy;
+    }
+
+    public boolean isBot() {
+        return isBot;
+    }
+
 }

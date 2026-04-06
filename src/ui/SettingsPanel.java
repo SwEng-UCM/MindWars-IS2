@@ -83,8 +83,7 @@ public class SettingsPanel extends JPanel {
         soundEffectsCard = new SettingOptionCard(
                 "Sound Effects",
                 "Enable or disable game sound effects",
-                settings.isSoundEffectsEnabled()
-        );
+                settings.isSoundEffectsEnabled());
 
         /*
          * Create the second option card for music.
@@ -92,8 +91,7 @@ public class SettingsPanel extends JPanel {
         musicCard = new SettingOptionCard(
                 "Music",
                 "Enable or disable background music",
-                settings.isMusicEnabled()
-        );
+                settings.isMusicEnabled());
 
         /*
          * Create the main Save button using the custom gradient component.
@@ -274,8 +272,7 @@ public class SettingsPanel extends JPanel {
                     this,
                     "Settings saved successfully.",
                     "Settings",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
+                    JOptionPane.INFORMATION_MESSAGE);
         });
     }
 

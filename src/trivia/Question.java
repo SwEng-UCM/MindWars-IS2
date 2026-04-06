@@ -13,20 +13,22 @@ public class Question {
     private List<String> choices;
     private String answer; // used for MCQ, TF, Open-Ended
     private double numericAnswer; // used for NUMERIC
-    private double tolerance; // margin of error for NUMERIC -> is going to be used for estimation-based challenges
+    private double tolerance; // margin of error for NUMERIC -> is going to be used for estimation-based
+                              // challenges
     private List<String> orderingAnswer; // used for ORDERING
     private String clue;
 
-    public Question() {} // empty constructor for GSON
+    public Question() {
+    } // empty constructor for GSON
 
     public String formatForConsole() {
         StringBuilder sb = new StringBuilder();
         sb
-            .append("\n--- ")
-            .append(category.toUpperCase())
-            .append(" (")
-            .append(difficulty)
-            .append(") ---\n");
+                .append("\n--- ")
+                .append(category.toUpperCase())
+                .append(" (")
+                .append(difficulty)
+                .append(") ---\n");
         sb.append(prompt).append("\n");
 
         if (type == QuestionType.MULTIPLE_CHOICE) {
@@ -59,8 +61,7 @@ public class Question {
                     index++;
                 }
                 sb.append(
-                    "Enter the correct order (example: 2 1 3 or 1;2;3)\n"
-                );
+                        "Enter the correct order (example: 2 1 3 or 1;2;3)\n");
             }
         }
         return sb.toString();
@@ -77,22 +78,21 @@ public class Question {
 
         // Copie sécurisée des listes
         q.setChoices(
-            this.getChoices() != null
-                ? new ArrayList<>(this.getChoices())
-                : new ArrayList<>()
-        );
+                this.getChoices() != null
+                        ? new ArrayList<>(this.getChoices())
+                        : new ArrayList<>());
         q.setOrderingAnswer(
-            this.getOrderingAnswer() != null
-                ? new ArrayList<>(this.getOrderingAnswer())
-                : new ArrayList<>()
-        );
+                this.getOrderingAnswer() != null
+                        ? new ArrayList<>(this.getOrderingAnswer())
+                        : new ArrayList<>());
 
         q.setClue(this.getClue());
         return q;
     }
 
     public void copyFrom(Question other) {
-        if (other == null) return;
+        if (other == null)
+            return;
 
         this.prompt = other.prompt;
         this.type = other.type;
