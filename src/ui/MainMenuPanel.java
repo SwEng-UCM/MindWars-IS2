@@ -6,8 +6,12 @@ import java.awt.*;
 
 public class MainMenuPanel extends RoundedPanel {
 
-    public MainMenuPanel() {
+    private MainWindow parent;
+
+    public MainMenuPanel(MainWindow parent) {
+
         super(30);
+        this.parent = parent;
         setBackground(new Color(250, 248, 248));
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setPreferredSize(new Dimension(720, 920));
