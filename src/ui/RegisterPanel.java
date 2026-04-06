@@ -7,11 +7,19 @@ import java.awt.geom.RoundRectangle2D;
 import java.io.File;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 
 public class RegisterPanel extends JPanel {
 
     private MainWindow parent;
     private BufferedImage logoImage;
+
+    // variables accesed in ActionListener
+    private JTextField userField;
+    private JTextField emailField;
+    private JPasswordField passField;
+    private JPasswordField confirmPassField;
 
     public RegisterPanel(MainWindow parent) {
         this.parent = parent;
@@ -70,36 +78,68 @@ public class RegisterPanel extends JPanel {
         gbc.gridy = 2;
         gbc.insets = new Insets(5, 30, 10, 30);
         card.add(createTabPanel(), gbc);
+
         gbc.insets = new Insets(2, 30, 0, 30);
 
         gbc.gridy = 3;
         card.add(createLabel("Username"), gbc);
         gbc.gridy = 4;
-        card.add(createStyledTextField("Choose a username"), gbc);
+        userField = createStyledTextField("Choose a username");
+        card.add(userField, gbc);
 
         gbc.gridy = 5;
         card.add(createLabel("Email Address"), gbc);
         gbc.gridy = 6;
-        card.add(createStyledTextField("email@example.com"), gbc);
+        emailField = createStyledTextField("email@example.com");
+        card.add(emailField, gbc);
 
         gbc.gridy = 7;
         card.add(createLabel("Password"), gbc);
         gbc.gridy = 8;
-        card.add(createStyledPasswordField(), gbc);
+        passField = createStyledPasswordField();
+        card.add(passField, gbc);
 
         gbc.gridy = 9;
         card.add(createLabel("Confirm Password"), gbc);
         gbc.gridy = 10;
-        card.add(createStyledPasswordField(), gbc);
+        confirmPassField = createStyledPasswordField();
+        card.add(confirmPassField, gbc);
 
         // register button
         gbc.gridy = 11;
         gbc.insets = new Insets(15, 30, 20, 30);
         JButton regBtn = createGradientButton("Create Account");
+
         regBtn.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Account Created!");
+            String username = userField.getText().trim();
+            String email = emailField.getText().trim();
+            String password = new String(passField.getPassword());
+            String confirmPassword = new String(confirmPassField.getPassword());
+
+            // validation
+            if (username.isEmpty() || username.equals("Choose a username") || email.isEmpty()
+                    || email.equals("email@example.com")) {
+                JOptionPane.showMessageDialog(this, "Please fill in all the fields", "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (!password.equals(confirmPassword)) {
+                JOptionPane.showMessageDialog(this, "Passwords do not match!", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // create player object
+            player.Player newPlayer = new player.Player(username);
+            newPlayer.setSymbol('X');
+
+            // save game in MainWindow
+            parent.setSessionPlayer(newPlayer);
+
+            JOptionPane.showMessageDialog(this, "Account created successfully! Welcome, " + username);
             parent.showScreen("MENU");
         });
+
         card.add(regBtn, gbc);
 
         add(card);
@@ -155,14 +195,35 @@ public class RegisterPanel extends JPanel {
     private JTextField createStyledTextField(String placeholder) {
         JTextField tf = new JTextField(placeholder);
         tf.setPreferredSize(new Dimension(300, 35));
+        tf.setForeground(Color.LIGHT_GRAY);
         tf.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(220, 220, 220), 1, true),
                 BorderFactory.createEmptyBorder(0, 15, 0, 15)));
+
+        // auto-clear on click
+        tf.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (tf.getText().equals(placeholder)) {
+                    tf.setText("");
+                    tf.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (tf.getText().isEmpty()) {
+                    tf.setText(placeholder);
+                    tf.setForeground(Color.LIGHT_GRAY);
+                }
+            }
+        });
+
         return tf;
     }
 
     private JPasswordField createStyledPasswordField() {
-        JPasswordField pf = new JPasswordField("******");
+        JPasswordField pf = new JPasswordField("");
         pf.setPreferredSize(new Dimension(300, 35));
         pf.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(220, 220, 220), 1, true),
@@ -192,4 +253,5 @@ public class RegisterPanel extends JPanel {
         btn.setPreferredSize(new Dimension(300, 45));
         return btn;
     }
+
 }
