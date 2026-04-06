@@ -122,6 +122,20 @@ public class MenuPanel extends JPanel {
             }
         });
         card.add(loginBtn, gbc);
+        gbc.gridy = 8;
+        gbc.insets = new Insets(0, 30, 20, 30);
+
+        JButton skipBtn = new JButton("Continue without login");
+        skipBtn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        skipBtn.setForeground(Color.GRAY);
+        skipBtn.setContentAreaFilled(false);
+        skipBtn.setBorderPainted(false);
+        skipBtn.setFocusPainted(false);
+        skipBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        skipBtn.addActionListener(e -> parent.showScreen("MAIN_MENU"));
+
+        card.add(skipBtn, gbc);
         add(card);
     }
 
