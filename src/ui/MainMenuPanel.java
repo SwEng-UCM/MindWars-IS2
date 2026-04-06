@@ -6,8 +6,12 @@ import java.awt.*;
 
 public class MainMenuPanel extends RoundedPanel {
 
-    public MainMenuPanel() {
+    private MainWindow parent;
+
+    public MainMenuPanel(MainWindow parent) {
+
         super(30);
+        this.parent = parent;
         setBackground(new Color(250, 248, 248));
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setPreferredSize(new Dimension(720, 920));
@@ -45,7 +49,6 @@ public class MainMenuPanel extends RoundedPanel {
         topBar.setBorder(new EmptyBorder(0, 18, 0, 18));
         topBar.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-
         JButton logout = new JButton("Logout");
         logout.setFocusPainted(false);
         logout.setBorderPainted(false);
@@ -75,8 +78,7 @@ public class MainMenuPanel extends RoundedPanel {
 
                 GradientPaint gp = new GradientPaint(
                         0, 0, new Color(220, 60, 150),
-                        getWidth(), getHeight(), new Color(110, 60, 80)
-                );
+                        getWidth(), getHeight(), new Color(110, 60, 80));
                 g2.setPaint(gp);
                 g2.fillOval(0, 0, getWidth(), getHeight());
 

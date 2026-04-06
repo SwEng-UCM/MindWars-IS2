@@ -14,8 +14,7 @@ public class GradientBackgroundPanel extends JPanel {
 
         GradientPaint gp = new GradientPaint(
                 0, 0, new Color(245, 205, 220),
-                getWidth(), getHeight(), new Color(214, 120, 70)
-        );
+                getWidth(), getHeight(), new Color(214, 120, 70));
 
         g2.setPaint(gp);
         g2.fillRect(0, 0, getWidth(), getHeight());

@@ -8,7 +8,6 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.util.List;
 
-
 public class SummaryPanel extends RoundedPanel {
 
     public SummaryPanel(List<Player> players, MapGrid map) {
