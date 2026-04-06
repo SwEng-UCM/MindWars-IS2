@@ -144,7 +144,7 @@ public class MainFrame extends JFrame implements NavigationController {
     @Override public void showGameSetup() { setupView.reset(); cards.show(root, CARD_SETUP); }
     @Override public void showLoadGame()  { cards.show(root, CARD_LOAD); }
     @Override public void showSettings()  { cards.show(root, CARD_SETTINGS); }
-    @Override public void showLeaderboard() { cards.show(root, CARD_LEADER); }
+    @Override public void showLeaderboard() { leaderboardView.reload(); cards.show(root, CARD_LEADER); }
     @Override public void showRules()     { cards.show(root, CARD_RULES); }
     @Override public void showGame()      { syncPhase(); }
     @Override public void showGameOver()  { gameOverView.refresh(); cards.show(root, CARD_GAME_OVER); }

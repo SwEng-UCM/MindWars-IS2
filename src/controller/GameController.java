@@ -8,6 +8,8 @@ import model.AnswerResult;
 import model.GameModel;
 import model.GamePhase;
 import model.GameSettings;
+import model.LeaderboardStore;
+import player.Player;
 
 /**
  * The Controller in MVC. Receives view events (button clicks, cell clicks,
@@ -23,22 +25,45 @@ public class GameController {
     private final GameModel model;
     private final NavigationController nav;
     private final CommandHistory history = new CommandHistory();
+    private final LeaderboardStore leaderboard;
+    private boolean leaderboardRecorded;
 
     public GameController(GameModel model, NavigationController nav) {
+        this(model, nav, new LeaderboardStore());
+    }
+
+    public GameController(GameModel model, NavigationController nav, LeaderboardStore leaderboard) {
         this.model = model;
         this.nav = nav;
+        this.leaderboard = leaderboard;
     }
 
     public GameModel getModel() { return model; }
     public NavigationController getNav() { return nav; }
     public CommandHistory getHistory() { return history; }
+    public LeaderboardStore getLeaderboard() { return leaderboard; }
 
     // ── Entry points from menu/setup ──
 
     public void startNewGame(GameSettings settings) {
         history.clear();
+        leaderboardRecorded = false;
         model.startGame(settings);
         nav.showGame();
+    }
+
+    /**
+     * Records both players' results to the persistent leaderboard. Safe to
+     * call multiple times — only the first call per game has an effect.
+     */
+    public void recordGameOnLeaderboard() {
+        if (leaderboardRecorded) return;
+        leaderboardRecorded = true;
+        Player winner = model.computeWinner();
+        for (Player p : model.getPlayers()) {
+            boolean won = winner != null && winner == p;
+            leaderboard.recordResult(p.getName(), p.getScore(), won);
+        }
     }
 
     public void returnToMenu() {
@@ -123,6 +148,7 @@ public class GameController {
     // ── Game over ──
 
     public void onGameOverAcknowledged() {
+        recordGameOnLeaderboard();
         nav.showMainMenu();
     }
 }

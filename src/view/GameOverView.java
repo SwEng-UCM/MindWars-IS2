@@ -46,6 +46,8 @@ public class GameOverView extends JPanel {
 
     /** Refreshes the winner label against the current model state. */
     public void refresh() {
+        // Persist the result to the leaderboard exactly once (#89).
+        controller.recordGameOnLeaderboard();
         Player winner = controller.getModel().computeWinner();
         winnerLabel.setText(winner == null ? "It's a draw!" : winner.getName() + " wins!");
     }
