@@ -8,6 +8,8 @@ public class MainWindow extends JFrame {
     private CardLayout cardLayout;
     private JPanel mainContainer;
 
+    private player.Player sessionPlayer;
+
     public MainWindow() {
         setTitle("MindWars Trivia - Welcome");
         setSize(1000, 700); // Frame size
@@ -21,6 +23,14 @@ public class MainWindow extends JFrame {
         mainContainer.add(new RegisterPanel(this), "REGISTER");
 
         add(mainContainer);
+    }
+
+    public void setSessionPlayer(player.Player p) {
+        this.sessionPlayer = p;
+    }
+
+    public player.Player getSessionPlayer() {
+        return sessionPlayer;
     }
 
     public void showScreen(String screenName) {
