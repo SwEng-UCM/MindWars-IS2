@@ -498,7 +498,14 @@ public class Game {
 
                             if (!isCorrect) {
                                 String correctAnswer;
-                                if (playerQuestion.getType() == QuestionType.NUMERIC) {
+
+                                if (playerQuestion.getType() == QuestionType.ORDERING) {
+                                    List<String> correctList = playerQuestion.getOrderingAnswer();
+
+                                    // String.join will transform ["Asia", "Africa", "Europe"] in "Asia -> Africa ->
+                                    // Europe"
+                                    correctAnswer = String.join(" -> ", correctList);
+                                } else if (playerQuestion.getType() == QuestionType.NUMERIC) {
                                     correctAnswer = String.valueOf(
                                             currentQuestion.getNumericAnswer());
                                 } else {
