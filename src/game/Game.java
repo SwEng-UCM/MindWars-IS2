@@ -21,6 +21,7 @@ public class Game {
     private final ConsoleIO io;
     private final QuestionBank questionBank;
     private final GameState gameState;
+    private final TurnManager turnManager;
     private MapGrid map;
     private final SoundManager sound;
     private final Bonus bonus;
@@ -34,6 +35,7 @@ public class Game {
         this.io = io;
         this.questionBank = questionBank;
         this.gameState = new GameState();
+        this.turnManager = new TurnManager(gameState);
         this.map = new MapGrid(3);
         this.sound = new SoundManager();
         this.bonus = new Bonus(io, questionBank);
@@ -373,16 +375,26 @@ public class Game {
                 if (currentQuestion.getType() == QuestionType.NUMERIC) {
                     handleNumericRound(currentQuestion, isLastRound);
                 } else {
-                    // Hot seat: alternate between players each round
+                    // Hot seat: alternate between players each round.
+                    // TurnManager ensures only the active player can interact.
                     for (int p = 0; p < gameState.getPlayers().size(); p++) {
                         gameState.setCurrentPlayerIndex(p);
-                        Player currentPlayer = gameState.getPlayers().get(p);
+                        Player currentPlayer = turnManager.getCurrentPlayer();
+
+                        // Guard: reject interaction from anyone who is not the active player.
+                        // (In a hot-seat loop this is always satisfied, but the check
+                        //  makes the contract explicit and safe for future multi-threaded UIs.)
+                        if (!turnManager.isActivePlayer(currentPlayer)) {
+                            io.println("  [SYSTEM] It is not " + currentPlayer.getName() + "'s turn. Skipping.");
+                            continue;
+                        }
+
                         Question playerQuestion = currentQuestion.cloneQuestion();
 
                         displayHotSeatHeader(currentPlayer);
                         int wager = 0;
 
-                        if (currentPlayer.isBot()) {
+                        if (turnManager.isCurrentPlayerBot()) {
                             io.println("\n  " + currentPlayer.getName() + " (BOT) is thinking...");
 
                             bot.BotStrategy strat = currentPlayer.getStrategy();
@@ -668,9 +680,9 @@ public class Game {
     }
 
     private void setStartingPlayer() {
-        gameState.setCurrentPlayerIndex(0);
+        turnManager.resetTurn();
 
-        String startName = gameState.getPlayers().get(0).getName();
+        String startName = turnManager.getCurrentPlayer().getName();
         io.println("  " + startName + " will go first.");
     }
 
