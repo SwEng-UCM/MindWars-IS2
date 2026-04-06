@@ -21,7 +21,7 @@ public class MainWindow extends JFrame {
 
         mainContainer.add(new MenuPanel(this), "MENU");
         mainContainer.add(new RegisterPanel(this), "REGISTER");
-        mainContainer.add(new MainMenuPanel(), "MAIN_MENU");
+        mainContainer.add(new MainMenuPanel(this), "MAIN_MENU");
         add(mainContainer);
     }
 

@@ -35,7 +35,6 @@ public class MenuPanel extends JPanel {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2d.setColor(Color.WHITE);
-                // Draw rounded rectangle
                 g2d.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 40, 40));
                 g2d.dispose();
             }
@@ -49,12 +48,11 @@ public class MenuPanel extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
 
-        // 1. Logo (Simple Image, no circle)
+        // 1. Logo
         gbc.gridy = 0;
         gbc.insets = new Insets(20, 30, 10, 30);
         JLabel logoLabel = new JLabel();
         if (logoImage != null) {
-
             int targetHeight = 150;
             int targetWidth = (int) (logoImage.getWidth() * ((double) targetHeight / logoImage.getHeight()));
             Image scaledLogo = logoImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
@@ -71,7 +69,7 @@ public class MenuPanel extends JPanel {
         sub.setForeground(Color.GRAY);
         card.add(sub, gbc);
 
-        // 3. Tab Panel (Login / Register)
+        // 3. Tab Panel
         gbc.gridy = 2;
         gbc.insets = new Insets(10, 30, 20, 30);
         card.add(createTabPanel(), gbc);
@@ -100,13 +98,12 @@ public class MenuPanel extends JPanel {
         passField = createStyledPasswordField();
         card.add(passField, gbc);
 
-        // 6. Main Action Button
+        // 6. Main Action Button (LOGIN)
         gbc.gridy = 7;
-        gbc.insets = new Insets(30, 30, 40, 30);
+        gbc.insets = new Insets(30, 30, 10, 30);
         JButton loginBtn = createGradientButton("→ Login to Game");
 
         loginBtn.addActionListener(e -> {
-            // get saved player in MainWindow from RegisterPanel
             player.Player registeredPlayer = parent.getSessionPlayer();
 
             if (registeredPlayer == null) {
@@ -114,17 +111,17 @@ public class MenuPanel extends JPanel {
                         JOptionPane.ERROR_MESSAGE);
                 parent.showScreen("REGISTER");
             } else {
-                // if we have the player
+
                 JOptionPane.showMessageDialog(this, "Welcome back, " + registeredPlayer.getName() + "!");
 
-                // here will start the game logic
-
+                parent.showScreen("MAIN_MENU");
             }
         });
         card.add(loginBtn, gbc);
+
+        // 7. Skip Button (Continue without login)
         gbc.gridy = 8;
         gbc.insets = new Insets(0, 30, 20, 30);
-
         JButton skipBtn = new JButton("Continue without login");
         skipBtn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         skipBtn.setForeground(Color.GRAY);
@@ -194,7 +191,7 @@ public class MenuPanel extends JPanel {
     }
 
     private JPasswordField createStyledPasswordField() {
-        JPasswordField pf = new JPasswordField("********");
+        JPasswordField pf = new JPasswordField("");
         pf.setPreferredSize(new Dimension(300, 45));
         pf.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(220, 220, 220), 1, true),
