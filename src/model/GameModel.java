@@ -80,6 +80,7 @@ public class GameModel {
     }
 
     // ── Accessors ──
+    public QuestionBank getQuestionBank() { return questionBank; }
     public GamePhase getPhase() { return phase; }
     public List<Player> getPlayers() { return players; }
     public Player getCurrentPlayer() { return players.get(currentPlayerIndex); }
