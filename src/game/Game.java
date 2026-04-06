@@ -1427,4 +1427,24 @@ public class Game {
         return null;
     }
 
+    private int[][] getBotAttackMove(char botSym, char enemySym) {
+        int size = map.getSize();
+        for (int r = 0; r < size; r++) {
+            for (int c = 0; c < size; c++) {
+                if (map.getOwner(r, c) == botSym) {
+                    for (int dr = -1; dr <= 1; dr++) {
+                        for (int dc = -1; dc <= 1; dc++) {
+                            int tr = r + dr;
+                            int tc = c + dc;
+                            if (map.isInside(tr, tc) && map.getOwner(tr, tc) == enemySym) {
+                                return new int[][] { { r, c }, { tr, tc } };
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
 }
