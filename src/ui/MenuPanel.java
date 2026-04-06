@@ -13,6 +13,9 @@ public class MenuPanel extends JPanel {
     private MainWindow parent;
     private BufferedImage logoImage;
 
+    private JTextField emailField;
+    private JPasswordField passField;
+
     public MenuPanel(MainWindow parent) {
         this.parent = parent;
         setLayout(new GridBagLayout());
@@ -82,7 +85,8 @@ public class MenuPanel extends JPanel {
 
         gbc.gridy = 4;
         gbc.insets = new Insets(0, 30, 15, 30);
-        card.add(createStyledTextField("your.email@example.com"), gbc);
+        emailField = createStyledTextField("your.email@example.com");
+        card.add(emailField, gbc);
 
         // 5. Password Section
         gbc.gridy = 5;
@@ -93,15 +97,31 @@ public class MenuPanel extends JPanel {
 
         gbc.gridy = 6;
         gbc.insets = new Insets(0, 30, 15, 30);
-        card.add(createStyledPasswordField(), gbc);
+        passField = createStyledPasswordField();
+        card.add(passField, gbc);
 
         // 6. Main Action Button
         gbc.gridy = 7;
         gbc.insets = new Insets(30, 30, 40, 30);
         JButton loginBtn = createGradientButton("→ Login to Game");
-        loginBtn.addActionListener(e -> parent.showScreen("GAME"));
-        card.add(loginBtn, gbc);
 
+        loginBtn.addActionListener(e -> {
+            // get saved player in MainWindow from RegisterPanel
+            player.Player registeredPlayer = parent.getSessionPlayer();
+
+            if (registeredPlayer == null) {
+                JOptionPane.showMessageDialog(this, "Account not found! Please register.", "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                parent.showScreen("REGISTER");
+            } else {
+                // if we have the player
+                JOptionPane.showMessageDialog(this, "Welcome back, " + registeredPlayer.getName() + "!");
+
+                // here will start the game logic
+
+            }
+        });
+        card.add(loginBtn, gbc);
         add(card);
     }
 
