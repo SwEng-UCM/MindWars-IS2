@@ -7,28 +7,32 @@ import java.awt.geom.RoundRectangle2D;
 import java.io.File;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 
-public class MenuPanel extends JPanel {
+public class RegisterPanel extends JPanel {
 
     private MainWindow parent;
     private BufferedImage logoImage;
 
+    // variables accesed in ActionListener
+    private JTextField userField;
     private JTextField emailField;
     private JPasswordField passField;
+    private JPasswordField confirmPassField;
 
-    public MenuPanel(MainWindow parent) {
+    public RegisterPanel(MainWindow parent) {
         this.parent = parent;
         setLayout(new GridBagLayout());
         setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        // Load logo.png from assets
+        // logo
         try {
             logoImage = ImageIO.read(new File("assets/logo.png"));
         } catch (Exception e) {
-            System.err.println("Could not load logo.png. Ensure it is in the assets/ folder.");
+            System.err.println("Could not load logo.png.");
         }
 
-        // Main White Container
         JPanel card = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -44,15 +48,16 @@ public class MenuPanel extends JPanel {
         card.setPreferredSize(new Dimension(420, 600));
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 30, 10, 30);
+        gbc.insets = new Insets(2, 30, 2, 30);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
 
-        // 1. Logo
+        // logo
         gbc.gridy = 0;
         gbc.insets = new Insets(20, 30, 10, 30);
         JLabel logoLabel = new JLabel();
         if (logoImage != null) {
+
             int targetHeight = 150;
             int targetWidth = (int) (logoImage.getWidth() * ((double) targetHeight / logoImage.getHeight()));
             Image scaledLogo = logoImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
@@ -61,82 +66,85 @@ public class MenuPanel extends JPanel {
         logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
         card.add(logoLabel, gbc);
 
-        // 2. Subtitle
+        // subtitle
         gbc.gridy = 1;
         gbc.insets = new Insets(0, 30, 20, 30);
-        JLabel sub = new JLabel("Welcome back! Login to continue", SwingConstants.CENTER);
+        JLabel sub = new JLabel("Join the adventure! Create an account", SwingConstants.CENTER);
         sub.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         sub.setForeground(Color.GRAY);
         card.add(sub, gbc);
 
-        // 3. Tab Panel
+        // tab panel
         gbc.gridy = 2;
-        gbc.insets = new Insets(10, 30, 20, 30);
+        gbc.insets = new Insets(5, 30, 10, 30);
         card.add(createTabPanel(), gbc);
 
-        // 4. Email Section
-        gbc.gridy = 3;
-        gbc.insets = new Insets(5, 30, 2, 30);
-        JLabel emailLabel = new JLabel("✉ Email Address");
-        emailLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        card.add(emailLabel, gbc);
+        gbc.insets = new Insets(2, 30, 0, 30);
 
+        gbc.gridy = 3;
+        card.add(createLabel("Username"), gbc);
         gbc.gridy = 4;
-        gbc.insets = new Insets(0, 30, 15, 30);
-        emailField = createStyledTextField("your.email@example.com");
+        userField = createStyledTextField("Choose a username");
+        card.add(userField, gbc);
+
+        gbc.gridy = 5;
+        card.add(createLabel("Email Address"), gbc);
+        gbc.gridy = 6;
+        emailField = createStyledTextField("email@example.com");
         card.add(emailField, gbc);
 
-        // 5. Password Section
-        gbc.gridy = 5;
-        gbc.insets = new Insets(5, 30, 2, 30);
-        JLabel passLabel = new JLabel("🔒 Password");
-        passLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        card.add(passLabel, gbc);
-
-        gbc.gridy = 6;
-        gbc.insets = new Insets(0, 30, 15, 30);
+        gbc.gridy = 7;
+        card.add(createLabel("Password"), gbc);
+        gbc.gridy = 8;
         passField = createStyledPasswordField();
         card.add(passField, gbc);
 
-        // 6. Main Action Button (LOGIN)
-        gbc.gridy = 7;
-        gbc.insets = new Insets(30, 30, 10, 30);
-        JButton loginBtn = createGradientButton("→ Login to Game");
+        gbc.gridy = 9;
+        card.add(createLabel("Confirm Password"), gbc);
+        gbc.gridy = 10;
+        confirmPassField = createStyledPasswordField();
+        card.add(confirmPassField, gbc);
 
-        loginBtn.addActionListener(e -> {
-            player.Player registeredPlayer = parent.getSessionPlayer();
+        // register button
+        gbc.gridy = 11;
+        gbc.insets = new Insets(15, 30, 20, 30);
+        JButton regBtn = createGradientButton("Create Account");
 
-            if (registeredPlayer == null) {
-                JOptionPane.showMessageDialog(this, "Account not found! Please register.", "Error",
+        regBtn.addActionListener(e -> {
+            String username = userField.getText().trim();
+            String email = emailField.getText().trim();
+            String password = new String(passField.getPassword());
+            String confirmPassword = new String(confirmPassField.getPassword());
+
+            // validation
+            if (username.isEmpty() || username.equals("Choose a username") || email.isEmpty()
+                    || email.equals("email@example.com")) {
+                JOptionPane.showMessageDialog(this, "Please fill in all the fields", "Error",
                         JOptionPane.ERROR_MESSAGE);
-                parent.showScreen("REGISTER");
-            } else {
-
-                JOptionPane.showMessageDialog(this, "Welcome back, " + registeredPlayer.getName() + "!");
-
-                parent.showScreen("MAIN_MENU");
+                return;
             }
+
+            if (!password.equals(confirmPassword)) {
+                JOptionPane.showMessageDialog(this, "Passwords do not match!", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // create player object
+            player.Player newPlayer = new player.Player(username);
+            newPlayer.setSymbol('X');
+
+            // save game in MainWindow
+            parent.setSessionPlayer(newPlayer);
+
+            JOptionPane.showMessageDialog(this, "Account created successfully! Welcome, " + username);
+            parent.showScreen("MENU");
         });
-        card.add(loginBtn, gbc);
 
-        // 7. Skip Button (Continue without login)
-        gbc.gridy = 8;
-        gbc.insets = new Insets(0, 30, 20, 30);
-        JButton skipBtn = new JButton("Continue without login");
-        skipBtn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        skipBtn.setForeground(Color.GRAY);
-        skipBtn.setContentAreaFilled(false);
-        skipBtn.setBorderPainted(false);
-        skipBtn.setFocusPainted(false);
-        skipBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        card.add(regBtn, gbc);
 
-        skipBtn.addActionListener(e -> parent.showScreen("MAIN_MENU"));
-
-        card.add(skipBtn, gbc);
         add(card);
     }
 
-    // Background Paint (Gradient)
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -147,26 +155,29 @@ public class MenuPanel extends JPanel {
         g2d.fillRect(0, 0, getWidth(), getHeight());
     }
 
-    // Helpers
+    // helpers
+    private JLabel createLabel(String text) {
+        JLabel l = new JLabel(text);
+        l.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        return l;
+    }
+
     private JPanel createTabPanel() {
         JPanel panel = new JPanel(new GridLayout(1, 2, 12, 0));
         panel.setOpaque(false);
-
-        JButton loginTab = new JButton("→ Login");
-        JButton regTab = new JButton("👤 Register");
-        regTab.addActionListener(e -> parent.showScreen("REGISTER"));
-
-        styleTabButton(loginTab, true);
-        styleTabButton(regTab, false);
-
-        panel.add(loginTab);
-        panel.add(regTab);
+        JButton btnL = new JButton("Login");
+        JButton btnR = new JButton("Register");
+        styleTabButton(btnL, false);
+        styleTabButton(btnR, true);
+        btnL.addActionListener(e -> parent.showScreen("MENU"));
+        panel.add(btnL);
+        panel.add(btnR);
         return panel;
     }
 
     private void styleTabButton(JButton btn, boolean active) {
         btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btn.setPreferredSize(new Dimension(100, 45));
+        btn.setPreferredSize(new Dimension(100, 40));
         btn.setFocusPainted(false);
         btn.setContentAreaFilled(false);
         btn.setOpaque(true);
@@ -183,16 +194,37 @@ public class MenuPanel extends JPanel {
 
     private JTextField createStyledTextField(String placeholder) {
         JTextField tf = new JTextField(placeholder);
-        tf.setPreferredSize(new Dimension(300, 45));
+        tf.setPreferredSize(new Dimension(300, 35));
+        tf.setForeground(Color.LIGHT_GRAY);
         tf.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(220, 220, 220), 1, true),
                 BorderFactory.createEmptyBorder(0, 15, 0, 15)));
+
+        // auto-clear on click
+        tf.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (tf.getText().equals(placeholder)) {
+                    tf.setText("");
+                    tf.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (tf.getText().isEmpty()) {
+                    tf.setText(placeholder);
+                    tf.setForeground(Color.LIGHT_GRAY);
+                }
+            }
+        });
+
         return tf;
     }
 
     private JPasswordField createStyledPasswordField() {
         JPasswordField pf = new JPasswordField("");
-        pf.setPreferredSize(new Dimension(300, 45));
+        pf.setPreferredSize(new Dimension(300, 35));
         pf.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(220, 220, 220), 1, true),
                 BorderFactory.createEmptyBorder(0, 15, 0, 15)));
@@ -214,11 +246,12 @@ public class MenuPanel extends JPanel {
             }
         };
         btn.setForeground(Color.WHITE);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 16));
         btn.setContentAreaFilled(false);
         btn.setBorderPainted(false);
         btn.setFocusPainted(false);
-        btn.setPreferredSize(new Dimension(300, 55));
+        btn.setPreferredSize(new Dimension(300, 45));
         return btn;
     }
+
 }

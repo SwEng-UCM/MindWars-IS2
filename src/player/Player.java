@@ -17,6 +17,7 @@ public class Player {
     private boolean hasUsedBonus = false;
     private char symbol;
     private int bonusTokens = 0;
+    private int coins = 0;
     private static final int STREAK_TARGET = 3;
     public static final int STREAK_BONUS = 3;
     private int correctAnswers = 0;
@@ -90,6 +91,31 @@ public class Player {
         streak = 0;
     }
 
+    /** Sets the streak counter directly — used only when restoring a save. */
+    public void setStreakRaw(int streak) {
+        this.streak = streak;
+    }
+
+    public int getCoins() {
+        return coins;
+    }
+
+    public void addCoins(int amount) {
+        this.coins += amount;
+    }
+
+    public boolean spendCoins(int amount) {
+        if (coins >= amount) {
+            coins -= amount;
+            return true;
+        }
+        return false;
+    }
+
+    public void setCoins(int coins) {
+        this.coins = coins;
+    }
+
     public boolean hasUsedBet() {
         return hasUsedBet;
     }
@@ -146,6 +172,19 @@ public class Player {
         return wrongAnswers;
     }
 
+    /** Sets the correct-answer counter directly — used by undo. */
+    public void setCorrectAnswers(int n) { this.correctAnswers = n; }
+
+    /** Sets the wrong-answer counter directly — used by undo. */
+    public void setWrongAnswers(int n) { this.wrongAnswers = n; }
+
+    /** Removes the most recent response time, if any — used by undo. */
+    public void popLastResponseTime() {
+        if (!responseTimes.isEmpty()) {
+            responseTimes.remove(responseTimes.size() - 1);
+        }
+    }
+
     public double getAverageResponseTime() {
         if (responseTimes.isEmpty())
             return 0;
@@ -186,6 +225,7 @@ public class Player {
         for (WeaponType w : getInventory()) {
             switch (w) {
                 case CANNON, CROSSBOW, BURST -> attackWeapons.add(w);
+                default -> {}
             }
         }
         return attackWeapons;
@@ -196,6 +236,7 @@ public class Player {
         for (WeaponType w : getInventory()) {
             switch (w) {
                 case SHIELD, LASER_SIGHT, HELMET -> defenseWeapons.add(w);
+                default -> {}
             }
         }
         return defenseWeapons;
@@ -208,6 +249,8 @@ public class Player {
                 case CROSSBOW:
                 case BURST:
                     return true;
+                default:
+                    break;
             }
         }
         return false;
@@ -220,6 +263,8 @@ public class Player {
                 case LASER_SIGHT:
                 case HELMET:
                     return true;
+                default:
+                    break;
             }
         }
         return false;
