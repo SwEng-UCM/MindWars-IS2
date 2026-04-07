@@ -24,6 +24,12 @@ public class MediumBot implements BotStrategy {
         List<String> choices = question.getChoices();
         String correctAnswer = question.getAnswer();
 
+        if (choices != null && !choices.isEmpty()) {
+            List<String> wrongChoices = choices.stream()
+                    .filter(choice -> !choice.equalsIgnoreCase(correctAnswer))
+                    .toList();
+        }
+
         return "I'm not sure";
     }
 
