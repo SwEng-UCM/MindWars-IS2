@@ -1,16 +1,20 @@
 package bot;
 
 import trivia.Question;
+import java.util.Random;
 
 public class MediumBot implements BotStrategy {
+
+    private final Random random = new Random();
+
     @Override
     public String getAnswer(Question question) {
-        return "The answer should be " + question.getAnswer();
+        return "";
     }
 
     @Override
     public long getResponseTime() {
-        return 7000; // 7 seconds
+        return 0;
     }
 
     @Override
