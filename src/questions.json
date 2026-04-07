@@ -4,7 +4,11 @@
     "category": "Science",
     "difficulty": "EASY",
     "prompt": "What is the boiling point of water?",
-    "choices": ["90°C", "100°C", "120°C"],
+    "choices": [
+      "90°C",
+      "100°C",
+      "120°C"
+    ],
     "answer": "B",
     "clue": "This temperature is the same at which water turns into vapor at sea level."
   },
@@ -13,7 +17,12 @@
     "category": "Science",
     "difficulty": "MEDIUM",
     "prompt": "What is the chemical formula for water?",
-    "choices": ["H2O", "CO2", "O2", "H2O2"],
+    "choices": [
+      "H2O",
+      "CO2",
+      "O2",
+      "H2O2"
+    ],
     "answer": "A",
     "clue": "This formula consists of two hydrogen atoms and one oxygen atom."
   },
@@ -70,7 +79,11 @@
     "category": "General",
     "difficulty": "EASY",
     "prompt": "What is 2+2?",
-    "choices": ["3", "4", "5"],
+    "choices": [
+      "3",
+      "4",
+      "5"
+    ],
     "answer": "B",
     "clue": "This is the result of adding two plus two."
   },
@@ -79,7 +92,12 @@
     "category": "Geography",
     "difficulty": "EASY",
     "prompt": "What is the capital of France?",
-    "choices": ["Paris", "London", "Berlin", "Madrid"],
+    "choices": [
+      "Paris",
+      "London",
+      "Berlin",
+      "Madrid"
+    ],
     "answer": "A",
     "clue": "This city is known as the 'City of Light'."
   },
@@ -127,7 +145,12 @@
     "category": "Geography",
     "difficulty": "EASY",
     "prompt": "Which is the largest continent by land area?",
-    "choices": ["Africa", "Asia", "North America", "Europe"],
+    "choices": [
+      "Africa",
+      "Asia",
+      "North America",
+      "Europe"
+    ],
     "answer": "B",
     "clue": "This continent is home to both the highest and lowest points on Earth."
   },
@@ -161,7 +184,12 @@
     "category": "General",
     "difficulty": "EASY",
     "prompt": "How many colors are in a rainbow?",
-    "choices": ["5", "6", "7", "8"],
+    "choices": [
+      "5",
+      "6",
+      "7",
+      "8"
+    ],
     "answer": "C",
     "clue": "The colors are often remembered with the acronym ROYGBIV."
   },
@@ -179,7 +207,12 @@
     "category": "General",
     "difficulty": "MEDIUM",
     "prompt": "What is the rarest blood type in humans?",
-    "choices": ["O negative", "A positive", "AB negative", "B negative"],
+    "choices": [
+      "O negative",
+      "A positive",
+      "AB negative",
+      "B negative"
+    ],
     "answer": "C",
     "clue": "This blood type is called the 'universal plasma donor'."
   },
@@ -213,7 +246,12 @@
     "category": "General",
     "difficulty": "HARD",
     "prompt": "Which planet is known as the 'Morning Star'?",
-    "choices": ["Mars", "Jupiter", "Venus", "Saturn"],
+    "choices": [
+      "Mars",
+      "Jupiter",
+      "Venus",
+      "Saturn"
+    ],
     "answer": "C",
     "clue": "This planet is often visible before sunrise."
   },
@@ -222,7 +260,12 @@
     "category": "ComputerScience",
     "difficulty": "EASY",
     "prompt": "Which language is this project in?",
-    "choices": ["Python", "C++", "Java", "Ruby"],
+    "choices": [
+      "Python",
+      "C++",
+      "Java",
+      "Ruby"
+    ],
     "answer": "C",
     "clue": "This language is known for its portability and use in Android applications."
   },
@@ -239,7 +282,12 @@
     "category": "ComputerScience",
     "difficulty": "EASY",
     "prompt": "Which keyword is used to create an object in Java?",
-    "choices": ["new", "make", "create", "build"],
+    "choices": [
+      "new",
+      "make",
+      "create",
+      "build"
+    ],
     "answer": "A",
     "clue": "This keyword is followed by the class constructor."
   },
@@ -256,7 +304,12 @@
     "category": "ComputerScience",
     "difficulty": "EASY",
     "prompt": "Which file contains the main entry point of the program?",
-    "choices": ["Main.java", "Game.java", "Player.java", "Question.java"],
+    "choices": [
+      "Main.java",
+      "Game.java",
+      "Player.java",
+      "Question.java"
+    ],
     "answer": "A",
     "clue": "This file usually contains the 'public static void main(String[] args)' method."
   },
@@ -273,7 +326,12 @@
     "category": "ComputerScience",
     "difficulty": "EASY",
     "prompt": "Which class manages the game flow?",
-    "choices": ["Player", "Game", "Question", "ConsoleIO"],
+    "choices": [
+      "Player",
+      "Game",
+      "Question",
+      "ConsoleIO"
+    ],
     "answer": "B",
     "clue": "This class is generally responsible for the main game logic."
   },
@@ -290,7 +348,12 @@
     "category": "ComputerScience",
     "difficulty": "HARD",
     "prompt": "Which Git command is used to download a remote repository?",
-    "choices": ["push", "commit", "clone", "pull"],
+    "choices": [
+      "push",
+      "commit",
+      "clone",
+      "pull"
+    ],
     "answer": "C",
     "clue": "This command creates a local copy of a remote repository."
   },
@@ -307,7 +370,12 @@
     "category": "ComputerScience",
     "difficulty": "HARD",
     "prompt": "Which data structure works as LIFO?",
-    "choices": ["Queue", "Array", "List", "Stack"],
+    "choices": [
+      "Queue",
+      "Array",
+      "List",
+      "Stack"
+    ],
     "answer": "D",
     "clue": "This data structure is often compared to a stack of plates."
   },
@@ -324,7 +392,12 @@
     "category": "ComputerScience",
     "difficulty": "EASY",
     "prompt": "Which file stores the trivia questions?",
-    "choices": ["Game.java", "questions.json", "Main.java", "Player.java"],
+    "choices": [
+      "Game.java",
+      "questions.json",
+      "Main.java",
+      "Player.java"
+    ],
     "answer": "B",
     "clue": "Questions are usually stored in a JSON data file."
   },
@@ -333,7 +406,12 @@
     "category": "History",
     "difficulty": "EASY",
     "prompt": "In which year did World War II end?",
-    "choices": ["1943", "1944", "1945", "1946"],
+    "choices": [
+      "1943",
+      "1944",
+      "1945",
+      "1946"
+    ],
     "answer": "C",
     "clue": "The war ended after the atomic bombings of Japan."
   },
@@ -350,7 +428,12 @@
     "category": "Geography",
     "difficulty": "MEDIUM",
     "prompt": "What is the smallest country in the world?",
-    "choices": ["Monaco", "Vatican City", "San Marino", "Liechtenstein"],
+    "choices": [
+      "Monaco",
+      "Vatican City",
+      "San Marino",
+      "Liechtenstein"
+    ],
     "answer": "B",
     "clue": "This country is the seat of the Catholic Church and is enclaved within Rome."
   },
@@ -368,7 +451,12 @@
     "category": "General",
     "difficulty": "HARD",
     "prompt": "What is the hardest natural substance on Earth?",
-    "choices": ["Gold", "Iron", "Diamond", "Platinum"],
+    "choices": [
+      "Gold",
+      "Iron",
+      "Diamond",
+      "Platinum"
+    ],
     "answer": "C",
     "clue": "This substance is made of pure carbon and is often used in cutting tools."
   },
@@ -385,7 +473,12 @@
     "category": "Geography",
     "difficulty": "MEDIUM",
     "prompt": "Which African country has the most pyramids?",
-    "choices": ["Egypt", "Sudan", "Libya", "Algeria"],
+    "choices": [
+      "Egypt",
+      "Sudan",
+      "Libya",
+      "Algeria"
+    ],
     "answer": "B",
     "clue": "This country is home to the Meroë pyramids, less known but more numerous than those in Egypt."
   },
@@ -424,7 +517,12 @@
     "category": "History",
     "difficulty": "HARD",
     "prompt": "In what year did the Titanic sink?",
-    "choices": ["1910", "1912", "1914", "1916"],
+    "choices": [
+      "1910",
+      "1912",
+      "1914",
+      "1916"
+    ],
     "answer": "B",
     "clue": "The sinking occurred during its maiden voyage, in April 1912."
   },
@@ -433,7 +531,12 @@
     "category": "Science",
     "difficulty": "EASY",
     "prompt": "How many planets are in our solar system?",
-    "choices": ["7", "8", "9", "10"],
+    "choices": [
+      "7",
+      "8",
+      "9",
+      "10"
+    ],
     "answer": "B",
     "clue": "Pluto is no longer considered a planet since 2006."
   },
@@ -450,7 +553,12 @@
     "category": "Science",
     "difficulty": "HARD",
     "prompt": "What is the most abundant gas in Earth's atmosphere?",
-    "choices": ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"],
+    "choices": [
+      "Oxygen",
+      "Carbon Dioxide",
+      "Nitrogen",
+      "Hydrogen"
+    ],
     "answer": "C",
     "clue": "This gas makes up about 78% of Earth's atmosphere."
   },
@@ -459,8 +567,16 @@
     "category": "History",
     "difficulty": "EASY",
     "prompt": "Classify these events from oldest to newest:",
-    "choices": ["American Civil War", "World War II", "World War I"],
-    "orderingAnswer": ["American Civil War", "World War I", "World War II"],
+    "choices": [
+      "American Civil War",
+      "World War II",
+      "World War I"
+    ],
+    "orderingAnswer": [
+      "American Civil War",
+      "World War I",
+      "World War II"
+    ],
     "clue": "The American Civil War took place in the 19th century, before the two World Wars of the 20th century."
   },
   {
@@ -502,8 +618,16 @@
     "category": "Science",
     "difficulty": "EASY",
     "prompt": "Order these states of matter by increasing molecular movement:",
-    "choices": ["Solid", "Gas", "Liquid"],
-    "orderingAnswer": ["Solid", "Liquid", "Gas"],
+    "choices": [
+      "Solid",
+      "Gas",
+      "Liquid"
+    ],
+    "orderingAnswer": [
+      "Solid",
+      "Liquid",
+      "Gas"
+    ],
     "clue": "In a solid, molecules move very little, while in a gas, they are highly mobile."
   },
   {
@@ -511,8 +635,16 @@
     "category": "Science",
     "difficulty": "MEDIUM",
     "prompt": "Order these layers of the Earth from outermost to innermost:",
-    "choices": ["Core", "Crust", "Mantle"],
-    "orderingAnswer": ["Crust", "Mantle", "Core"],
+    "choices": [
+      "Core",
+      "Crust",
+      "Mantle"
+    ],
+    "orderingAnswer": [
+      "Crust",
+      "Mantle",
+      "Core"
+    ],
     "clue": "The Earth's crust is the outermost layer, followed by the mantle and then the core."
   },
   {
@@ -520,8 +652,16 @@
     "category": "Science",
     "difficulty": "HARD",
     "prompt": "Order these scientists by year of birth (oldest to youngest):",
-    "choices": ["Albert Einstein", "Isaac Newton", "Marie Curie"],
-    "orderingAnswer": ["Isaac Newton", "Marie Curie", "Albert Einstein"],
+    "choices": [
+      "Albert Einstein",
+      "Isaac Newton",
+      "Marie Curie"
+    ],
+    "orderingAnswer": [
+      "Isaac Newton",
+      "Marie Curie",
+      "Albert Einstein"
+    ],
     "clue": "Isaac Newton was born in 1643, Marie Curie in 1867, and Albert Einstein in 1879."
   },
   {
@@ -529,8 +669,16 @@
     "category": "Geography",
     "difficulty": "EASY",
     "prompt": "Order these continents by size (largest to smallest):",
-    "choices": ["Africa", "Asia", "Europe"],
-    "orderingAnswer": ["Asia", "Africa", "Europe"],
+    "choices": [
+      "Africa",
+      "Asia",
+      "Europe"
+    ],
+    "orderingAnswer": [
+      "Asia",
+      "Africa",
+      "Europe"
+    ],
     "clue": "Asia is the largest continent, followed by Africa and then Europe."
   },
   {
@@ -538,8 +686,16 @@
     "category": "Geography",
     "difficulty": "MEDIUM",
     "prompt": "Order these rivers by length (longest to shortest):",
-    "choices": ["Danube", "Amazon", "Nile"],
-    "orderingAnswer": ["Nile", "Amazon", "Danube"],
+    "choices": [
+      "Danube",
+      "Amazon",
+      "Nile"
+    ],
+    "orderingAnswer": [
+      "Nile",
+      "Amazon",
+      "Danube"
+    ],
     "clue": "The Nile is generally considered the longest river in the world."
   },
   {
@@ -547,8 +703,16 @@
     "category": "Geography",
     "difficulty": "HARD",
     "prompt": "Order these countries by population (largest to smallest):",
-    "choices": ["United States", "India", "Brazil"],
-    "orderingAnswer": ["India", "United States", "Brazil"],
+    "choices": [
+      "United States",
+      "India",
+      "Brazil"
+    ],
+    "orderingAnswer": [
+      "India",
+      "United States",
+      "Brazil"
+    ],
     "clue": "India is the most populous country in this list, followed by the United States and then Brazil."
   },
   {
@@ -556,8 +720,16 @@
     "category": "General",
     "difficulty": "EASY",
     "prompt": "Order these seasons as they occur in a year (Northern Hemisphere):",
-    "choices": ["Summer", "Spring", "Winter"],
-    "orderingAnswer": ["Winter", "Spring", "Summer"],
+    "choices": [
+      "Summer",
+      "Spring",
+      "Winter"
+    ],
+    "orderingAnswer": [
+      "Winter",
+      "Spring",
+      "Summer"
+    ],
     "clue": "Winter comes before spring, which comes before summer in the Northern Hemisphere."
   },
   {
@@ -565,8 +737,16 @@
     "category": "General",
     "difficulty": "MEDIUM",
     "prompt": "Order these inventions from oldest to newest:",
-    "choices": ["Telephone", "Internet", "Printing Press"],
-    "orderingAnswer": ["Printing Press", "Telephone", "Internet"],
+    "choices": [
+      "Telephone",
+      "Internet",
+      "Printing Press"
+    ],
+    "orderingAnswer": [
+      "Printing Press",
+      "Telephone",
+      "Internet"
+    ],
     "clue": "The printing press was invented by Gutenberg in the 15th century, long before the telephone and the Internet."
   }
 ]

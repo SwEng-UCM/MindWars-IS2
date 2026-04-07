@@ -38,14 +38,24 @@ public class Bonus {
         while (menuActive) {
             io.println("\n  Bonus available! Choose one or skip:");
 
-            boolean canUse5050 = (q.getType() != QuestionType.TRUE_FALSE && q.getType() != QuestionType.OPEN_ENDED);
+            // requirement: 50/50 unavailable for T/F and typed-answer (Open, Numeric,
+            // Ordering)
+            boolean canUse5050 = (q.getType() == QuestionType.MULTIPLE_CHOICE);
+            // Requirement: New Question unavailable for Numeric/Ordering
+            boolean canUseNewQ = (q.getType() != QuestionType.NUMERIC && q.getType() != QuestionType.ORDERING);
+
             if (canUse5050) {
                 io.println("  1) 50/50");
             } else {
                 io.println("  1) [50/50 Not Available for this question type]");
             }
 
-            io.println("   2) New Question (same category & difficulty)");
+            if (canUseNewQ) {
+                io.println("  2) New Question (same category & difficulty)");
+            } else {
+                io.println("  2) [New Question Not Available for this question type]");
+            }
+
             io.println("   3) Clue (get a hint)");
             io.println("   4) Skip");
 
@@ -62,10 +72,8 @@ public class Bonus {
                     menuActive = false;
                     break;
                 case "2":
-                    if (q.getType() == QuestionType.NUMERIC ||
-                            q.getType() == QuestionType.ORDERING) {
-                        io.println(
-                                "New question cannot be used on numeric or ordering questions. Choose another bonus.");
+                    if (!canUseNewQ) {
+                        io.println("  Selection unavailable for this question type.");
                         continue;
                     }
                     applyNewQuestion(player, q);

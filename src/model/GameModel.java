@@ -1,0 +1,369 @@
+package model;
+
+import game.MapGrid;
+import game.WinnerCalculator;
+import player.Player;
+import trivia.AnswerValidator;
+import trivia.Question;
+import trivia.QuestionBank;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+/**
+ * The Model in MVC.
+ *
+ * <p>Holds all game state (players, grid, questions, current phase) and
+ * exposes operations that mutate it. It never imports Swing and never reads
+ * or writes to the console. Views observe it through
+ * {@link PropertyChangeListener}s and the controller drives it through the
+ * public methods below.
+ *
+ * <p>Note: this is a GUI-focused model. It does not yet cover every feature
+ * of the original console {@code game.Game} (wagers, numeric estimation,
+ * bonuses, streaks, lightning bonus). Those can be layered in progressively
+ * without touching the view/controller contracts.
+ */
+public class GameModel {
+
+    // ── Property names for PropertyChangeSupport ──
+    public static final String PROP_PHASE = "phase";
+    public static final String PROP_CURRENT_PLAYER = "currentPlayer";
+    public static final String PROP_QUESTION = "question";
+    public static final String PROP_ROUND = "round";
+    public static final String PROP_MAP = "map";
+    public static final String PROP_SCORES = "scores";
+
+    public static final long TIME_LIMIT_MS = 15_000;
+    private static final int POINTS_EASY = 10;
+    private static final int POINTS_MEDIUM = 20;
+    private static final int POINTS_HARD = 30;
+
+    private final QuestionBank questionBank;
+    private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+    private final Random random = new Random();
+
+    // ── Game state ──
+    private GameSettings settings;
+    private final List<Player> players = new ArrayList<>();
+    private MapGrid map;
+    private List<Question> roundQuestions = new ArrayList<>();
+    private int roundIndex;
+    private int currentPlayerIndex;
+    private GamePhase phase = GamePhase.SETUP;
+    private long questionStartMs;
+
+    // Tracks the results of the two players for the current round, used to
+    // decide who claims how many cells in the territory phase.
+    private boolean[] roundCorrect = new boolean[2];
+    private long[] roundTimes = new long[2];
+
+    // Invasion phase state
+    private int invaderIndex;
+    private int attackFromRow = -1, attackFromCol = -1;
+    private int attackToRow = -1, attackToCol = -1;
+
+    public GameModel(QuestionBank questionBank) {
+        this.questionBank = questionBank;
+    }
+
+    // ── Observer wiring ──
+    public void addPropertyChangeListener(PropertyChangeListener l) {
+        pcs.addPropertyChangeListener(l);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener l) {
+        pcs.removePropertyChangeListener(l);
+    }
+
+    // ── Accessors ──
+    public QuestionBank getQuestionBank() { return questionBank; }
+    public GamePhase getPhase() { return phase; }
+    public List<Player> getPlayers() { return players; }
+    public Player getCurrentPlayer() { return players.get(currentPlayerIndex); }
+    public int getCurrentPlayerIndex() { return currentPlayerIndex; }
+    public MapGrid getMap() { return map; }
+    public int getRoundNumber() { return roundIndex + 1; }
+    public int getTotalRounds() { return roundQuestions.size(); }
+    public Question getCurrentQuestion() {
+        if (roundQuestions.isEmpty() || roundIndex >= roundQuestions.size()) return null;
+        return roundQuestions.get(roundIndex);
+    }
+    public GameSettings getSettings() { return settings; }
+    public long getQuestionStartMs() { return questionStartMs; }
+    public int getInvaderIndex() { return invaderIndex; }
+    public int getAttackFromRow() { return attackFromRow; }
+    public int getAttackFromCol() { return attackFromCol; }
+    public int getAttackToRow() { return attackToRow; }
+    public int getAttackToCol() { return attackToCol; }
+
+    // ── Round-tracker access (used by undo Commands) ──
+    public boolean getRoundCorrect(int playerIndex) { return roundCorrect[playerIndex]; }
+    public long getRoundTime(int playerIndex) { return roundTimes[playerIndex]; }
+    public void setRoundCorrect(int playerIndex, boolean v) { roundCorrect[playerIndex] = v; }
+    public void setRoundTime(int playerIndex, long v) { roundTimes[playerIndex] = v; }
+    public void setCurrentPlayerIndex(int i) { this.currentPlayerIndex = i; }
+    public void forcePhase(GamePhase p) { setPhase(p); }
+    public void setInvaderIndex(int i) { this.invaderIndex = i; }
+
+    // ── Game lifecycle ──
+
+    /** Starts a brand new game using the given settings. */
+    public void startGame(GameSettings settings) {
+        this.settings = settings;
+        this.players.clear();
+        this.roundQuestions.clear();
+        this.roundIndex = 0;
+        this.currentPlayerIndex = 0;
+
+        Player p1 = new Player(settings.player1Name);
+        p1.setSymbol('X');
+        Player p2 = new Player(settings.player2Name);
+        p2.setSymbol('O');
+        players.add(p1);
+        players.add(p2);
+
+        this.map = new MapGrid(settings.mapSize);
+        map.initVisibilityForPlayer('X');
+        map.initVisibilityForPlayer('O');
+
+        loadQuestions();
+        setPhase(GamePhase.HOT_SEAT_PASS);
+    }
+
+    private void loadQuestions() {
+        int count = settings.mapSize; // same rule as console version
+        if (settings.randomMode) {
+            List<String> categories = new ArrayList<>(questionBank.getCategories());
+            for (int i = 0; i < count && !categories.isEmpty(); i++) {
+                String cat = categories.get(random.nextInt(categories.size()));
+                List<String> diffs = new ArrayList<>(questionBank.getDifficulties(cat));
+                if (diffs.isEmpty()) { i--; continue; }
+                String diff = diffs.get(random.nextInt(diffs.size()));
+                Question q = questionBank.getQuestion(cat, diff);
+                if (q != null) roundQuestions.add(q);
+                else i--;
+            }
+        } else {
+            for (int i = 0; i < count; i++) {
+                Question q = questionBank.getQuestion(settings.category, settings.difficulty);
+                if (q != null) roundQuestions.add(q);
+            }
+        }
+    }
+
+    // ── Question flow ──
+
+    /** Called after the hot-seat pass screen; transitions to the question. */
+    public void beginQuestion() {
+        this.questionStartMs = System.currentTimeMillis();
+        setPhase(GamePhase.QUESTION);
+    }
+
+    /**
+     * Submits the current player's answer. Updates the player's score and
+     * stats, records the round outcome, advances to the next player, and
+     * either emits a new hot-seat transition or moves to territory claim.
+     */
+    public AnswerResult submitAnswer(String rawAnswer, long clientElapsedMs) {
+        Question q = getCurrentQuestion();
+        long elapsed = clientElapsedMs > 0
+                ? clientElapsedMs
+                : System.currentTimeMillis() - questionStartMs;
+
+        boolean timedOut = rawAnswer == null;
+        boolean correct = !timedOut && AnswerValidator.isCorrect(q, rawAnswer);
+
+        Player p = getCurrentPlayer();
+        int pts = basePoints(q);
+        int delta;
+        if (timedOut) {
+            p.addWrongAnswer(elapsed);
+            p.subtractScore(pts);
+            delta = -pts;
+        } else if (correct) {
+            p.addCorrectAnswer(elapsed);
+            p.addScore(pts);
+            delta = pts;
+        } else {
+            p.addWrongAnswer(elapsed);
+            delta = 0;
+        }
+
+        p.setTimer(p.getTimer() + elapsed);
+        roundCorrect[currentPlayerIndex] = correct;
+        roundTimes[currentPlayerIndex] = timedOut ? Long.MAX_VALUE : elapsed;
+
+        pcs.firePropertyChange(PROP_SCORES, null, players);
+
+        String correctAnswer = q.getAnswer();
+        AnswerResult result = new AnswerResult(correct, timedOut, delta,
+                correctAnswer == null ? "" : correctAnswer, elapsed);
+
+        return result;
+    }
+
+    /** Called by the controller after showing answer feedback to move on. */
+    public void advanceAfterAnswer() {
+        // If player 2 still needs to answer this question, hand off.
+        if (currentPlayerIndex < players.size() - 1) {
+            currentPlayerIndex++;
+            pcs.firePropertyChange(PROP_CURRENT_PLAYER, null, getCurrentPlayer());
+            setPhase(GamePhase.HOT_SEAT_PASS);
+            return;
+        }
+        // Both players answered: enter territory claim phase.
+        setPhase(GamePhase.TERRITORY_CLAIM);
+    }
+
+    // ── Territory phase ──
+
+    /**
+     * Returns the order in which players should claim cells for the current
+     * round: the round winner is first. Each entry is a player index and how
+     * many cells they claim.
+     */
+    public int[] roundClaimCounts() {
+        int size = map.getSize();
+        int winnerClaims = size / 2 + 1;
+        int loserClaims = size / 2;
+        int winner = determineRoundWinnerIndex();
+        int loser = 1 - winner;
+        int[] out = new int[players.size()];
+        out[winner] = winnerClaims;
+        out[loser] = loserClaims;
+        return out;
+    }
+
+    public int determineRoundWinnerIndex() {
+        boolean a = roundCorrect[0];
+        boolean b = roundCorrect[1];
+        if (a && !b) return 0;
+        if (!a && b) return 1;
+        // Both same outcome → fastest time wins.
+        return roundTimes[0] <= roundTimes[1] ? 0 : 1;
+    }
+
+    /**
+     * Tries to claim the given cell for the given player. Returns true on
+     * success. The controller/view is responsible for calling this in the
+     * correct order (winner first, matching {@link #roundClaimCounts()}).
+     */
+    public boolean claimCell(int playerIndex, int row, int col) {
+        Player p = players.get(playerIndex);
+        char sym = p.getSymbol();
+        if (!map.claimCell(sym, row, col)) return false;
+        map.revealCellForPlayer(sym, row, col);
+        map.revealNeighbourForPlayer(sym, row, col);
+        pcs.firePropertyChange(PROP_MAP, null, map);
+        return true;
+    }
+
+    /**
+     * Called after all claim slots for this round have been filled. Advances
+     * to next round or to invasion phase or to game over.
+     */
+    public void finishRound() {
+        // Reset round trackers
+        roundCorrect = new boolean[players.size()];
+        roundTimes = new long[players.size()];
+
+        if (map.isMapFull()) {
+            invaderIndex = 0;
+            setPhase(GamePhase.INVASION_PASS);
+            return;
+        }
+        roundIndex++;
+        if (roundIndex >= roundQuestions.size()) {
+            setPhase(GamePhase.GAME_OVER);
+            return;
+        }
+        // Next round: player 0 goes first again.
+        currentPlayerIndex = 0;
+        pcs.firePropertyChange(PROP_CURRENT_PLAYER, null, getCurrentPlayer());
+        pcs.firePropertyChange(PROP_ROUND, null, roundIndex);
+        setPhase(GamePhase.HOT_SEAT_PASS);
+    }
+
+    // ── Invasion phase ──
+
+    /** Called once the current attacker has been shown the pass screen. */
+    public void beginInvasionSelect() {
+        attackFromRow = attackFromCol = attackToRow = attackToCol = -1;
+        setPhase(GamePhase.INVASION_SELECT);
+    }
+
+    public void setAttackFrom(int r, int c) {
+        this.attackFromRow = r; this.attackFromCol = c;
+    }
+
+    public void setAttackTarget(int r, int c) {
+        this.attackToRow = r; this.attackToCol = c;
+        // Reuse round question pool: pop a fresh one.
+        Question q = questionBank.getAllQuestionsAsList().isEmpty()
+                ? null : questionBank.getAllQuestionsAsList().get(0);
+        if (q != null) {
+            // Shove the battle question into slot roundIndex so views reading
+            // getCurrentQuestion() work uniformly.
+            if (roundIndex >= roundQuestions.size()) {
+                roundQuestions.add(q);
+            } else {
+                roundQuestions.set(roundIndex, q);
+            }
+        }
+        questionStartMs = System.currentTimeMillis();
+        setPhase(GamePhase.INVASION_BATTLE);
+    }
+
+    public Player getInvader() { return players.get(invaderIndex); }
+    public Player getDefender() { return players.get(1 - invaderIndex); }
+
+    /**
+     * Resolves one invasion battle using the two answers provided and
+     * advances invasion state.
+     */
+    public void resolveInvasion(String attackerAnswer, String defenderAnswer) {
+        Question q = getCurrentQuestion();
+        boolean attCorrect = attackerAnswer != null && AnswerValidator.isCorrect(q, attackerAnswer);
+        boolean defCorrect = defenderAnswer != null && AnswerValidator.isCorrect(q, defenderAnswer);
+
+        if (attCorrect && !defCorrect) {
+            // Attacker conquers the target cell.
+            map.setOwner(attackToRow, attackToCol, getInvader().getSymbol());
+            pcs.firePropertyChange(PROP_MAP, null, map);
+        }
+        // Move to the next invader (each player attacks once, then game over).
+        invaderIndex++;
+        if (invaderIndex >= players.size()) {
+            setPhase(GamePhase.GAME_OVER);
+        } else {
+            setPhase(GamePhase.INVASION_PASS);
+        }
+    }
+
+    // ── End-of-game ──
+
+    public Player computeWinner() {
+        return WinnerCalculator.getWinnerOrNull(players, map);
+    }
+
+    // ── Helpers ──
+
+    private int basePoints(Question q) {
+        String d = q.getDifficulty() == null ? "" : q.getDifficulty().toUpperCase();
+        return switch (d) {
+            case "HARD" -> POINTS_HARD;
+            case "MEDIUM" -> POINTS_MEDIUM;
+            default -> POINTS_EASY;
+        };
+    }
+
+    private void setPhase(GamePhase newPhase) {
+        GamePhase old = this.phase;
+        this.phase = newPhase;
+        pcs.firePropertyChange(PROP_PHASE, old, newPhase);
+    }
+}
