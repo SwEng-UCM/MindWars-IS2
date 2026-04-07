@@ -9,7 +9,13 @@ public class MediumBot implements BotStrategy {
 
     @Override
     public String getAnswer(Question question) {
-        return "";
+        int chance = random.nextInt(100);
+
+        if (chance < 50) {
+            return question.getAnswer();
+        } else {
+            return "I'm not sure";
+        }
     }
 
     @Override
