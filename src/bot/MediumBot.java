@@ -28,6 +28,10 @@ public class MediumBot implements BotStrategy {
             List<String> wrongChoices = choices.stream()
                     .filter(choice -> !choice.equalsIgnoreCase(correctAnswer))
                     .toList();
+
+            if (!wrongChoices.isEmpty()) {
+                return wrongChoices.get(random.nextInt(wrongChoices.size()));
+            }
         }
 
         return "I'm not sure";
