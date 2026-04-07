@@ -39,7 +39,7 @@ public class MediumBot implements BotStrategy {
 
     @Override
     public long getResponseTime() {
-        return 0;
+        return 1500 + random.nextInt(2000);
     }
 
     @Override
