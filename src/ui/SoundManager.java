@@ -3,10 +3,7 @@ package ui;
 import javax.sound.sampled.*;
 import java.io.File;
 
-/**
- * Plays WAV sound effects asynchronously using javax.sound.sampled.
- * If a sound file is missing or playback fails, the game continues silently.
- */
+
 public class SoundManager {
 
     private static final String ASSETS_DIR = "assets/";
@@ -29,10 +26,6 @@ public class SoundManager {
         this.settings = settings;
     }
 
-    /**
-     * Optional compatibility constructor if other existing code
-     * still creates SoundManager with no arguments.
-     */
     public SoundManager() {
         this(new GameSettings());
     }
@@ -41,9 +34,6 @@ public class SoundManager {
         return settings;
     }
 
-    /**
-     * Plays a one-shot sound effect asynchronously.
-     */
     public void play(String soundFileName) {
         if (!settings.isSoundEffectsEnabled()) {
             return;
@@ -71,9 +61,6 @@ public class SoundManager {
         }).start();
     }
 
-    /**
-     * Starts looping background music.
-     */
     public void startBackground() {
         if (!settings.isMusicEnabled()) {
             return;
@@ -105,10 +92,6 @@ public class SoundManager {
         }
     }
 
-    /**
-     * Starts looping timer sound.
-     * Treated as sound effect, not music.
-     */
     public void startTimer() {
         if (!settings.isSoundEffectsEnabled()) {
             return;
@@ -140,10 +123,7 @@ public class SoundManager {
         }
     }
 
-    /**
-     * Call this after settings change so currently playing sounds
-     * react immediately.
-     */
+    
     public void refreshAudioState() {
         if (!settings.isMusicEnabled()) {
             stopBackground();
