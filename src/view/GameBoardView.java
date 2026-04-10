@@ -234,8 +234,9 @@ public class GameBoardView extends JPanel {
         submitButton.setEnabled(true);
         undoButton.setEnabled(controller.canUndo());
 
-        revalidate();
-        repaint();
+        // force swing to redraw
+        this.revalidate();
+        this.repaint();
     }
 
     /** Starts the 15 s countdown. Called by MainFrame when this screen is shown. */
@@ -308,16 +309,12 @@ public class GameBoardView extends JPanel {
         }
 
         QuestionType type = q.getType();
+
         if (type == QuestionType.MULTIPLE_CHOICE && q.getChoices() != null) {
             char label = 'A';
             for (String choice : q.getChoices()) {
                 JToggleButton tb = new JToggleButton(label + ") " + choice);
-                tb.setFont(MindWarsTheme.BODY_FONT);
-                tb.setFocusPainted(false);
-                tb.setBackground(MindWarsTheme.DARK_CARD);
-                tb.setForeground(MindWarsTheme.WHITE);
-                tb.setAlignmentX(Component.LEFT_ALIGNMENT);
-                tb.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+                styleToggleButton(tb);
                 choiceGroup.add(tb);
                 choiceButtons.add(tb);
                 choicesPanel.add(tb);
@@ -325,26 +322,61 @@ public class GameBoardView extends JPanel {
                 label++;
             }
             cl.show(answerPanel, "choices");
+
         } else if (type == QuestionType.TRUE_FALSE) {
             for (String s : new String[] { "True", "False" }) {
                 JToggleButton tb = new JToggleButton(s);
-                tb.setFont(MindWarsTheme.BODY_FONT);
-                tb.setFocusPainted(false);
-                tb.setBackground(MindWarsTheme.DARK_CARD);
-                tb.setForeground(MindWarsTheme.WHITE);
-                tb.setAlignmentX(Component.LEFT_ALIGNMENT);
-                tb.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+                styleToggleButton(tb);
                 choiceGroup.add(tb);
                 choiceButtons.add(tb);
                 choicesPanel.add(tb);
                 choicesPanel.add(Box.createVerticalStrut(6));
             }
             cl.show(answerPanel, "choices");
-        } else {
-            // NUMERIC, OPEN_ENDED, ORDERING → free text
+
+        } else if (type == QuestionType.ORDERING) {
+            choicesPanel.setLayout(new BoxLayout(choicesPanel, BoxLayout.Y_AXIS));
+            // show ordering options
+            List<String> items = q.getChoices();
+
+            if (items != null) {
+                for (int i = 0; i < items.size(); i++) {
+                    JLabel itemLabel = new JLabel((i + 1) + ". " + items.get(i));
+                    itemLabel.setForeground(MindWarsTheme.WHITE);
+                    itemLabel.setFont(MindWarsTheme.BODY_FONT);
+                    itemLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+                    choicesPanel.add(itemLabel);
+                    choicesPanel.add(Box.createVerticalStrut(5));
+                }
+            }
+            choicesPanel.add(Box.createVerticalStrut(10));
             textInput.setText("");
+            textInput.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+            choicesPanel.add(textInput);
+            cl.show(answerPanel, "choices");
+
+        } else {
+            // NUMERIC, OPEN_ENDED
+            textInput.setText("");
+            textInput.setEnabled(true);
+            textInput.setEditable(true);
             cl.show(answerPanel, "text");
+            SwingUtilities.invokeLater(() -> textInput.requestFocusInWindow());
         }
+        choicesPanel.revalidate();
+        choicesPanel.repaint();
+        answerPanel.revalidate();
+        answerPanel.repaint();
+    }
+
+    // helper method for style
+    private void styleToggleButton(JToggleButton tb) {
+        tb.setFont(MindWarsTheme.BODY_FONT);
+        tb.setFocusPainted(false);
+        tb.setBackground(MindWarsTheme.DARK_CARD);
+        tb.setForeground(MindWarsTheme.WHITE);
+        tb.setAlignmentX(Component.LEFT_ALIGNMENT);
+        tb.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
     }
 
     private String readAnswer() {
@@ -442,23 +474,65 @@ public class GameBoardView extends JPanel {
     }
 
     private void showFeedback(AnswerResult result) {
+        Question q = controller.getModel().getCurrentQuestion();
+
+        // using a spare string if q disapears from model
+        String correctAnswerText = formatCorrectAnswer(q, result);
+
         String text;
         Color bg;
+
         if (result.timedOut) {
-            text = "Time's up! Answer: " + result.correctAnswer;
+            text = "Time's up! Answer: " + correctAnswerText;
             bg = MindWarsTheme.WRONG_RED;
         } else if (result.correct) {
             text = "Correct! +" + result.pointsDelta;
             bg = MindWarsTheme.CORRECT_GREEN;
         } else {
-            text = "Wrong — " + result.correctAnswer;
+            text = "Wrong — " + correctAnswerText;
             bg = MindWarsTheme.WRONG_RED;
         }
+        // ui updates
         feedbackLabel.setText(text);
         feedbackLabel.setBackground(bg);
+        feedbackLabel.setOpaque(true);
         feedbackLabel.setForeground(MindWarsTheme.WHITE);
         feedbackLabel.setBorder(new EmptyBorder(10, 10, 10, 10));
         feedbackLabel.setVisible(true);
+
+        // force redraw immediatelly
+        feedbackLabel.revalidate();
+        feedbackLabel.repaint();
+    }
+
+    private String formatCorrectAnswer(Question q, AnswerResult result) {
+        if (q == null)
+            return (result.correctAnswer != null) ? result.correctAnswer : "";
+
+        switch (q.getType()) {
+            case NUMERIC:
+                return String.valueOf((int) q.getNumericAnswer());
+
+            case ORDERING:
+                if (q.getOrderingAnswer() != null) {
+                    return String.join(" -> ", q.getOrderingAnswer());
+                }
+                return "";
+
+            case MULTIPLE_CHOICE:
+                String letter = result.correctAnswer;
+                if (letter != null && letter.length() == 1) {
+                    int idx = letter.toUpperCase().charAt(0) - 'A';
+                    if (q.getChoices() != null && idx >= 0 && idx < q.getChoices().size()) {
+                        return letter + ") " + q.getChoices().get(idx);
+                    }
+                }
+                return (letter != null) ? letter : "";
+
+            default:
+                // true/false / open-ended
+                return (q.getAnswer() != null) ? q.getAnswer() : result.correctAnswer;
+        }
     }
 
     private static String escape(String s) {
