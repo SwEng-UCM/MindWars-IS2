@@ -22,4 +22,10 @@ public class EasyBot implements BotStrategy {
         // Fallback for open-ended questions or missing choices
         return "I'm not sure";
     }
+
+
+    @Override
+    public long getResponseTime(){
+        return 2000;
+    }
 }
