@@ -2,20 +2,12 @@ package bot;
 
 import trivia.Question;
 
+import java.util.List;
+import java.util.Random;
+
 public class EasyBot implements BotStrategy {
 
-    @Override
-    public String getAnswer(Question question) {
-        return "I'm not sure... maybe B?";
-    }
+    private final Random random = new Random();
 
-    @Override
-    public long getResponseTime() {
-        return 10000; // 10 seconds
-    }
-
-    @Override
-    public String getDifficultyName() {
-        return "Easy";
-    }
+ 
 }
