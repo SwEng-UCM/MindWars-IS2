@@ -173,10 +173,14 @@ public class Player {
     }
 
     /** Sets the correct-answer counter directly — used by undo. */
-    public void setCorrectAnswers(int n) { this.correctAnswers = n; }
+    public void setCorrectAnswers(int n) {
+        this.correctAnswers = n;
+    }
 
     /** Sets the wrong-answer counter directly — used by undo. */
-    public void setWrongAnswers(int n) { this.wrongAnswers = n; }
+    public void setWrongAnswers(int n) {
+        this.wrongAnswers = n;
+    }
 
     /** Removes the most recent response time, if any — used by undo. */
     public void popLastResponseTime() {
@@ -225,7 +229,8 @@ public class Player {
         for (WeaponType w : getInventory()) {
             switch (w) {
                 case CANNON, CROSSBOW, BURST -> attackWeapons.add(w);
-                default -> {}
+                default -> {
+                }
             }
         }
         return attackWeapons;
@@ -236,7 +241,8 @@ public class Player {
         for (WeaponType w : getInventory()) {
             switch (w) {
                 case SHIELD, LASER_SIGHT, HELMET -> defenseWeapons.add(w);
-                default -> {}
+                default -> {
+                }
             }
         }
         return defenseWeapons;

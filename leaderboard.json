@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Player 2",
+    "wins": 1,
+    "totalScore": 80,
+    "gamesPlayed": 2
+  },
+  {
+    "name": "Player 1",
+    "wins": 0,
+    "totalScore": 20,
+    "gamesPlayed": 3
+  },
+  {
+    "name": "Bot",
+    "wins": 0,
+    "totalScore": 0,
+    "gamesPlayed": 1
+  }
+]

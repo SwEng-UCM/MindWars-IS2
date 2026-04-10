@@ -18,10 +18,12 @@ import java.util.List;
  * players' scores, the current question, a live 15-second timer bar, and
  * the answer input, all on a single screen.
  *
- * <p>Also hosts the Undo button introduced in #82 (delegates to the
+ * <p>
+ * Also hosts the Undo button introduced in #82 (delegates to the
  * command history set up by #81).
  *
- * <p>Used in two modes: regular question phase and invasion battle
+ * <p>
+ * Used in two modes: regular question phase and invasion battle
  * (constructor's {@code invasionMode} flag). In invasion mode the attacker
  * answers first, then the defender answers, and finally the controller
  * resolves the battle.
@@ -238,7 +240,8 @@ public class GameBoardView extends JPanel {
 
     /** Starts the 15 s countdown. Called by MainFrame when this screen is shown. */
     public void startTimer() {
-        if (swingTimer != null) swingTimer.stop();
+        if (swingTimer != null)
+            swingTimer.stop();
         timerStartMs = System.currentTimeMillis();
         timerBar.setValue(100);
         timerLabel.setText("15s");
@@ -261,7 +264,8 @@ public class GameBoardView extends JPanel {
 
     private void rebuildGrid(GameModel model) {
         gridPanel.removeAll();
-        if (model.getMap() == null) return;
+        if (model.getMap() == null)
+            return;
         int size = model.getMap().getSize();
         gridPanel.setLayout(new GridLayout(size, size, 4, 4));
         for (int r = 0; r < size; r++) {
@@ -299,7 +303,7 @@ public class GameBoardView extends JPanel {
         choicesPanel.removeAll();
         choiceButtons.clear();
         // Rebuild the button group
-        for (java.util.Enumeration<AbstractButton> en = choiceGroup.getElements(); en.hasMoreElements(); ) {
+        for (java.util.Enumeration<AbstractButton> en = choiceGroup.getElements(); en.hasMoreElements();) {
             choiceGroup.remove(en.nextElement());
         }
 
@@ -322,7 +326,7 @@ public class GameBoardView extends JPanel {
             }
             cl.show(answerPanel, "choices");
         } else if (type == QuestionType.TRUE_FALSE) {
-            for (String s : new String[]{"True", "False"}) {
+            for (String s : new String[] { "True", "False" }) {
                 JToggleButton tb = new JToggleButton(s);
                 tb.setFont(MindWarsTheme.BODY_FONT);
                 tb.setFocusPainted(false);
@@ -347,11 +351,16 @@ public class GameBoardView extends JPanel {
         if (!choiceButtons.isEmpty()) {
             for (int i = 0; i < choiceButtons.size(); i++) {
                 if (choiceButtons.get(i).isSelected()) {
-                    JToggleButton tb = choiceButtons.get(i);
-                    String txt = tb.getText();
+                    Question q = controller.getModel().getCurrentQuestion();
+                    // JToggleButton tb = choiceButtons.get(i);
+                    // String txt = tb.getText();
                     // Strip "A) " prefix for MCQ
-                    int paren = txt.indexOf(") ");
-                    return paren > 0 ? txt.substring(paren + 2) : txt;
+                    if (q.getType() == QuestionType.MULTIPLE_CHOICE) {
+                        return String.valueOf((char) ('A' + i));
+                    }
+                    // int paren = txt.indexOf(") ");
+                    // return paren > 0 ? txt.substring(paren + 2) : txt;
+                    return choiceButtons.get(i).getText();
                 }
             }
             return null;
@@ -363,13 +372,15 @@ public class GameBoardView extends JPanel {
     // ── Actions ──
 
     private void onSubmit(ActionEvent e) {
-        if (!submitButton.isEnabled()) return;
+        if (!submitButton.isEnabled())
+            return;
         String answer = readAnswer();
         if (answer == null) {
             // Require a selection / text before submitting (unless timeout).
             return;
         }
-        if (swingTimer != null) swingTimer.stop();
+        if (swingTimer != null)
+            swingTimer.stop();
         long elapsed = System.currentTimeMillis() - timerStartMs;
 
         if (invasionMode) {
@@ -389,7 +400,8 @@ public class GameBoardView extends JPanel {
     }
 
     private void onTimeout() {
-        if (!submitButton.isEnabled()) return;
+        if (!submitButton.isEnabled())
+            return;
         long elapsed = GameModel.TIME_LIMIT_MS;
 
         if (invasionMode) {
@@ -450,7 +462,8 @@ public class GameBoardView extends JPanel {
     }
 
     private static String escape(String s) {
-        if (s == null) return "";
+        if (s == null)
+            return "";
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 }

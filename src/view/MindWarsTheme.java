@@ -6,45 +6,47 @@ import java.awt.*;
 
 /**
  * Centralized theme constants and utility methods for the MindWars GUI.
- * Two themes: LIGHT (menus/setup - pink gradient) and DARK (gameplay - dark bg).
+ * Two themes: LIGHT (menus/setup - pink gradient) and DARK (gameplay - dark
+ * bg).
  */
 public final class MindWarsTheme {
 
-    private MindWarsTheme() {}
+    private MindWarsTheme() {
+    }
 
     // ── Brand colors ──
-    public static final Color PINK        = new Color(0xE91E8C);
-    public static final Color PINK_LIGHT  = new Color(0xF8BBD0);
-    public static final Color PINK_BG     = new Color(0xFCE4EC);
-    public static final Color ORANGE      = new Color(0xC87137);
+    public static final Color PINK = new Color(0xE91E8C);
+    public static final Color PINK_LIGHT = new Color(0xF8BBD0);
+    public static final Color PINK_BG = new Color(0xFCE4EC);
+    public static final Color ORANGE = new Color(0xC87137);
     public static final Color ORANGE_DARK = new Color(0xA0522D);
-    public static final Color WHITE       = Color.WHITE;
-    public static final Color DARK_BG     = new Color(0x1E1E1E);
-    public static final Color DARK_CARD   = new Color(0x2D2D2D);
+    public static final Color WHITE = Color.WHITE;
+    public static final Color DARK_BG = new Color(0x1E1E1E);
+    public static final Color DARK_CARD = new Color(0x2D2D2D);
     public static final Color DARK_BORDER = new Color(0x444444);
-    public static final Color GRAY_TEXT   = new Color(0x888888);
-    public static final Color GRAY_LIGHT  = new Color(0xCCCCCC);
-    public static final Color PLAYER_X    = PINK;
-    public static final Color PLAYER_O    = ORANGE;
-    public static final Color FOG_COLOR   = new Color(0xBDBDBD);
-    public static final Color EMPTY_CELL  = new Color(0xF5F5F5);
+    public static final Color GRAY_TEXT = new Color(0x888888);
+    public static final Color GRAY_LIGHT = new Color(0xCCCCCC);
+    public static final Color PLAYER_X = PINK;
+    public static final Color PLAYER_O = ORANGE;
+    public static final Color FOG_COLOR = new Color(0xBDBDBD);
+    public static final Color EMPTY_CELL = new Color(0xF5F5F5);
     public static final Color CORRECT_GREEN = new Color(0x4CAF50);
-    public static final Color WRONG_RED     = new Color(0xF44336);
+    public static final Color WRONG_RED = new Color(0xF44336);
 
     // ── Fonts ──
-    public static final Font TITLE_FONT    = new Font("SansSerif", Font.BOLD, 32);
+    public static final Font TITLE_FONT = new Font("SansSerif", Font.BOLD, 32);
     public static final Font SUBTITLE_FONT = new Font("SansSerif", Font.PLAIN, 16);
-    public static final Font HEADING_FONT  = new Font("SansSerif", Font.BOLD, 22);
-    public static final Font BODY_FONT     = new Font("SansSerif", Font.PLAIN, 14);
-    public static final Font BODY_BOLD     = new Font("SansSerif", Font.BOLD, 14);
-    public static final Font BUTTON_FONT   = new Font("SansSerif", Font.BOLD, 16);
-    public static final Font TIMER_FONT    = new Font("SansSerif", Font.BOLD, 28);
-    public static final Font SMALL_FONT    = new Font("SansSerif", Font.PLAIN, 12);
+    public static final Font HEADING_FONT = new Font("SansSerif", Font.BOLD, 22);
+    public static final Font BODY_FONT = new Font("SansSerif", Font.PLAIN, 14);
+    public static final Font BODY_BOLD = new Font("SansSerif", Font.BOLD, 14);
+    public static final Font BUTTON_FONT = new Font("SansSerif", Font.BOLD, 16);
+    public static final Font TIMER_FONT = new Font("SansSerif", Font.BOLD, 28);
+    public static final Font SMALL_FONT = new Font("SansSerif", Font.PLAIN, 12);
 
     // ── Dimensions ──
-    public static final int FRAME_WIDTH  = 500;
+    public static final int FRAME_WIDTH = 500;
     public static final int FRAME_HEIGHT = 750;
-    public static final int CARD_RADIUS  = 20;
+    public static final int CARD_RADIUS = 20;
     public static final int BUTTON_RADIUS = 12;
 
     // ── Gradient background panel (pink top-left to orange bottom-right) ──
