@@ -28,4 +28,10 @@ public class EasyBot implements BotStrategy {
     public long getResponseTime(){
         return 2000;
     }
+
+
+    @Override
+    public String getDifficultyName(){
+        return "Easy";
+    }
 }
