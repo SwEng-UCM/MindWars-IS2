@@ -100,12 +100,10 @@ public class RulesView extends JPanel {
     private JPanel createSection(String heading, String body) {
         JPanel section = new JPanel(new BorderLayout(0, 8));
         section.setOpaque(false);
-        section.setBorder(new EmptyBorder(12, 10, 12, 14));
+        section.setBorder(new EmptyBorder(12, 14, 12, 14));
         section.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
 
-        JPanel accent = new JPanel();
-        accent.setBackground(MindWarsTheme.PINK);
-        accent.setPreferredSize(new Dimension(6, 10));
+      
 
         JLabel headingLabel = new JLabel(heading);
         headingLabel.setFont(MindWarsTheme.SUBTITLE_FONT);
@@ -127,7 +125,7 @@ public class RulesView extends JPanel {
         textPanel.add(Box.createVerticalStrut(4));
         textPanel.add(bodyArea);
 
-        section.add(accent, BorderLayout.WEST);
+        
         section.add(textPanel, BorderLayout.CENTER);
 
         section.setAlignmentX(Component.LEFT_ALIGNMENT);
