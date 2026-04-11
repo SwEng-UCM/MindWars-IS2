@@ -98,16 +98,16 @@ public class RulesView extends JPanel {
     }
 
     private JPanel createSection(String heading, String body) {
-        JPanel section = new JPanel(new BorderLayout(0, 8));
+        JPanel section = new JPanel();
         section.setOpaque(false);
-        section.setBorder(new EmptyBorder(12, 14, 12, 14));
-        section.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
-
-      
+        section.setLayout(new BoxLayout(section, BoxLayout.Y_AXIS));
+        section.setBorder(new EmptyBorder(10, 10, 10, 10));
+        section.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel headingLabel = new JLabel(heading);
         headingLabel.setFont(MindWarsTheme.SUBTITLE_FONT);
         headingLabel.setForeground(MindWarsTheme.PINK);
+        headingLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JTextArea bodyArea = new JTextArea(body);
         bodyArea.setFont(MindWarsTheme.BODY_FONT);
@@ -117,18 +117,12 @@ public class RulesView extends JPanel {
         bodyArea.setLineWrap(true);
         bodyArea.setWrapStyleWord(true);
         bodyArea.setBorder(null);
+        bodyArea.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JPanel textPanel = new JPanel();
-        textPanel.setOpaque(false);
-        textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
-        textPanel.add(headingLabel);
-        textPanel.add(Box.createVerticalStrut(4));
-        textPanel.add(bodyArea);
+        section.add(headingLabel);
+        section.add(Box.createVerticalStrut(4));
+        section.add(bodyArea);
 
-        
-        section.add(textPanel, BorderLayout.CENTER);
-
-        section.setAlignmentX(Component.LEFT_ALIGNMENT);
         return section;
     }
 }
