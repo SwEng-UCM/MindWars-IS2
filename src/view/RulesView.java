@@ -50,26 +50,26 @@ public class RulesView extends JPanel {
         content.add(Box.createVerticalStrut(12));
 
         content.add(createSection("Game Modes",
-                "• Solo Mode: play against a bot\n" +
-                "• Multiplayer Mode: play against another player"));
+                " Solo Mode: play against a bot\n" +
+                " Multiplayer Mode: play against another player"));
         content.add(Box.createVerticalStrut(12));
 
         content.add(createSection("Question Types",
-                "• Multiple Choice\n" +
-                "• True / False\n" +
-                "• Estimation"));
+                " Multiple Choice\n" +
+                " True / False\n" +
+                " Estimation"));
         content.add(Box.createVerticalStrut(12));
 
         content.add(createSection("Scoring",
-                "• Correct answer: base points\n" +
-                "• Faster answer: +1 bonus point\n" +
-                "• Answer within 3 seconds: double points\n" +
-                "• Wrong answer: 0 points"));
+                " Correct answer: base points\n" +
+                " Faster answer: +1 bonus point\n" +
+                " Answer within 3 seconds: double points\n" +
+                " Wrong answer: 0 points"));
         content.add(Box.createVerticalStrut(12));
 
         content.add(createSection("Bot Difficulty",
-                "• Easy Bot: answers randomly after a short delay\n" +
-                "• Hard Bot: usually answers correctly but can still make mistakes"));
+                " Easy Bot: answers randomly after a short delay\n" +
+                " Hard Bot: usually answers correctly but can still make mistakes"));
         content.add(Box.createVerticalStrut(12));
 
         content.add(createSection("Winner",
@@ -100,7 +100,7 @@ public class RulesView extends JPanel {
     private JPanel createSection(String heading, String body) {
         JPanel section = new JPanel(new BorderLayout(0, 8));
         section.setOpaque(false);
-        section.setBorder(new EmptyBorder(12, 14, 12, 14));
+        section.setBorder(new EmptyBorder(12, 10, 12, 14));
         section.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
 
         JPanel accent = new JPanel();
@@ -108,12 +108,12 @@ public class RulesView extends JPanel {
         accent.setPreferredSize(new Dimension(6, 10));
 
         JLabel headingLabel = new JLabel(heading);
-        headingLabel.setFont(MindWarsTheme.BODY_BOLD);
+        headingLabel.setFont(MindWarsTheme.SUBTITLE_FONT);
         headingLabel.setForeground(MindWarsTheme.PINK);
 
         JTextArea bodyArea = new JTextArea(body);
         bodyArea.setFont(MindWarsTheme.BODY_FONT);
-        bodyArea.setForeground(Color.DARK_GRAY);
+        bodyArea.setForeground(new Color(90, 90, 90));
         bodyArea.setEditable(false);
         bodyArea.setOpaque(false);
         bodyArea.setLineWrap(true);
