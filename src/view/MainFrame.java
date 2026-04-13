@@ -50,12 +50,13 @@ public class MainFrame extends JFrame implements NavigationController {
     private final InvasionSelectView invasionSelectView;
     private final GameBoardView invasionBattleView;
     private final GameOverView gameOverView;
+    private BettingView bettingView;
 
     public MainFrame(GameModel model) {
         super("MindWars");
         this.model = model;
         this.controller = new GameController(model, this);
-
+        this.bettingView = new BettingView(controller);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(MindWarsTheme.FRAME_WIDTH, MindWarsTheme.FRAME_HEIGHT);
         setMinimumSize(new Dimension(500, 700));
@@ -88,7 +89,7 @@ public class MainFrame extends JFrame implements NavigationController {
         root.add(invasionSelectView, CARD_INV_SEL);
         root.add(invasionBattleView, CARD_INV_BAT);
         root.add(gameOverView, CARD_GAME_OVER);
-
+        root.add(bettingView, "betting");
         setContentPane(root);
 
         // Observe the model: whenever the phase changes, switch cards.
@@ -181,5 +182,14 @@ public class MainFrame extends JFrame implements NavigationController {
     public void showGameOver() {
         gameOverView.refresh();
         cards.show(root, CARD_GAME_OVER);
+    }
+
+    @Override
+    public void showBetting() {
+        if (bettingView != null) {
+            bettingView.refresh();
+        }
+
+        cards.show(root, "betting");
     }
 }

@@ -8,6 +8,7 @@ public class GameState {
     private List<Player> players;
     private int roundNumber;
     private int currentPlayerIndex;
+    private int currentWager = 0;
 
     public GameState() {
         this.players = new ArrayList<>();
@@ -43,5 +44,14 @@ public class GameState {
         this.players.clear();
         this.roundNumber = 1;
         this.currentPlayerIndex = 0;
+        this.currentWager = 0;
+    }
+
+    public void setCurrentWager(int wager) {
+        this.currentWager = wager;
+    }
+
+    public int getCurrentWager() {
+        return currentWager;
     }
 }

@@ -20,4 +20,6 @@ public interface NavigationController {
     void showGame();
 
     void showGameOver();
+
+    void showBetting();
 }

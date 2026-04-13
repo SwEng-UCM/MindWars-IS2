@@ -89,10 +89,24 @@ public class GameController {
     public void onHotSeatReady() {
         GamePhase phase = model.getPhase();
         if (phase == GamePhase.HOT_SEAT_PASS) {
-            model.beginQuestion();
+
+            if (model.getRoundNumber() == 4 && model.getCurrentPlayer().getScore() > 0) {
+                nav.showBetting();
+            } else {
+                model.beginQuestion();
+            }
+
         } else if (phase == GamePhase.INVASION_PASS) {
             model.beginInvasionSelect();
         }
+    }
+
+    public void onWagerConfirmed(int amount) {
+
+        model.setCurrentWager(amount);
+
+        model.beginQuestion();
+        nav.showGame();
     }
 
     /**

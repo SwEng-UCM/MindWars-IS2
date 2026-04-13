@@ -1,5 +1,6 @@
 package model;
 
+import game.GameState;
 import game.MapGrid;
 import game.WinnerCalculator;
 import player.Player;
@@ -249,10 +250,17 @@ public class GameModel {
                 : System.currentTimeMillis() - questionStartMs;
 
         boolean timedOut = rawAnswer == null;
-        boolean correct = !timedOut && AnswerValidator.isCorrect(q, rawAnswer);
+        boolean correct = !timedOut && trivia.AnswerValidator.isCorrect(q, rawAnswer);
 
         Player p = getCurrentPlayer();
+
         int pts = basePoints(q);
+        boolean isBettingActive = (currentWager > 0);
+
+        if (isBettingActive) {
+            pts = currentWager;
+        }
+
         int delta;
         if (timedOut) {
             p.addWrongAnswer(elapsed);
@@ -264,8 +272,15 @@ public class GameModel {
             delta = pts;
         } else {
             p.addWrongAnswer(elapsed);
-            delta = 0;
+            if (isBettingActive) {
+                p.subtractScore(pts);
+                delta = -pts;
+            } else {
+                delta = 0;
+            }
         }
+
+        this.currentWager = 0;
 
         p.setTimer(p.getTimer() + elapsed);
         roundCorrect[currentPlayerIndex] = correct;
@@ -459,4 +474,5 @@ public class GameModel {
     public int getCurrentWager() {
         return currentWager;
     }
+
 }
