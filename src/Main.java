@@ -19,11 +19,7 @@ public class Main {
 
         ConsoleIO io = ConsoleIO.getConsole();
         QuestionBank bank = new QuestionBank("questions.json");
-        SwingUtilities.invokeLater(() -> {
-            MainWindow window = new MainWindow();
 
-            window.setVisible(true);
-        });
         Game engine = new Game(io, bank);
 
         engine.run();

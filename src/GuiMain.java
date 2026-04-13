@@ -1,7 +1,7 @@
 import model.GameModel;
 import trivia.QuestionBank;
 import view.MainFrame;
-
+import ui.MainWindow;
 import javax.swing.SwingUtilities;
 
 /**
@@ -12,8 +12,12 @@ import javax.swing.SwingUtilities;
  */
 public class GuiMain {
     public static void main(String[] args) {
+
         QuestionBank bank = new QuestionBank("questions.json");
         GameModel model = new GameModel(bank);
-        SwingUtilities.invokeLater(() -> new MainFrame(model).setVisible(true));
+
+        SwingUtilities.invokeLater(() -> {
+            new ui.MainWindow(model).setVisible(true);
+        });
     }
 }

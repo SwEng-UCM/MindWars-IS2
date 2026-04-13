@@ -8,6 +8,10 @@ import java.io.File;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 
+/**
+ * MenuPanel handles the Login UI, including the gradient background,
+ * custom styled inputs, and the transition to the main game.
+ */
 public class MenuPanel extends JPanel {
 
     private MainWindow parent;
@@ -21,14 +25,14 @@ public class MenuPanel extends JPanel {
         setLayout(new GridBagLayout());
         setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        // Load logo.png from assets
+        // Load logo.png from assets folder
         try {
             logoImage = ImageIO.read(new File("assets/logo.png"));
         } catch (Exception e) {
             System.err.println("Could not load logo.png. Ensure it is in the assets/ folder.");
         }
 
-        // Main White Container
+        // Main White Card Container with rounded corners
         JPanel card = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -48,7 +52,7 @@ public class MenuPanel extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
 
-        // 1. Logo
+        // 1. Logo Display
         gbc.gridy = 0;
         gbc.insets = new Insets(20, 30, 10, 30);
         JLabel logoLabel = new JLabel();
@@ -61,7 +65,7 @@ public class MenuPanel extends JPanel {
         logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
         card.add(logoLabel, gbc);
 
-        // 2. Subtitle
+        // 2. Subtitle text
         gbc.gridy = 1;
         gbc.insets = new Insets(0, 30, 20, 30);
         JLabel sub = new JLabel("Welcome back! Login to continue", SwingConstants.CENTER);
@@ -69,12 +73,12 @@ public class MenuPanel extends JPanel {
         sub.setForeground(Color.GRAY);
         card.add(sub, gbc);
 
-        // 3. Tab Panel
+        // 3. Login/Register Tab Selection
         gbc.gridy = 2;
         gbc.insets = new Insets(10, 30, 20, 30);
         card.add(createTabPanel(), gbc);
 
-        // 4. Email Section
+        // 4. Email Input Section
         gbc.gridy = 3;
         gbc.insets = new Insets(5, 30, 2, 30);
         JLabel emailLabel = new JLabel("✉ Email Address");
@@ -86,7 +90,7 @@ public class MenuPanel extends JPanel {
         emailField = createStyledTextField("your.email@example.com");
         card.add(emailField, gbc);
 
-        // 5. Password Section
+        // 5. Password Input Section
         gbc.gridy = 5;
         gbc.insets = new Insets(5, 30, 2, 30);
         JLabel passLabel = new JLabel("🔒 Password");
@@ -98,7 +102,7 @@ public class MenuPanel extends JPanel {
         passField = createStyledPasswordField();
         card.add(passField, gbc);
 
-        // 6. Main Action Button (LOGIN)
+        // 6. Primary Action Button (Login to Game)
         gbc.gridy = 7;
         gbc.insets = new Insets(30, 30, 10, 30);
         JButton loginBtn = createGradientButton("→ Login to Game");
@@ -107,19 +111,19 @@ public class MenuPanel extends JPanel {
             player.Player registeredPlayer = parent.getSessionPlayer();
 
             if (registeredPlayer == null) {
-                JOptionPane.showMessageDialog(this, "Account not found! Please register.", "Error",
+                // If no player is registered, redirect to Register screen
+                JOptionPane.showMessageDialog(this, "Account not found! Please register first.", "Error",
                         JOptionPane.ERROR_MESSAGE);
                 parent.showScreen("REGISTER");
             } else {
-
+                // Success: Greet player and launch the MainFrame game engine
                 JOptionPane.showMessageDialog(this, "Welcome back, " + registeredPlayer.getName() + "!");
-
-                parent.showScreen("MAIN_MENU");
+                parent.startGameSession();
             }
         });
         card.add(loginBtn, gbc);
 
-        // 7. Skip Button (Continue without login)
+        // 7. Skip Button (Guest access)
         gbc.gridy = 8;
         gbc.insets = new Insets(0, 30, 20, 30);
         JButton skipBtn = new JButton("Continue without login");
@@ -130,13 +134,16 @@ public class MenuPanel extends JPanel {
         skipBtn.setFocusPainted(false);
         skipBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        skipBtn.addActionListener(e -> parent.showScreen("MAIN_MENU"));
+        // Skip button directly starts the game session
+        skipBtn.addActionListener(e -> parent.startGameSession());
 
         card.add(skipBtn, gbc);
         add(card);
     }
 
-    // Background Paint (Gradient)
+    /**
+     * Paints the main gradient background for the panel.
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -147,13 +154,17 @@ public class MenuPanel extends JPanel {
         g2d.fillRect(0, 0, getWidth(), getHeight());
     }
 
-    // Helpers
+    /**
+     * Creates the top navigation tabs for Login/Register.
+     */
     private JPanel createTabPanel() {
         JPanel panel = new JPanel(new GridLayout(1, 2, 12, 0));
         panel.setOpaque(false);
 
         JButton loginTab = new JButton("→ Login");
         JButton regTab = new JButton("👤 Register");
+
+        // Tab switching logic
         regTab.addActionListener(e -> parent.showScreen("REGISTER"));
 
         styleTabButton(loginTab, true);
@@ -199,6 +210,9 @@ public class MenuPanel extends JPanel {
         return pf;
     }
 
+    /**
+     * Creates a button with a horizontal color gradient.
+     */
     private JButton createGradientButton(String text) {
         JButton btn = new JButton(text) {
             @Override
