@@ -28,5 +28,6 @@ public class TerritoryClaimView extends JPanel {
         add(south, BorderLayout.SOUTH);
     }
 
-    public void refresh() { /* stub */ }
+    public void refresh() {
+        /* stub */ }
 }

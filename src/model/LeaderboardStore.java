@@ -20,14 +20,16 @@ import java.util.Map;
  * the working directory and exposes {@link #recordResult(String, int, boolean)}
  * so the controller can log an end-of-game outcome.
  *
- * <p>The on-disk format is a plain JSON array of {@link LeaderboardEntry}
+ * <p>
+ * The on-disk format is a plain JSON array of {@link LeaderboardEntry}
  * objects — easy to inspect, simple to extend.
  */
 public class LeaderboardStore {
 
     private static final Path DEFAULT_FILE = Paths.get("leaderboard.json");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final Type LIST_TYPE = new TypeToken<List<LeaderboardEntry>>() {}.getType();
+    private static final Type LIST_TYPE = new TypeToken<List<LeaderboardEntry>>() {
+    }.getType();
 
     private final Path file;
     private final Map<String, LeaderboardEntry> entries = new HashMap<>();
@@ -60,7 +62,8 @@ public class LeaderboardStore {
      * they won it (draws count as no winner).
      */
     public void recordResult(String playerName, int scoreGained, boolean won) {
-        if (playerName == null || playerName.isBlank()) return;
+        if (playerName == null || playerName.isBlank())
+            return;
         LeaderboardEntry e = entries.computeIfAbsent(playerName, LeaderboardEntry::new);
         e.recordGame(scoreGained, won);
         save();
@@ -69,7 +72,8 @@ public class LeaderboardStore {
     // ── Persistence ──
 
     private void load() {
-        if (!Files.exists(file)) return;
+        if (!Files.exists(file))
+            return;
         try {
             String json = Files.readString(file);
             List<LeaderboardEntry> list = GSON.fromJson(json, LIST_TYPE);

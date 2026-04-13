@@ -21,5 +21,6 @@ public class InvasionSelectView extends JPanel {
         add(label, BorderLayout.CENTER);
     }
 
-    public void refresh() { /* stub */ }
+    public void refresh() {
+        /* stub */ }
 }

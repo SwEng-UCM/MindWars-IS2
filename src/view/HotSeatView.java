@@ -14,55 +14,55 @@ import java.awt.*;
  */
 public class HotSeatView extends JPanel {
 
-    private final GameController controller;
-    private final boolean invasionMode;
-    private final JLabel nameLabel;
-    private final JLabel subLabel;
+        private final GameController controller;
+        private final boolean invasionMode;
+        private final JLabel nameLabel;
+        private final JLabel subLabel;
 
-    public HotSeatView(GameController controller, boolean invasionMode) {
-        this.controller = controller;
-        this.invasionMode = invasionMode;
+        public HotSeatView(GameController controller, boolean invasionMode) {
+                this.controller = controller;
+                this.invasionMode = invasionMode;
 
-        setLayout(new BorderLayout());
+                setLayout(new BorderLayout());
 
-        JPanel bg = MindWarsTheme.createGradientPanel();
-        bg.setLayout(new GridBagLayout());
+                JPanel bg = MindWarsTheme.createGradientPanel();
+                bg.setLayout(new GridBagLayout());
 
-        JPanel card = MindWarsTheme.createCard();
-        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setPreferredSize(new Dimension(380, 340));
+                JPanel card = MindWarsTheme.createCard();
+                card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+                card.setPreferredSize(new Dimension(380, 340));
 
-        card.add(MindWarsTheme.centeredLabel(
-                invasionMode ? "Invasion Time" : "Pass the Device",
-                MindWarsTheme.HEADING_FONT, MindWarsTheme.PINK));
-        card.add(Box.createVerticalStrut(18));
+                card.add(MindWarsTheme.centeredLabel(
+                                invasionMode ? "Invasion Time" : "Pass the Device",
+                                MindWarsTheme.HEADING_FONT, MindWarsTheme.PINK));
+                card.add(Box.createVerticalStrut(18));
 
-        nameLabel = MindWarsTheme.centeredLabel("",
-                MindWarsTheme.TITLE_FONT, Color.BLACK);
-        card.add(nameLabel);
-        card.add(Box.createVerticalStrut(8));
+                nameLabel = MindWarsTheme.centeredLabel("",
+                                MindWarsTheme.TITLE_FONT, Color.BLACK);
+                card.add(nameLabel);
+                card.add(Box.createVerticalStrut(8));
 
-        subLabel = MindWarsTheme.centeredLabel("",
-                MindWarsTheme.BODY_FONT, MindWarsTheme.GRAY_TEXT);
-        card.add(subLabel);
-        card.add(Box.createVerticalStrut(24));
+                subLabel = MindWarsTheme.centeredLabel("",
+                                MindWarsTheme.BODY_FONT, MindWarsTheme.GRAY_TEXT);
+                card.add(subLabel);
+                card.add(Box.createVerticalStrut(24));
 
-        JButton ready = MindWarsTheme.createGradientButton("I'm Ready");
-        ready.setAlignmentX(Component.CENTER_ALIGNMENT);
-        ready.addActionListener(e -> controller.onHotSeatReady());
-        card.add(ready);
+                JButton ready = MindWarsTheme.createGradientButton("I'm Ready");
+                ready.setAlignmentX(Component.CENTER_ALIGNMENT);
+                ready.addActionListener(e -> controller.onHotSeatReady());
+                card.add(ready);
 
-        bg.add(card);
-        add(bg, BorderLayout.CENTER);
-    }
+                bg.add(card);
+                add(bg, BorderLayout.CENTER);
+        }
 
-    /** Updates the display to reflect the current model state. */
-    public void refresh() {
-        GameModel model = controller.getModel();
-        Player p = invasionMode ? model.getInvader() : model.getCurrentPlayer();
-        nameLabel.setText(p.getName());
-        subLabel.setText(invasionMode
-                ? "Prepare to attack"
-                : "Round " + model.getRoundNumber() + " of " + model.getTotalRounds());
-    }
+        /** Updates the display to reflect the current model state. */
+        public void refresh() {
+                GameModel model = controller.getModel();
+                Player p = invasionMode ? model.getInvader() : model.getCurrentPlayer();
+                nameLabel.setText(p.getName());
+                subLabel.setText(invasionMode
+                                ? "Prepare to attack"
+                                : "Round " + model.getRoundNumber() + " of " + model.getTotalRounds());
+        }
 }

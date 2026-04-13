@@ -16,18 +16,18 @@ import java.awt.*;
 public class MainFrame extends JFrame implements NavigationController {
 
     // Card names
-    public static final String CARD_MENU      = "menu";
-    public static final String CARD_SETUP     = "setup";
-    public static final String CARD_LOAD      = "load";
-    public static final String CARD_SETTINGS  = "settings";
-    public static final String CARD_LEADER    = "leaderboard";
-    public static final String CARD_RULES     = "rules";
-    public static final String CARD_HOT_SEAT  = "hotseat";
-    public static final String CARD_GAME      = "game";
-    public static final String CARD_CLAIM     = "claim";
-    public static final String CARD_INV_PASS  = "invpass";
-    public static final String CARD_INV_SEL   = "invsel";
-    public static final String CARD_INV_BAT   = "invbat";
+    public static final String CARD_MENU = "menu";
+    public static final String CARD_SETUP = "setup";
+    public static final String CARD_LOAD = "load";
+    public static final String CARD_SETTINGS = "settings";
+    public static final String CARD_LEADER = "leaderboard";
+    public static final String CARD_RULES = "rules";
+    public static final String CARD_HOT_SEAT = "hotseat";
+    public static final String CARD_GAME = "game";
+    public static final String CARD_CLAIM = "claim";
+    public static final String CARD_INV_PASS = "invpass";
+    public static final String CARD_INV_SEL = "invsel";
+    public static final String CARD_INV_BAT = "invbat";
     public static final String CARD_GAME_OVER = "gameover";
 
     private final CardLayout cards = new CardLayout();
@@ -140,12 +140,46 @@ public class MainFrame extends JFrame implements NavigationController {
     }
 
     // ── NavigationController ──
-    @Override public void showMainMenu()  { cards.show(root, CARD_MENU); }
-    @Override public void showGameSetup() { setupView.reset(); cards.show(root, CARD_SETUP); }
-    @Override public void showLoadGame()  { cards.show(root, CARD_LOAD); }
-    @Override public void showSettings()  { cards.show(root, CARD_SETTINGS); }
-    @Override public void showLeaderboard() { leaderboardView.reload(); cards.show(root, CARD_LEADER); }
-    @Override public void showRules()     { cards.show(root, CARD_RULES); }
-    @Override public void showGame()      { syncPhase(); }
-    @Override public void showGameOver()  { gameOverView.refresh(); cards.show(root, CARD_GAME_OVER); }
+    @Override
+    public void showMainMenu() {
+        cards.show(root, CARD_MENU);
+    }
+
+    @Override
+    public void showGameSetup() {
+        setupView.reset();
+        cards.show(root, CARD_SETUP);
+    }
+
+    @Override
+    public void showLoadGame() {
+        cards.show(root, CARD_LOAD);
+    }
+
+    @Override
+    public void showSettings() {
+        cards.show(root, CARD_SETTINGS);
+    }
+
+    @Override
+    public void showLeaderboard() {
+        leaderboardView.reload();
+        cards.show(root, CARD_LEADER);
+    }
+
+    @Override
+    public void showRules() {
+        cards.show(root, CARD_RULES);
+    }
+
+    @Override
+    public void showGame() {
+        syncPhase();
+    }
+
+    @Override
+    public void showGameOver() {
+        gameOverView.refresh();
+        cards.show(root, CARD_GAME_OVER);
+    }
 }

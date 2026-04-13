@@ -31,17 +31,17 @@ public class MainMenuView extends JPanel {
         card.add(subtitle);
         card.add(Box.createVerticalStrut(28));
 
-        card.add(menuButton("New Game",    nav::showGameSetup));
+        card.add(menuButton("New Game", nav::showGameSetup));
         card.add(Box.createVerticalStrut(12));
-        card.add(menuButton("Load Game",   nav::showLoadGame));
+        card.add(menuButton("Load Game", nav::showLoadGame));
         card.add(Box.createVerticalStrut(12));
         card.add(menuButton("Leaderboard", nav::showLeaderboard));
         card.add(Box.createVerticalStrut(12));
-        card.add(menuButton("Rules",       nav::showRules));
+        card.add(menuButton("Rules", nav::showRules));
         card.add(Box.createVerticalStrut(12));
-        card.add(menuButton("Settings",    nav::showSettings));
+        card.add(menuButton("Settings", nav::showSettings));
         card.add(Box.createVerticalStrut(12));
-        card.add(menuButton("Quit",        () -> System.exit(0)));
+        card.add(menuButton("Quit", () -> System.exit(0)));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.NONE;

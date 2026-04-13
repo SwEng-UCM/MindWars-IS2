@@ -16,7 +16,8 @@ import player.Player;
  * answer submissions) and translates them into model operations. It holds no
  * game state of its own — the model is the single source of truth.
  *
- * <p>Views should not call the model directly; they should call methods on
+ * <p>
+ * Views should not call the model directly; they should call methods on
  * this controller. Views observe the model via {@code PropertyChangeListener}
  * and re-render themselves when the phase changes.
  */
@@ -38,10 +39,21 @@ public class GameController {
         this.leaderboard = leaderboard;
     }
 
-    public GameModel getModel() { return model; }
-    public NavigationController getNav() { return nav; }
-    public CommandHistory getHistory() { return history; }
-    public LeaderboardStore getLeaderboard() { return leaderboard; }
+    public GameModel getModel() {
+        return model;
+    }
+
+    public NavigationController getNav() {
+        return nav;
+    }
+
+    public CommandHistory getHistory() {
+        return history;
+    }
+
+    public LeaderboardStore getLeaderboard() {
+        return leaderboard;
+    }
 
     // ── Entry points from menu/setup ──
 
@@ -57,7 +69,8 @@ public class GameController {
      * call multiple times — only the first call per game has an effect.
      */
     public void recordGameOnLeaderboard() {
-        if (leaderboardRecorded) return;
+        if (leaderboardRecorded)
+            return;
         leaderboardRecorded = true;
         Player winner = model.computeWinner();
         for (Player p : model.getPlayers()) {

@@ -15,7 +15,8 @@ import java.util.List;
  * (vs another player or vs bot), player names, and category/difficulty
  * (or random) before starting a new game.
  *
- * <p>Single-panel form rather than multi-step for now; every option is
+ * <p>
+ * Single-panel form rather than multi-step for now; every option is
  * visible at once so the player can tweak and hit "Start".
  */
 public class GameSetupView extends JPanel {
@@ -87,7 +88,7 @@ public class GameSetupView extends JPanel {
         JPanel sizeRow = new JPanel(new GridLayout(1, 3, 10, 0));
         sizeRow.setOpaque(false);
         sizeRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
-        for (int s : new int[]{3, 4, 5}) {
+        for (int s : new int[] { 3, 4, 5 }) {
             JToggleButton tb = optionToggle(s + " × " + s, s == mapSize);
             tb.addActionListener(e -> selectSize(s));
             sizeButtons.add(tb);
@@ -187,7 +188,7 @@ public class GameSetupView extends JPanel {
     private void selectSize(int s) {
         this.mapSize = s;
         for (int i = 0; i < sizeButtons.size(); i++) {
-            int val = new int[]{3, 4, 5}[i];
+            int val = new int[] { 3, 4, 5 }[i];
             restyleToggle(sizeButtons.get(i), val == s);
         }
     }
@@ -200,7 +201,8 @@ public class GameSetupView extends JPanel {
 
     private void loadCategoriesFromBank() {
         QuestionBank bank = controller.getModel().getQuestionBank();
-        if (bank == null) return;
+        if (bank == null)
+            return;
         for (String cat : bank.getCategories()) {
             categoryCombo.addItem(cat);
         }
@@ -210,9 +212,11 @@ public class GameSetupView extends JPanel {
     private void rebuildDifficulties() {
         difficultyCombo.removeAllItems();
         QuestionBank bank = controller.getModel().getQuestionBank();
-        if (bank == null) return;
+        if (bank == null)
+            return;
         Object sel = categoryCombo.getSelectedItem();
-        if (sel == null) return;
+        if (sel == null)
+            return;
         for (String diff : bank.getDifficulties(sel.toString())) {
             difficultyCombo.addItem(diff);
         }
