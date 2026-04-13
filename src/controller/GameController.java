@@ -95,7 +95,6 @@ public class GameController {
             } else {
                 model.beginQuestion();
             }
-
         } else if (phase == GamePhase.INVASION_PASS) {
             model.beginInvasionSelect();
         }
