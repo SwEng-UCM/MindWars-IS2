@@ -222,18 +222,30 @@ public class Game {
                 List<String> categories = new ArrayList<>(questionBank.getCategories());
                 String selectedCategory = io.selectFromList("  Choose a CATEGORY for this match:", categories);
 
-                String selectedDifficulty;
-                Player p2 = gameState.getPlayers().get(1);
+                String selectedDifficulty = "";
+                boolean hasBot = false;
+                int maxBotDifficulty = -1;
 
-                if (p2.isBot()) {
-                    selectedDifficulty = p2.getStrategy().getDifficultyName().toUpperCase();
+                for (Player p : gameState.getPlayers()) {
+                    if (p.isBot()) {
+                        hasBot = true;
+                        String dName = p.getStrategy().getDifficultyName().toUpperCase();
+                        int currentLevel = dName.equals("HARD") ? 2 : (dName.equals("MEDIUM") ? 1 : 0);
 
-                    io.println("\n  [SYSTEM] Opponent is a " + selectedDifficulty + " BOT.");
-                    io.println("  [SYSTEM] Match difficulty set to " + selectedDifficulty + " automatically.");
+                        if (currentLevel > maxBotDifficulty) {
+                            maxBotDifficulty = currentLevel;
+                            selectedDifficulty = dName;
+                        }
+                    }
+                }
+
+                if (hasBot) {
+                    io.println("\n  [SYSTEM] Bot(s) detected. Setting match difficulty to " + selectedDifficulty + ".");
                 } else {
-                    Player difficultyChooser = random.nextBoolean() ? gameState.getPlayers().get(0) : p2;
-                    io.println("\n  " + difficultyChooser.getName() + ", you choose the DIFFICULTY!");
+                    Player difficultyChooser = gameState.getPlayers()
+                            .get(random.nextInt(gameState.getPlayers().size()));
 
+                    io.println("\n  " + difficultyChooser.getName() + ", you choose the DIFFICULTY!");
                     List<String> difficulties = new ArrayList<>(questionBank.getDifficulties(selectedCategory));
                     selectedDifficulty = io.selectFromList("  Choose DIFFICULTY (EASY/MEDIUM/HARD):", difficulties);
                 }
@@ -383,7 +395,7 @@ public class Game {
 
                         // Guard: reject interaction from anyone who is not the active player.
                         // (In a hot-seat loop this is always satisfied, but the check
-                        //  makes the contract explicit and safe for future multi-threaded UIs.)
+                        // makes the contract explicit and safe for future multi-threaded UIs.)
                         if (!turnManager.isActivePlayer(currentPlayer)) {
                             io.println("  [SYSTEM] It is not " + currentPlayer.getName() + "'s turn. Skipping.");
                             continue;
@@ -524,11 +536,7 @@ public class Game {
 
                 applySpeedBonus(roundResults, roundTimes);
 
-                handleTerritoryPhase(
-                        roundResults[0],
-                        roundTimes[0],
-                        roundResults[1],
-                        roundTimes[1]);
+                handleTerritoryPhase(roundResults, roundTimes);
 
                 if (map.isMapFull()) {
                     io.println("\n=== SHOP TIME ===");
@@ -647,43 +655,32 @@ public class Game {
     }
 
     private void setupPlayers() {
-        io.println("  The game requires 2 players.");
-        io.println("");
+        int numPlayers = io.readInt("How many players? (2-4): ", 2, 4);
 
-        List<String> gameModes = List.of("Human vs Human", "Human vs Bot");
-        String modeChoice = io.selectFromList("  Select Game Mode:", gameModes);
+        char[] symbols = { 'X', 'O', 'A', 'B' };
 
-        String name1 = io.readNonEmptyString("  Enter name for Player 1:");
-        Player p1 = new Player(name1);
-        p1.setSymbol('X');
-        map.initVisibilityForPlayer('X');
-        gameState.addPlayer(p1);
-        io.println("");
+        for (int i = 0; i < numPlayers; i++) {
+            io.println("\n Setting up Player " + (i + 1) + ":");
+            String mode = io.selectFromList(" Type:", List.of("Human", "Bot"));
 
-        if (modeChoice.equals("Human vs Human")) {
-            String name2 = io.readNonEmptyString("  Enter name for Player 2:");
-            Player p2 = new Player(name2);
-            p2.setSymbol('O');
-            map.initVisibilityForPlayer('O');
-            gameState.addPlayer(p2);
-        } else {
-            List<String> difficulties = List.of("Easy", "Medium", "Hard");
-            String diff = io.selectFromList("  Select Bot Difficulty:", difficulties);
-
-            Player botPlayer = new Player("Optimus Prime");
-            botPlayer.setSymbol('O');
-            map.initVisibilityForPlayer('O');
-
-            switch (diff) {
-                case "Easy" -> botPlayer.setStrategy(new bot.EasyBot());
-                case "Medium" -> botPlayer.setStrategy(new bot.MediumBot());
-                case "Hard" -> botPlayer.setStrategy(new bot.HardBot());
+            Player p;
+            if (mode.equals("Human")) {
+                String name = io.readNonEmptyString(" Enter name:");
+                p = new Player(name);
+            } else {
+                String diff = io.selectFromList(" Bot Difficulty:", List.of("Easy", "Medium", "Hard"));
+                p = new Player("Bot " + symbols[i]);
+                switch (diff) {
+                    case "Easy" -> p.setStrategy(new bot.EasyBot());
+                    case "Medium" -> p.setStrategy(new bot.MediumBot());
+                    case "Hard" -> p.setStrategy(new bot.HardBot());
+                }
             }
 
-            gameState.addPlayer(botPlayer);
-            io.println("  [SETUP] Player 2 set as " + diff + " Bot.");
+            p.setSymbol(symbols[i]);
+            map.initVisibilityForPlayer(symbols[i]);
+            gameState.addPlayer(p);
         }
-        io.println("");
     }
 
     private void setStartingPlayer() {
@@ -828,100 +825,51 @@ public class Game {
         }
     }
 
-    private void handleTerritoryPhase(
-            boolean p1Correct,
-            long p1Time,
-            boolean p2Correct,
-            long p2Time) {
-        int winner;
-        String reason;
+    private void handleTerritoryPhase(boolean[] results, long[] times) {
+        List<Integer> ranking = new ArrayList<>();
+        for (int i = 0; i < gameState.getPlayers().size(); i++)
+            ranking.add(i);
 
-        if (p1Correct && !p2Correct) {
-            winner = 1;
-            reason = "being the only one with the correct answer!";
-        } else if (!p1Correct && p2Correct) {
-            winner = 2;
-            reason = "being the only one with the correct answer!";
-        } else if (p1Correct && p2Correct) {
-            if (p1Time <= p2Time) {
-                winner = 1;
-            } else {
-                winner = 2;
+        ranking.sort((a, b) -> {
+            if (results[a] != results[b])
+                return results[a] ? -1 : 1;
+            return Long.compare(times[a], times[b]);
+        });
+
+        io.println("\n >> ROUND RESULTS <<");
+        for (int i = 0; i < ranking.size(); i++) {
+            int playerIdx = ranking.get(i);
+            Player p = gameState.getPlayers().get(playerIdx);
+            String status = results[playerIdx] ? "CORRECT" : "WRONG";
+            io.println((i + 1) + ". " + p.getName() + " [" + status + "] - " + (times[playerIdx] / 1000.0) + "s");
+
+            int claims = (results[playerIdx]) ? (map.getSize() / 2 + 1) : (map.getSize() / 2);
+
+            for (int c = 1; c <= claims; c++) {
+                io.println(" " + p.getName() + " claim " + c + "/" + claims);
+                askToClaim(playerIdx + 1);
             }
-            reason = "answering correctly AND being faster!";
-        } else {
-            if (p1Time <= p2Time) {
-                winner = 1;
-            } else {
-                winner = 2;
-            }
-            reason = "being faster (even though both missed the mark)!";
         }
-
-        int loser;
-        if (winner == 1) {
-            loser = 2;
-        } else {
-            loser = 1;
-        }
-
-        String winnerName = gameState.getPlayers().get(winner - 1).getName();
-        String loserName = gameState.getPlayers().get(loser - 1).getName();
-
-        io.println("\n\n  >> ROUND CONQUEROR: " + winnerName);
-        io.println("  >> Reason: " + reason);
-        io.println("");
-        io.println("");
-
-        int mapSize = map.getSize();
-        int winnerClaims = mapSize / 2 + 1;
-        int loserClaims = mapSize / 2;
-
-        for (int i = 1; i <= winnerClaims; i++) {
-            io.println(
-                    "  [" +
-                            winnerName +
-                            " Selection " +
-                            i +
-                            "/" +
-                            winnerClaims +
-                            "]");
-            askToClaim(winner);
-        }
-        io.println("");
-
-        for (int i = 1; i <= loserClaims; i++) {
-            io.println(
-                    "  [" + loserName + " Selection" + i + "/" + loserClaims + "]");
-            askToClaim(loser);
-        }
-        io.println("");
     }
 
     private void applySpeedBonus(boolean[] results, long[] times) {
-        if (results.length >= 2 && results[0] && results[1]) {
-            int winnerIndex;
+        int fastestIndex = -1;
+        long minTime = Long.MAX_VALUE;
 
-            if (times[0] <= times[1]) {
-                winnerIndex = 0;
-            } else {
-                winnerIndex = 1;
+        for (int i = 0; i < results.length; i++) {
+            if (results[i] && times[i] < minTime) {
+                minTime = times[i];
+                fastestIndex = i;
             }
+        }
 
-            Player speedWinner = gameState.getPlayers().get(winnerIndex);
-
+        if (fastestIndex != -1) {
+            Player speedWinner = gameState.getPlayers().get(fastestIndex);
             int speedBonus = 1;
             speedWinner.addScore(speedBonus);
 
-            io.println(
-                    "\n   SPEED BONUS: " +
-                            speedWinner.getName() +
-                            " was faster! +" +
-                            speedBonus +
-                            " pts");
-
-            // actually add the bonus to the player's score
-            io.println("   Updated Score: " + speedWinner.getScore());
+            io.println("\n  ⚡ SPEED BONUS: " + speedWinner.getName() +
+                    " was the fastest correct answer! +" + speedBonus + " pts");
         }
     }
 
@@ -1067,12 +1015,40 @@ public class Game {
         for (Player attacker : gameState.getPlayers()) {
             displayHotSeatHeader(attacker);
             char attackerSym = attacker.getSymbol();
-            Player defender = (attackerSym == 'X')
-                    ? gameState.getPlayers().get(1)
-                    : gameState.getPlayers().get(0);
+
+            List<Character> potentialTargets = map.getVisibleEnemySymbols(attackerSym);
+
+            if (potentialTargets.isEmpty()) {
+                io.println("  [SYSTEM] " + attacker.getName() + " has no enemies to attack. Skipping.");
+                continue;
+            }
+
+            char targetSym;
+            if (potentialTargets.size() == 1) {
+                targetSym = potentialTargets.get(0);
+            } else {
+                if (attacker.isBot()) {
+                    targetSym = potentialTargets.get(new Random().nextInt(potentialTargets.size()));
+                } else {
+                    List<String> options = new ArrayList<>();
+                    for (char s : potentialTargets)
+                        options.add("Player " + s);
+                    String choice = io.selectFromList("  Select enemy to attack:", options);
+                    targetSym = choice.charAt(choice.length() - 1);
+                }
+            }
+
+            Player defender = null;
+            for (Player p : gameState.getPlayers()) {
+                if (p.getSymbol() == targetSym) {
+                    defender = p;
+                    break;
+                }
+            }
+
             char defenderSym = defender.getSymbol();
 
-            io.println("  " + attacker.getName() + ", choose your move!");
+            io.println("  " + attacker.getName() + " is attacking " + defender.getName() + "!");
             map.display(io);
 
             int attR = -1, attC = -1, defR = -1, defC = -1;
