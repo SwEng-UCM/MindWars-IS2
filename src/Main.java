@@ -1,6 +1,7 @@
 import javax.swing.SwingUtilities;
 
 import game.Game;
+import game.UnitTests;
 import trivia.QuestionBank;
 import ui.ConsoleIO;
 import ui.MainWindow;
@@ -13,6 +14,8 @@ import ui.MainWindow;
 
 public class Main {
     public static void main(String[] args) {
+
+        UnitTests.runAll();
 
         ConsoleIO io = ConsoleIO.getConsole();
         QuestionBank bank = new QuestionBank("questions.json");
