@@ -355,8 +355,16 @@ public class GameBoardView extends JPanel {
             choicesPanel.add(textInput);
             cl.show(answerPanel, "choices");
 
+        } else if (type == QuestionType.NUMERIC) {
+            textInput.setText("");
+            textInput.setToolTipText("Enter a numeric estimation...");
+            textInput.setEnabled(true);
+            textInput.setEditable(true);
+            cl.show(answerPanel, "text");
+            SwingUtilities.invokeLater(() -> textInput.requestFocusInWindow());
+
         } else {
-            // NUMERIC, OPEN_ENDED
+            // OPEN_ENDED
             textInput.setText("");
             textInput.setEnabled(true);
             textInput.setEditable(true);
@@ -406,17 +414,27 @@ public class GameBoardView extends JPanel {
     private void onSubmit(ActionEvent e) {
         if (!submitButton.isEnabled())
             return;
+
         String answer = readAnswer();
         if (answer == null) {
-            // Require a selection / text before submitting (unless timeout).
             return;
         }
+
         if (swingTimer != null)
             swingTimer.stop();
+
         long elapsed = System.currentTimeMillis() - timerStartMs;
 
         if (invasionMode) {
             handleInvasionSubmit(answer, elapsed);
+            return;
+        }
+
+        Question q = controller.getModel().getCurrentQuestion();
+        if (q.getType() == QuestionType.NUMERIC) {
+            controller.onAnswerSubmitted(answer, elapsed);
+            submitButton.setEnabled(false);
+            controller.onAnswerAcknowledged();
             return;
         }
 
@@ -425,7 +443,6 @@ public class GameBoardView extends JPanel {
         submitButton.setEnabled(false);
         undoButton.setEnabled(controller.canUndo());
 
-        // After feedback delay, advance.
         Timer done = new Timer(1600, ev -> controller.onAnswerAcknowledged());
         done.setRepeats(false);
         done.start();
@@ -481,8 +498,11 @@ public class GameBoardView extends JPanel {
 
         String text;
         Color bg;
-
-        if (result.timedOut) {
+        if (q.getType() == QuestionType.NUMERIC) {
+            // Special feedback for numeric estimation
+            text = "Estimation complete! Analyzing proximity...";
+            bg = MindWarsTheme.PLAYER_X; // Use a neutral or player color
+        } else if (result.timedOut) {
             text = "Time's up! Answer: " + correctAnswerText;
             bg = MindWarsTheme.WRONG_RED;
         } else if (result.correct) {
