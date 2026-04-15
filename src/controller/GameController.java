@@ -28,12 +28,17 @@ public class GameController {
     private final CommandHistory history = new CommandHistory();
     private final LeaderboardStore leaderboard;
     private boolean leaderboardRecorded;
+    private GameSettings lastSettings;
 
     public GameController(GameModel model, NavigationController nav) {
         this(model, nav, new LeaderboardStore());
     }
 
-    public GameController(GameModel model, NavigationController nav, LeaderboardStore leaderboard) {
+    public GameController(
+        GameModel model,
+        NavigationController nav,
+        LeaderboardStore leaderboard
+    ) {
         this.model = model;
         this.nav = nav;
         this.leaderboard = leaderboard;
@@ -58,6 +63,7 @@ public class GameController {
     // ── Entry points from menu/setup ──
 
     public void startNewGame(GameSettings settings) {
+        lastSettings = settings;
         history.clear();
         leaderboardRecorded = false;
         model.startGame(settings);
@@ -69,8 +75,7 @@ public class GameController {
      * call multiple times — only the first call per game has an effect.
      */
     public void recordGameOnLeaderboard() {
-        if (leaderboardRecorded)
-            return;
+        if (leaderboardRecorded) return;
         leaderboardRecorded = true;
         Player winner = model.computeWinner();
         for (Player p : model.getPlayers()) {
@@ -89,8 +94,10 @@ public class GameController {
     public void onHotSeatReady() {
         GamePhase phase = model.getPhase();
         if (phase == GamePhase.HOT_SEAT_PASS) {
-
-            if (model.getRoundNumber() == 4 && model.getCurrentPlayer().getScore() > 0) {
+            if (
+                model.getRoundNumber() == 4 &&
+                model.getCurrentPlayer().getScore() > 0
+            ) {
                 nav.showBetting();
             } else {
                 model.beginQuestion();
@@ -101,7 +108,6 @@ public class GameController {
     }
 
     public void onWagerConfirmed(int amount) {
-
         model.setCurrentWager(amount);
 
         model.beginQuestion();
@@ -127,7 +133,12 @@ public class GameController {
 
     /** The player clicked a cell during the territory claim phase. */
     public boolean onCellClaimed(int playerIndex, int row, int col) {
-        ClaimCellCommand cmd = new ClaimCellCommand(model, playerIndex, row, col);
+        ClaimCellCommand cmd = new ClaimCellCommand(
+            model,
+            playerIndex,
+            row,
+            col
+        );
         cmd.execute();
         if (cmd.wasAccepted()) {
             history.push(cmd);
@@ -150,8 +161,15 @@ public class GameController {
         model.setAttackTarget(r, c);
     }
 
-    public void onInvasionResolved(String attackerAnswer, String defenderAnswer) {
-        InvasionCommand cmd = new InvasionCommand(model, attackerAnswer, defenderAnswer);
+    public void onInvasionResolved(
+        String attackerAnswer,
+        String defenderAnswer
+    ) {
+        InvasionCommand cmd = new InvasionCommand(
+            model,
+            attackerAnswer,
+            defenderAnswer
+        );
         cmd.execute();
         history.push(cmd);
         if (model.getPhase() == GamePhase.GAME_OVER) {
@@ -176,5 +194,15 @@ public class GameController {
     public void onGameOverAcknowledged() {
         recordGameOnLeaderboard();
         nav.showMainMenu();
+    }
+
+    public void restartGame() {
+        if (lastSettings == null) return;
+
+        history.clear();
+        leaderboardRecorded = false;
+
+        model.startGame(lastSettings);
+        nav.showGame();
     }
 }
