@@ -1,5 +1,9 @@
 package ui;
 
+import controller.RegisterController;
+import persistence.DatabaseInitializer;
+import persistence.UserRepository;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -19,9 +23,16 @@ public class MainWindow extends JFrame {
         cardLayout = new CardLayout();
         mainContainer = new JPanel(cardLayout);
 
-        mainContainer.add(new MenuPanel(this), "MENU");
-        mainContainer.add(new RegisterPanel(this), "REGISTER");
-        mainContainer.add(new MainMenuPanel(this), "MAIN_MENU");
+        MenuPanel menuPanel = new MenuPanel(this);
+        RegisterPanel registerPanel = new RegisterPanel(this);
+        RegisterController registerController =
+                new RegisterController(registerPanel, new UserRepository());
+        registerPanel.setController(registerController);
+
+        MainMenuPanel mainMenuPanel = new MainMenuPanel(this);
+        mainContainer.add(menuPanel, "MENU");
+        mainContainer.add(registerPanel, "REGISTER");
+        mainContainer.add(mainMenuPanel, "MAIN_MENU");
         add(mainContainer);
     }
 
@@ -38,6 +49,7 @@ public class MainWindow extends JFrame {
     }
 
     public static void main(String[] args) {
+        DatabaseInitializer.initialize();
         // Run Swing components on the Event Dispatch Thread (EDT)
         SwingUtilities.invokeLater(() -> {
             MainWindow mw = new MainWindow();
