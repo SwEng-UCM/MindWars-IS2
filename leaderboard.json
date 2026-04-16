@@ -1,18 +1,30 @@
 [
   {
     "name": "Player 1",
-    "wins": 5,
-    "totalScore": 360,
-    "gamesPlayed": 12
+    "wins": 7,
+    "totalScore": 444,
+    "gamesPlayed": 17
   },
   {
     "name": "Player 2",
-    "wins": 3,
-    "totalScore": 260,
-    "gamesPlayed": 11
+    "wins": 5,
+    "totalScore": 340,
+    "gamesPlayed": 16
+  },
+  {
+    "name": "ana",
+    "wins": 1,
+    "totalScore": 10,
+    "gamesPlayed": 1
   },
   {
     "name": "Bot",
+    "wins": 0,
+    "totalScore": 0,
+    "gamesPlayed": 1
+  },
+  {
+    "name": "teo",
     "wins": 0,
     "totalScore": 0,
     "gamesPlayed": 1

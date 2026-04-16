@@ -6,11 +6,26 @@ package controller;
  */
 public interface NavigationController {
     void showMainMenu();
+
     void showGameSetup();
+
     void showLoadGame();
+
     void showSettings();
+
     void showLeaderboard();
+
     void showRules();
+
     void showGame();
+
     void showGameOver();
+
+    void showBetting();
+
+    void showMultiplayer();
+
+    void showMultiplayerLobby();
+
+    void showMultiplayerGame();
 }

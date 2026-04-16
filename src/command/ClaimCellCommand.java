@@ -34,7 +34,8 @@ public class ClaimCellCommand implements Command {
 
     @Override
     public void undo() {
-        if (!executed) return;
+        if (!executed)
+            return;
         model.getMap().setOwner(row, col, oldOwner == 0 ? '.' : oldOwner);
     }
 

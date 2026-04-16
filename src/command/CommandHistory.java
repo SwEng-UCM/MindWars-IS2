@@ -30,7 +30,8 @@ public class CommandHistory {
      * was empty.
      */
     public boolean undo() {
-        if (stack.isEmpty()) return false;
+        if (stack.isEmpty())
+            return false;
         Command c = stack.pop();
         c.undo();
         return true;

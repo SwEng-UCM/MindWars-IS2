@@ -2,7 +2,9 @@ package game;
 
 import ui.ConsoleIO;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -106,32 +108,30 @@ public class MapGrid {
         }
     }
 
-    public void displayForPlayer(ui.ConsoleIO io, char symbol) {
-        io.println("\n  CURRENT MAP:");
-        boolean[][] playerView = visibility.get(symbol);
+    public void displayForPlayer(ConsoleIO io, char playerSymbol) {
+        boolean[][] playerMap = visibility.get(playerSymbol);
 
-        io.println("");
-        StringBuilder header = new StringBuilder("    ");
-        for (int i = 0; i < size; i++) {
-            header.append(i).append(" ");
-        }
-        io.println(header.toString());
+        io.println("\n   0 1 2");
 
-        for (int i = 0; i < size; i++) {
-            StringBuilder line = new StringBuilder();
-            line.append(" ").append(i).append("  ");
+        for (int r = 0; r < size; r++) {
+            StringBuilder rowBuilder = new StringBuilder();
 
-            for (int j = 0; j < size; j++) {
-                if (playerView != null && playerView[i][j]) {
-                    line.append(grid[i][j]).append(" ");
+            rowBuilder.append(r).append("  ");
+
+            for (int c = 0; c < size; c++) {
+                char owner = grid[r][c];
+
+                if (owner != '.') {
+                    rowBuilder.append(owner).append(" ");
+                } else if (playerMap != null && playerMap[r][c]) {
+                    rowBuilder.append(". ");
                 } else {
-                    line.append("? ");
+                    rowBuilder.append("? ");
                 }
             }
 
-            io.println(line.toString());
+            io.println(rowBuilder.toString());
         }
-        io.println("");
     }
 
     public void display(ConsoleIO io) {
@@ -190,5 +190,22 @@ public class MapGrid {
 
     public char getCell(int row, int col) {
         return grid[row][col];
+    }
+
+    public List<Character> getVisibleEnemySymbols(char attackerSym) {
+        List<Character> enemies = new ArrayList<>();
+        int size = getSize();
+
+        for (int r = 0; r < size; r++) {
+            for (int c = 0; c < size; c++) {
+                char owner = getOwner(r, c);
+                if (owner != '.' && owner != ' ' && owner != attackerSym) {
+                    if (!enemies.contains(owner)) {
+                        enemies.add(owner);
+                    }
+                }
+            }
+        }
+        return enemies;
     }
 }

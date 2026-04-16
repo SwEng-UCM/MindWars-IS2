@@ -68,6 +68,11 @@ public class GameBoardView extends JPanel {
     private String invasionAttackerAnswer = null;
     private boolean invasionDefenderTurn = false;
 
+    // Previous cell ownership snapshot so we can animate cells that just
+    // changed owner (territory conquest / invasion capture, #90).
+    private char[][] previousOwners;
+    private JLabel[][] cellLabels;
+
     public GameBoardView(GameController controller, boolean invasionMode) {
         this.controller = controller;
         this.invasionMode = invasionMode;
@@ -269,15 +274,39 @@ public class GameBoardView extends JPanel {
             return;
         int size = model.getMap().getSize();
         gridPanel.setLayout(new GridLayout(size, size, 4, 4));
+        JLabel[][] labels = new JLabel[size][size];
+        char[][] owners = new char[size][size];
         for (int r = 0; r < size; r++) {
             for (int c = 0; c < size; c++) {
-                gridPanel.add(buildCell(model, r, c));
+                char owner = model.getMap().getOwner(r, c);
+                owners[r][c] = owner;
+                JLabel cell = buildCell(owner);
+                labels[r][c] = cell;
+                gridPanel.add(cell);
+
+                // Animate cells that changed owner since the last render (#90).
+                if (previousOwners != null
+                        && previousOwners.length == size
+                        && previousOwners[r][c] != owner
+                        && owner != '.') {
+                    animateOwnershipChange(cell, previousOwners[r][c], owner);
+                }
             }
         }
+        // Pulse the attack target in invasion battle mode so it's clear
+        // which cell is in play.
+        if (invasionMode && model.getAttackToRow() >= 0 && model.getAttackToCol() >= 0) {
+            int ar = model.getAttackToRow();
+            int ac = model.getAttackToCol();
+            if (ar < size && ac < size) {
+                AnimationHelper.pulseBorder(labels[ar][ac], MindWarsTheme.WRONG_RED, 3, 140);
+            }
+        }
+        this.cellLabels = labels;
+        this.previousOwners = owners;
     }
 
-    private JComponent buildCell(GameModel model, int r, int c) {
-        char owner = model.getMap().getOwner(r, c);
+    private JLabel buildCell(char owner) {
         JLabel cell = new JLabel("", SwingConstants.CENTER);
         cell.setOpaque(true);
         cell.setFont(MindWarsTheme.BODY_BOLD);
@@ -295,6 +324,15 @@ public class GameBoardView extends JPanel {
             cell.setBackground(MindWarsTheme.DARK_CARD);
         }
         return cell;
+    }
+
+    private void animateOwnershipChange(JLabel cell, char from, char to) {
+        // Empty → owned is a territory claim; owned → owned is an invasion
+        // capture. Flash green for claims and red for captures to make the
+        // difference obvious (#90).
+        Color flash = (from == '.') ? MindWarsTheme.CORRECT_GREEN : MindWarsTheme.WRONG_RED;
+        Color finalColor = (to == 'X') ? MindWarsTheme.PLAYER_X : MindWarsTheme.PLAYER_O;
+        AnimationHelper.flashBackground(cell, flash, finalColor, 8, 70);
     }
 
     // ── Answer input ──
@@ -494,13 +532,16 @@ public class GameBoardView extends JPanel {
         }
         // ui updates
         feedbackLabel.setText(text);
-        feedbackLabel.setBackground(bg);
-        feedbackLabel.setOpaque(true);
         feedbackLabel.setForeground(MindWarsTheme.WHITE);
         feedbackLabel.setBorder(new EmptyBorder(10, 10, 10, 10));
         feedbackLabel.setVisible(true);
 
-        // force redraw immediatelly
+        // Flash the background from a brighter tone down to the final color
+        // and pulse the font so the feedback has more presence (#90).
+        Color flashStart = bg.brighter();
+        AnimationHelper.flashBackground(feedbackLabel, flashStart, bg, 10, 50);
+        AnimationHelper.pulseFont(feedbackLabel, MindWarsTheme.HEADING_FONT, 8, 10, 50);
+
         feedbackLabel.revalidate();
         feedbackLabel.repaint();
     }

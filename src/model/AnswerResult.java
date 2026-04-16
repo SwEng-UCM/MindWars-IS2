@@ -13,7 +13,7 @@ public final class AnswerResult {
     public final long elapsedMs;
 
     public AnswerResult(boolean correct, boolean timedOut, int pointsDelta,
-                        String correctAnswer, long elapsedMs) {
+            String correctAnswer, long elapsedMs) {
         this.correct = correct;
         this.timedOut = timedOut;
         this.pointsDelta = pointsDelta;

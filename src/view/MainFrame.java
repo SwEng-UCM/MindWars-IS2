@@ -4,6 +4,7 @@ import controller.GameController;
 import controller.NavigationController;
 import model.GameModel;
 import model.GamePhase;
+import network.NetworkSession;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,25 +17,29 @@ import java.awt.*;
 public class MainFrame extends JFrame implements NavigationController {
 
     // Card names
-    public static final String CARD_MENU      = "menu";
-    public static final String CARD_SETUP     = "setup";
-    public static final String CARD_LOAD      = "load";
-    public static final String CARD_SETTINGS  = "settings";
-    public static final String CARD_LEADER    = "leaderboard";
-    public static final String CARD_RULES     = "rules";
-    public static final String CARD_HOT_SEAT  = "hotseat";
-    public static final String CARD_GAME      = "game";
-    public static final String CARD_CLAIM     = "claim";
-    public static final String CARD_INV_PASS  = "invpass";
-    public static final String CARD_INV_SEL   = "invsel";
-    public static final String CARD_INV_BAT   = "invbat";
+    public static final String CARD_MENU = "menu";
+    public static final String CARD_SETUP = "setup";
+    public static final String CARD_LOAD = "load";
+    public static final String CARD_SETTINGS = "settings";
+    public static final String CARD_LEADER = "leaderboard";
+    public static final String CARD_RULES = "rules";
+    public static final String CARD_HOT_SEAT = "hotseat";
+    public static final String CARD_GAME = "game";
+    public static final String CARD_CLAIM = "claim";
+    public static final String CARD_INV_PASS = "invpass";
+    public static final String CARD_INV_SEL = "invsel";
+    public static final String CARD_INV_BAT = "invbat";
     public static final String CARD_GAME_OVER = "gameover";
+    public static final String CARD_MULTIPLAYER = "multiplayer";
+    public static final String CARD_MP_LOBBY = "mplobby";
+    public static final String CARD_MP_GAME = "mpgame";
 
     private final CardLayout cards = new CardLayout();
     private final JPanel root = new JPanel(cards);
 
     private final GameModel model;
     private final GameController controller;
+    private final NetworkSession networkSession = new NetworkSession();
 
     // Views
     private final MainMenuView menuView;
@@ -50,12 +55,16 @@ public class MainFrame extends JFrame implements NavigationController {
     private final InvasionSelectView invasionSelectView;
     private final GameBoardView invasionBattleView;
     private final GameOverView gameOverView;
+    private final NetworkSetupView networkSetupView;
+    private final NetworkLobbyView networkLobbyView;
+    private final NetworkGameView networkGameView;
+    private BettingView bettingView;
 
     public MainFrame(GameModel model) {
         super("MindWars");
         this.model = model;
         this.controller = new GameController(model, this);
-
+        this.bettingView = new BettingView(controller);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(MindWarsTheme.FRAME_WIDTH, MindWarsTheme.FRAME_HEIGHT);
         setMinimumSize(new Dimension(500, 700));
@@ -74,6 +83,9 @@ public class MainFrame extends JFrame implements NavigationController {
         invasionSelectView = new InvasionSelectView(controller);
         invasionBattleView = new GameBoardView(controller, true);
         gameOverView = new GameOverView(controller);
+        networkSetupView = new NetworkSetupView(this, model, networkSession);
+        networkLobbyView = new NetworkLobbyView(this, networkSession);
+        networkGameView = new NetworkGameView(this, networkSession);
 
         root.add(menuView, CARD_MENU);
         root.add(setupView, CARD_SETUP);
@@ -88,7 +100,10 @@ public class MainFrame extends JFrame implements NavigationController {
         root.add(invasionSelectView, CARD_INV_SEL);
         root.add(invasionBattleView, CARD_INV_BAT);
         root.add(gameOverView, CARD_GAME_OVER);
-
+        root.add(bettingView, "betting");
+        root.add(networkSetupView, CARD_MULTIPLAYER);
+        root.add(networkLobbyView, CARD_MP_LOBBY);
+        root.add(networkGameView, CARD_MP_GAME);
         setContentPane(root);
 
         // Observe the model: whenever the phase changes, switch cards.
@@ -140,12 +155,71 @@ public class MainFrame extends JFrame implements NavigationController {
     }
 
     // ── NavigationController ──
-    @Override public void showMainMenu()  { cards.show(root, CARD_MENU); }
-    @Override public void showGameSetup() { setupView.reset(); cards.show(root, CARD_SETUP); }
-    @Override public void showLoadGame()  { cards.show(root, CARD_LOAD); }
-    @Override public void showSettings()  { cards.show(root, CARD_SETTINGS); }
-    @Override public void showLeaderboard() { leaderboardView.reload(); cards.show(root, CARD_LEADER); }
-    @Override public void showRules()     { cards.show(root, CARD_RULES); }
-    @Override public void showGame()      { syncPhase(); }
-    @Override public void showGameOver()  { gameOverView.refresh(); cards.show(root, CARD_GAME_OVER); }
+    @Override
+    public void showMainMenu() {
+        cards.show(root, CARD_MENU);
+    }
+
+    @Override
+    public void showGameSetup() {
+        setupView.reset();
+        cards.show(root, CARD_SETUP);
+    }
+
+    @Override
+    public void showLoadGame() {
+        cards.show(root, CARD_LOAD);
+    }
+
+    @Override
+    public void showSettings() {
+        cards.show(root, CARD_SETTINGS);
+    }
+
+    @Override
+    public void showLeaderboard() {
+        leaderboardView.reload();
+        cards.show(root, CARD_LEADER);
+    }
+
+    @Override
+    public void showRules() {
+        cards.show(root, CARD_RULES);
+    }
+
+    @Override
+    public void showGame() {
+        syncPhase();
+    }
+
+    @Override
+    public void showGameOver() {
+        gameOverView.refresh();
+        cards.show(root, CARD_GAME_OVER);
+    }
+
+    @Override
+    public void showBetting() {
+        if (bettingView != null) {
+            bettingView.refresh();
+        }
+
+        cards.show(root, "betting");
+    }
+
+    @Override
+    public void showMultiplayer() {
+        cards.show(root, CARD_MULTIPLAYER);
+    }
+
+    @Override
+    public void showMultiplayerLobby() {
+        networkLobbyView.refresh();
+        cards.show(root, CARD_MP_LOBBY);
+    }
+
+    @Override
+    public void showMultiplayerGame() {
+        cards.show(root, CARD_MP_GAME);
+    }
 }

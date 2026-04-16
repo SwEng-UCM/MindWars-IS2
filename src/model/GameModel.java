@@ -1,5 +1,6 @@
 package model;
 
+import game.GameState;
 import game.MapGrid;
 import game.WinnerCalculator;
 import player.Player;
@@ -16,13 +17,15 @@ import java.util.Random;
 /**
  * The Model in MVC.
  *
- * <p>Holds all game state (players, grid, questions, current phase) and
+ * <p>
+ * Holds all game state (players, grid, questions, current phase) and
  * exposes operations that mutate it. It never imports Swing and never reads
  * or writes to the console. Views observe it through
  * {@link PropertyChangeListener}s and the controller drives it through the
  * public methods below.
  *
- * <p>Note: this is a GUI-focused model. It does not yet cover every feature
+ * <p>
+ * Note: this is a GUI-focused model. It does not yet cover every feature
  * of the original console {@code game.Game} (wagers, numeric estimation,
  * bonuses, streaks, lightning bonus). Those can be layered in progressively
  * without touching the view/controller contracts.
@@ -55,7 +58,7 @@ public class GameModel {
     private int currentPlayerIndex;
     private GamePhase phase = GamePhase.SETUP;
     private long questionStartMs;
-
+    private int currentWager = 0;
     // Tracks the results of the two players for the current round, used to
     // decide who claims how many cells in the territory phase.
     private boolean[] roundCorrect = new boolean[2];
@@ -80,34 +83,100 @@ public class GameModel {
     }
 
     // ── Accessors ──
-    public QuestionBank getQuestionBank() { return questionBank; }
-    public GamePhase getPhase() { return phase; }
-    public List<Player> getPlayers() { return players; }
-    public Player getCurrentPlayer() { return players.get(currentPlayerIndex); }
-    public int getCurrentPlayerIndex() { return currentPlayerIndex; }
-    public MapGrid getMap() { return map; }
-    public int getRoundNumber() { return roundIndex + 1; }
-    public int getTotalRounds() { return roundQuestions.size(); }
+    public QuestionBank getQuestionBank() {
+        return questionBank;
+    }
+
+    public GamePhase getPhase() {
+        return phase;
+    }
+
+    public List<Player> getPlayers() {
+        return players;
+    }
+
+    public Player getCurrentPlayer() {
+        return players.get(currentPlayerIndex);
+    }
+
+    public int getCurrentPlayerIndex() {
+        return currentPlayerIndex;
+    }
+
+    public MapGrid getMap() {
+        return map;
+    }
+
+    public int getRoundNumber() {
+        return roundIndex + 1;
+    }
+
+    public int getTotalRounds() {
+        return roundQuestions.size();
+    }
+
     public Question getCurrentQuestion() {
-        if (roundQuestions.isEmpty() || roundIndex >= roundQuestions.size()) return null;
+        if (roundQuestions.isEmpty() || roundIndex >= roundQuestions.size())
+            return null;
         return roundQuestions.get(roundIndex);
     }
-    public GameSettings getSettings() { return settings; }
-    public long getQuestionStartMs() { return questionStartMs; }
-    public int getInvaderIndex() { return invaderIndex; }
-    public int getAttackFromRow() { return attackFromRow; }
-    public int getAttackFromCol() { return attackFromCol; }
-    public int getAttackToRow() { return attackToRow; }
-    public int getAttackToCol() { return attackToCol; }
+
+    public GameSettings getSettings() {
+        return settings;
+    }
+
+    public long getQuestionStartMs() {
+        return questionStartMs;
+    }
+
+    public int getInvaderIndex() {
+        return invaderIndex;
+    }
+
+    public int getAttackFromRow() {
+        return attackFromRow;
+    }
+
+    public int getAttackFromCol() {
+        return attackFromCol;
+    }
+
+    public int getAttackToRow() {
+        return attackToRow;
+    }
+
+    public int getAttackToCol() {
+        return attackToCol;
+    }
 
     // ── Round-tracker access (used by undo Commands) ──
-    public boolean getRoundCorrect(int playerIndex) { return roundCorrect[playerIndex]; }
-    public long getRoundTime(int playerIndex) { return roundTimes[playerIndex]; }
-    public void setRoundCorrect(int playerIndex, boolean v) { roundCorrect[playerIndex] = v; }
-    public void setRoundTime(int playerIndex, long v) { roundTimes[playerIndex] = v; }
-    public void setCurrentPlayerIndex(int i) { this.currentPlayerIndex = i; }
-    public void forcePhase(GamePhase p) { setPhase(p); }
-    public void setInvaderIndex(int i) { this.invaderIndex = i; }
+    public boolean getRoundCorrect(int playerIndex) {
+        return roundCorrect[playerIndex];
+    }
+
+    public long getRoundTime(int playerIndex) {
+        return roundTimes[playerIndex];
+    }
+
+    public void setRoundCorrect(int playerIndex, boolean v) {
+        roundCorrect[playerIndex] = v;
+    }
+
+    public void setRoundTime(int playerIndex, long v) {
+        roundTimes[playerIndex] = v;
+    }
+
+    public void setCurrentPlayerIndex(int i) {
+        this.currentPlayerIndex = i;
+    }
+
+    public void forcePhase(GamePhase p) {
+        setPhase(p);
+    }
+
+    public void setInvaderIndex(int i) {
+        this.invaderIndex = i;
+    }
 
     // ── Game lifecycle ──
 
@@ -141,16 +210,22 @@ public class GameModel {
             for (int i = 0; i < count && !categories.isEmpty(); i++) {
                 String cat = categories.get(random.nextInt(categories.size()));
                 List<String> diffs = new ArrayList<>(questionBank.getDifficulties(cat));
-                if (diffs.isEmpty()) { i--; continue; }
+                if (diffs.isEmpty()) {
+                    i--;
+                    continue;
+                }
                 String diff = diffs.get(random.nextInt(diffs.size()));
                 Question q = questionBank.getQuestion(cat, diff);
-                if (q != null) roundQuestions.add(q);
-                else i--;
+                if (q != null)
+                    roundQuestions.add(q);
+                else
+                    i--;
             }
         } else {
             for (int i = 0; i < count; i++) {
                 Question q = questionBank.getQuestion(settings.category, settings.difficulty);
-                if (q != null) roundQuestions.add(q);
+                if (q != null)
+                    roundQuestions.add(q);
             }
         }
     }
@@ -175,10 +250,17 @@ public class GameModel {
                 : System.currentTimeMillis() - questionStartMs;
 
         boolean timedOut = rawAnswer == null;
-        boolean correct = !timedOut && AnswerValidator.isCorrect(q, rawAnswer);
+        boolean correct = !timedOut && trivia.AnswerValidator.isCorrect(q, rawAnswer);
 
         Player p = getCurrentPlayer();
+
         int pts = basePoints(q);
+        boolean isBettingActive = (currentWager > 0);
+
+        if (isBettingActive) {
+            pts = currentWager;
+        }
+
         int delta;
         if (timedOut) {
             p.addWrongAnswer(elapsed);
@@ -190,8 +272,15 @@ public class GameModel {
             delta = pts;
         } else {
             p.addWrongAnswer(elapsed);
-            delta = 0;
+            if (isBettingActive) {
+                p.subtractScore(pts);
+                delta = -pts;
+            } else {
+                delta = 0;
+            }
         }
+
+        this.currentWager = 0;
 
         p.setTimer(p.getTimer() + elapsed);
         roundCorrect[currentPlayerIndex] = correct;
@@ -241,8 +330,10 @@ public class GameModel {
     public int determineRoundWinnerIndex() {
         boolean a = roundCorrect[0];
         boolean b = roundCorrect[1];
-        if (a && !b) return 0;
-        if (!a && b) return 1;
+        if (a && !b)
+            return 0;
+        if (!a && b)
+            return 1;
         // Both same outcome → fastest time wins.
         return roundTimes[0] <= roundTimes[1] ? 0 : 1;
     }
@@ -255,7 +346,8 @@ public class GameModel {
     public boolean claimCell(int playerIndex, int row, int col) {
         Player p = players.get(playerIndex);
         char sym = p.getSymbol();
-        if (!map.claimCell(sym, row, col)) return false;
+        if (!map.claimCell(sym, row, col))
+            return false;
         map.revealCellForPlayer(sym, row, col);
         map.revealNeighbourForPlayer(sym, row, col);
         pcs.firePropertyChange(PROP_MAP, null, map);
@@ -297,14 +389,17 @@ public class GameModel {
     }
 
     public void setAttackFrom(int r, int c) {
-        this.attackFromRow = r; this.attackFromCol = c;
+        this.attackFromRow = r;
+        this.attackFromCol = c;
     }
 
     public void setAttackTarget(int r, int c) {
-        this.attackToRow = r; this.attackToCol = c;
+        this.attackToRow = r;
+        this.attackToCol = c;
         // Reuse round question pool: pop a fresh one.
         Question q = questionBank.getAllQuestionsAsList().isEmpty()
-                ? null : questionBank.getAllQuestionsAsList().get(0);
+                ? null
+                : questionBank.getAllQuestionsAsList().get(0);
         if (q != null) {
             // Shove the battle question into slot roundIndex so views reading
             // getCurrentQuestion() work uniformly.
@@ -318,8 +413,13 @@ public class GameModel {
         setPhase(GamePhase.INVASION_BATTLE);
     }
 
-    public Player getInvader() { return players.get(invaderIndex); }
-    public Player getDefender() { return players.get(1 - invaderIndex); }
+    public Player getInvader() {
+        return players.get(invaderIndex);
+    }
+
+    public Player getDefender() {
+        return players.get(1 - invaderIndex);
+    }
 
     /**
      * Resolves one invasion battle using the two answers provided and
@@ -366,4 +466,13 @@ public class GameModel {
         this.phase = newPhase;
         pcs.firePropertyChange(PROP_PHASE, old, newPhase);
     }
+
+    public void setCurrentWager(int wager) {
+        this.currentWager = wager;
+    }
+
+    public int getCurrentWager() {
+        return currentWager;
+    }
+
 }

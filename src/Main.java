@@ -1,6 +1,9 @@
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import game.Game;
+import game.UnitTests;
+import model.GameModel;
 import trivia.QuestionBank;
 import ui.ConsoleIO;
 import ui.MainWindow;
@@ -8,21 +11,37 @@ import ui.MainWindow;
 /**
  * PURPOSE:
  * - Entry point of the program.
- * - Wires objects together and starts the game.
+ * - Launches the Swing GUI by default.
+ * - Pass {@code --console} to fall back to the original console game.
  */
 
 public class Main {
     public static void main(String[] args) {
 
-        ConsoleIO io = ConsoleIO.getConsole();
+        boolean consoleMode = false;
+        for (String arg : args) {
+            if ("--console".equalsIgnoreCase(arg) || "-c".equalsIgnoreCase(arg)) {
+                consoleMode = true;
+            }
+        }
+
+        if (consoleMode) {
+            UnitTests.runAll();
+            ConsoleIO io = ConsoleIO.getConsole();
+            QuestionBank bank = new QuestionBank("questions.json");
+            Game engine = new Game(io, bank);
+            engine.run();
+            return;
+        }
+
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ignored) {
+        }
+
         QuestionBank bank = new QuestionBank("questions.json");
-        SwingUtilities.invokeLater(() -> {
-            MainWindow window = new MainWindow();
+        GameModel model = new GameModel(bank);
 
-            window.setVisible(true);
-        });
-        Game engine = new Game(io, bank);
-
-        engine.run();
+        SwingUtilities.invokeLater(() -> new MainWindow(model).setVisible(true));
     }
 }

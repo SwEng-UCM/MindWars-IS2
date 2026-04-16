@@ -16,7 +16,8 @@ import player.Player;
  * answer submissions) and translates them into model operations. It holds no
  * game state of its own — the model is the single source of truth.
  *
- * <p>Views should not call the model directly; they should call methods on
+ * <p>
+ * Views should not call the model directly; they should call methods on
  * this controller. Views observe the model via {@code PropertyChangeListener}
  * and re-render themselves when the phase changes.
  */
@@ -27,25 +28,42 @@ public class GameController {
     private final CommandHistory history = new CommandHistory();
     private final LeaderboardStore leaderboard;
     private boolean leaderboardRecorded;
+    private GameSettings lastSettings;
 
     public GameController(GameModel model, NavigationController nav) {
         this(model, nav, new LeaderboardStore());
     }
 
-    public GameController(GameModel model, NavigationController nav, LeaderboardStore leaderboard) {
+    public GameController(
+        GameModel model,
+        NavigationController nav,
+        LeaderboardStore leaderboard
+    ) {
         this.model = model;
         this.nav = nav;
         this.leaderboard = leaderboard;
     }
 
-    public GameModel getModel() { return model; }
-    public NavigationController getNav() { return nav; }
-    public CommandHistory getHistory() { return history; }
-    public LeaderboardStore getLeaderboard() { return leaderboard; }
+    public GameModel getModel() {
+        return model;
+    }
+
+    public NavigationController getNav() {
+        return nav;
+    }
+
+    public CommandHistory getHistory() {
+        return history;
+    }
+
+    public LeaderboardStore getLeaderboard() {
+        return leaderboard;
+    }
 
     // ── Entry points from menu/setup ──
 
     public void startNewGame(GameSettings settings) {
+        lastSettings = settings;
         history.clear();
         leaderboardRecorded = false;
         model.startGame(settings);
@@ -76,10 +94,24 @@ public class GameController {
     public void onHotSeatReady() {
         GamePhase phase = model.getPhase();
         if (phase == GamePhase.HOT_SEAT_PASS) {
-            model.beginQuestion();
+            if (
+                model.getRoundNumber() == 4 &&
+                model.getCurrentPlayer().getScore() > 0
+            ) {
+                nav.showBetting();
+            } else {
+                model.beginQuestion();
+            }
         } else if (phase == GamePhase.INVASION_PASS) {
             model.beginInvasionSelect();
         }
+    }
+
+    public void onWagerConfirmed(int amount) {
+        model.setCurrentWager(amount);
+
+        model.beginQuestion();
+        nav.showGame();
     }
 
     /**
@@ -101,7 +133,12 @@ public class GameController {
 
     /** The player clicked a cell during the territory claim phase. */
     public boolean onCellClaimed(int playerIndex, int row, int col) {
-        ClaimCellCommand cmd = new ClaimCellCommand(model, playerIndex, row, col);
+        ClaimCellCommand cmd = new ClaimCellCommand(
+            model,
+            playerIndex,
+            row,
+            col
+        );
         cmd.execute();
         if (cmd.wasAccepted()) {
             history.push(cmd);
@@ -124,8 +161,15 @@ public class GameController {
         model.setAttackTarget(r, c);
     }
 
-    public void onInvasionResolved(String attackerAnswer, String defenderAnswer) {
-        InvasionCommand cmd = new InvasionCommand(model, attackerAnswer, defenderAnswer);
+    public void onInvasionResolved(
+        String attackerAnswer,
+        String defenderAnswer
+    ) {
+        InvasionCommand cmd = new InvasionCommand(
+            model,
+            attackerAnswer,
+            defenderAnswer
+        );
         cmd.execute();
         history.push(cmd);
         if (model.getPhase() == GamePhase.GAME_OVER) {
@@ -150,5 +194,15 @@ public class GameController {
     public void onGameOverAcknowledged() {
         recordGameOnLeaderboard();
         nav.showMainMenu();
+    }
+
+    public void restartGame() {
+        if (lastSettings == null) return;
+
+        history.clear();
+        leaderboardRecorded = false;
+
+        model.startGame(lastSettings);
+        nav.showGame();
     }
 }

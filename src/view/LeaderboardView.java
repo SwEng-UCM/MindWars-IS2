@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class LeaderboardView extends JPanel {
 
-    private static final String[] COLUMNS = {"#", "Player", "Wins", "Total Score", "Games"};
+    private static final String[] COLUMNS = { "#", "Player", "Wins", "Total Score", "Games" };
 
     private final LeaderboardStore store;
     private final DefaultTableModel tableModel;
@@ -45,7 +45,10 @@ public class LeaderboardView extends JPanel {
         card.add(title, BorderLayout.NORTH);
 
         tableModel = new DefaultTableModel(COLUMNS, 0) {
-            @Override public boolean isCellEditable(int row, int col) { return false; }
+            @Override
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
         };
         table = new JTable(tableModel);
         table.setFont(MindWarsTheme.BODY_FONT);
@@ -59,7 +62,7 @@ public class LeaderboardView extends JPanel {
 
         DefaultTableCellRenderer right = new DefaultTableCellRenderer();
         right.setHorizontalAlignment(SwingConstants.RIGHT);
-        for (int i : new int[]{0, 2, 3, 4}) {
+        for (int i : new int[] { 0, 2, 3, 4 }) {
             table.getColumnModel().getColumn(i).setCellRenderer(right);
         }
         table.getColumnModel().getColumn(0).setMaxWidth(40);
@@ -86,7 +89,7 @@ public class LeaderboardView extends JPanel {
         List<LeaderboardEntry> entries = store.getEntries();
         int rank = 1;
         for (LeaderboardEntry e : entries) {
-            tableModel.addRow(new Object[]{
+            tableModel.addRow(new Object[] {
                     rank++,
                     e.getName(),
                     e.getWins(),
@@ -95,7 +98,7 @@ public class LeaderboardView extends JPanel {
             });
         }
         if (entries.isEmpty()) {
-            tableModel.addRow(new Object[]{"—", "(no games played yet)", "", "", ""});
+            tableModel.addRow(new Object[] { "—", "(no games played yet)", "", "", "" });
         }
     }
 }
