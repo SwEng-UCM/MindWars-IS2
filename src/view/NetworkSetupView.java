@@ -5,15 +5,12 @@ import model.GameModel;
 import model.GameSettings;
 import network.GameClient;
 import network.GameServer;
-import network.NetworkMessage;
 import network.NetworkSession;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Multiplayer setup screen (#85). Lets the player choose between hosting
@@ -154,9 +151,8 @@ public class NetworkSetupView extends JPanel {
             session.attachServer(server);
 
             GameClient localClient = new GameClient();
-            wireClient(localClient);
-            localClient.connect("127.0.0.1", server.getBoundPort(), name);
             session.attachClient(localClient);
+            localClient.connect("127.0.0.1", server.getBoundPort(), name);
 
             statusLabel.setText("Hosting on port " + server.getBoundPort()
                     + " — waiting for opponent.");
@@ -168,26 +164,14 @@ public class NetworkSetupView extends JPanel {
 
     private void joinRemote(String host, int port, String name) {
         GameClient client = new GameClient();
-        wireClient(client);
+        session.attachClient(client);
         try {
             client.connect(host, port, name);
-            session.attachClient(client);
             statusLabel.setText("Connected to " + host + ":" + port);
             nav.showMultiplayerLobby();
         } catch (IOException ex) {
             statusLabel.setText("Connection failed: " + ex.getMessage());
         }
-    }
-
-    private void wireClient(GameClient client) {
-        client.setListener(msg -> {
-            if (msg.type == NetworkMessage.Type.LOBBY) {
-                List<String> names = msg.playerNames == null ? new ArrayList<>() : msg.playerNames;
-                SwingUtilities.invokeLater(() -> session.fireLobbyUpdate(names));
-            } else if (msg.type == NetworkMessage.Type.ERROR) {
-                SwingUtilities.invokeLater(() -> statusLabel.setText("Server: " + msg.errorMessage));
-            }
-        });
     }
 
     private int parsePort() {

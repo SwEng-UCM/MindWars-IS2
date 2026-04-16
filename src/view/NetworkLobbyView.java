@@ -1,6 +1,7 @@
 package view;
 
 import controller.NavigationController;
+import network.NetworkMessage;
 import network.NetworkSession;
 
 import javax.swing.*;
@@ -66,6 +67,14 @@ public class NetworkLobbyView extends JPanel {
         add(bg, BorderLayout.CENTER);
 
         session.addLobbyListener(this::updatePlayers);
+        // As soon as the server moves out of the waiting state, hand off to
+        // the networked gameplay screen.
+        session.addMessageListener(msg -> {
+            if (msg.type == NetworkMessage.Type.PHASE && msg.phase != null
+                    && !"SETUP".equals(msg.phase)) {
+                SwingUtilities.invokeLater(nav::showMultiplayerGame);
+            }
+        });
     }
 
     public void refresh() {

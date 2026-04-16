@@ -32,6 +32,7 @@ public class MainFrame extends JFrame implements NavigationController {
     public static final String CARD_GAME_OVER = "gameover";
     public static final String CARD_MULTIPLAYER = "multiplayer";
     public static final String CARD_MP_LOBBY = "mplobby";
+    public static final String CARD_MP_GAME = "mpgame";
 
     private final CardLayout cards = new CardLayout();
     private final JPanel root = new JPanel(cards);
@@ -56,6 +57,7 @@ public class MainFrame extends JFrame implements NavigationController {
     private final GameOverView gameOverView;
     private final NetworkSetupView networkSetupView;
     private final NetworkLobbyView networkLobbyView;
+    private final NetworkGameView networkGameView;
     private BettingView bettingView;
 
     public MainFrame(GameModel model) {
@@ -83,6 +85,7 @@ public class MainFrame extends JFrame implements NavigationController {
         gameOverView = new GameOverView(controller);
         networkSetupView = new NetworkSetupView(this, model, networkSession);
         networkLobbyView = new NetworkLobbyView(this, networkSession);
+        networkGameView = new NetworkGameView(this, networkSession);
 
         root.add(menuView, CARD_MENU);
         root.add(setupView, CARD_SETUP);
@@ -100,6 +103,7 @@ public class MainFrame extends JFrame implements NavigationController {
         root.add(bettingView, "betting");
         root.add(networkSetupView, CARD_MULTIPLAYER);
         root.add(networkLobbyView, CARD_MP_LOBBY);
+        root.add(networkGameView, CARD_MP_GAME);
         setContentPane(root);
 
         // Observe the model: whenever the phase changes, switch cards.
@@ -212,5 +216,10 @@ public class MainFrame extends JFrame implements NavigationController {
     public void showMultiplayerLobby() {
         networkLobbyView.refresh();
         cards.show(root, CARD_MP_LOBBY);
+    }
+
+    @Override
+    public void showMultiplayerGame() {
+        cards.show(root, CARD_MP_GAME);
     }
 }

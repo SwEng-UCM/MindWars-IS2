@@ -26,4 +26,6 @@ public interface NavigationController {
     void showMultiplayer();
 
     void showMultiplayerLobby();
+
+    void showMultiplayerGame();
 }
