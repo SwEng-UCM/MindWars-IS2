@@ -19,7 +19,8 @@ public final class MessageCodec {
     }
 
     public static NetworkMessage decode(String line) {
-        if (line == null || line.isBlank()) return null;
+        if (line == null || line.isBlank())
+            return null;
         return GSON.fromJson(line, NetworkMessage.class);
     }
 }

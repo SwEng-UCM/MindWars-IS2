@@ -42,13 +42,19 @@ public class GameServerTest {
         final Question q = makeQuestion();
         return new QuestionBank(null) {
             @Override
-            public Question getQuestion(String cat, String diff) { return q; }
+            public Question getQuestion(String cat, String diff) {
+                return q;
+            }
 
             @Override
-            public Set<String> getCategories() { return Set.of("Tech"); }
+            public Set<String> getCategories() {
+                return Set.of("Tech");
+            }
 
             @Override
-            public Set<String> getDifficulties(String c) { return Set.of("Easy"); }
+            public Set<String> getDifficulties(String c) {
+                return Set.of("Easy");
+            }
 
             @Override
             public List<Question> getAllQuestionsAsList() {
@@ -83,12 +89,14 @@ public class GameServerTest {
         GameClient c1 = new GameClient();
         c1.setListener(msg -> {
             a.add(msg);
-            if (msg.type == NetworkMessage.Type.PHASE) phaseLatch.countDown();
+            if (msg.type == NetworkMessage.Type.PHASE)
+                phaseLatch.countDown();
         });
         GameClient c2 = new GameClient();
         c2.setListener(msg -> {
             b.add(msg);
-            if (msg.type == NetworkMessage.Type.PHASE) phaseLatch.countDown();
+            if (msg.type == NetworkMessage.Type.PHASE)
+                phaseLatch.countDown();
         });
 
         c1.connect("127.0.0.1", port, "Alice");
@@ -120,10 +128,12 @@ public class GameServerTest {
         GameClient c1 = new GameClient();
         GameClient c2 = new GameClient();
         c1.setListener(msg -> {
-            if (msg.type == NetworkMessage.Type.QUESTION) questionLatch.countDown();
+            if (msg.type == NetworkMessage.Type.QUESTION)
+                questionLatch.countDown();
         });
         c2.setListener(msg -> {
-            if (msg.type == NetworkMessage.Type.QUESTION) questionLatch.countDown();
+            if (msg.type == NetworkMessage.Type.QUESTION)
+                questionLatch.countDown();
         });
 
         c1.connect("127.0.0.1", port, "Alice");
@@ -156,12 +166,14 @@ public class GameServerTest {
         GameClient c2 = new GameClient();
         c1.setListener(msg -> {
             if (msg.type == NetworkMessage.Type.RESULT) {
-                if (Boolean.TRUE.equals(msg.correct)) correctSeen[0] = true;
+                if (Boolean.TRUE.equals(msg.correct))
+                    correctSeen[0] = true;
                 resultLatch.countDown();
             }
         });
         c2.setListener(msg -> {
-            if (msg.type == NetworkMessage.Type.RESULT) resultLatch.countDown();
+            if (msg.type == NetworkMessage.Type.RESULT)
+                resultLatch.countDown();
         });
 
         c1.connect("127.0.0.1", port, "Alice");

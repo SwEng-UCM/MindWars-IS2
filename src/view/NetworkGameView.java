@@ -1,6 +1,7 @@
 package view;
 
 import controller.NavigationController;
+import model.GameModel;
 import network.NetworkMessage;
 import network.NetworkSession;
 
@@ -46,11 +47,15 @@ public class NetworkGameView extends JPanel {
     private Integer currentPlayer;
     private String[] playerNames = new String[] { "Player 1", "Player 2" };
 
+    // for chat box
+    private JTextArea chatArea;
+    private JTextField chatInputField;
+
     public NetworkGameView(NavigationController nav, NetworkSession session) {
         this.nav = nav;
         this.session = session;
 
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(10, 0));
         setBackground(MindWarsTheme.DARK_BG);
         setBorder(new EmptyBorder(16, 16, 16, 16));
 
@@ -131,7 +136,58 @@ public class NetworkGameView extends JPanel {
         add(top, BorderLayout.NORTH);
         add(center, BorderLayout.CENTER);
 
+        setupChatPanel();
+
         session.addMessageListener(this::onServerMessage);
+    }
+
+    // chat box
+
+    private void setupChatPanel() {
+        JPanel chatPanel = new JPanel(new BorderLayout(5, 5));
+        chatPanel.setOpaque(false);
+        chatPanel.setPreferredSize(new Dimension(280, 0));
+        chatPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(MindWarsTheme.PINK), "BATTLE CHAT",
+                0, 0, MindWarsTheme.SMALL_FONT, MindWarsTheme.PINK));
+
+        chatArea = new JTextArea();
+        chatArea.setEditable(false);
+        chatArea.setLineWrap(true);
+        chatArea.setWrapStyleWord(true);
+        chatArea.setBackground(new Color(20, 20, 30));
+        chatArea.setForeground(Color.WHITE);
+        chatArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+
+        JScrollPane chatScroll = new JScrollPane(chatArea);
+        chatScroll.setBorder(null);
+
+        chatInputField = MindWarsTheme.createTextField("Press Enter to send...");
+        chatInputField.addActionListener(e -> sendChatMessage());
+
+        chatPanel.add(chatScroll, BorderLayout.CENTER);
+        chatPanel.add(chatInputField, BorderLayout.SOUTH);
+
+        add(chatPanel, BorderLayout.EAST);
+    }
+
+    private void sendChatMessage() {
+        String text = chatInputField.getText().trim();
+        if (!text.isEmpty() && session.isConnected()) {
+            // send through sevrer
+            NetworkMessage msg = new NetworkMessage();
+            msg.type = NetworkMessage.Type.CHAT;
+            msg.text = text;
+
+            session.getClient().send(msg);
+
+            chatInputField.setText("");
+        }
+    }
+
+    public void appendChat(String message) {
+        chatArea.append(" " + message + "\n");
+        chatArea.setCaretPosition(chatArea.getDocument().getLength());
     }
 
     // ── Server → view dispatch ──
@@ -142,6 +198,7 @@ public class NetworkGameView extends JPanel {
 
     private void handleMessage(NetworkMessage msg) {
         switch (msg.type) {
+            case CHAT -> appendChat(nameOf(msg.senderIndex) + ": " + msg.text);
             case PHASE -> onPhase(msg);
             case QUESTION -> onQuestion(msg);
             case RESULT -> onResult(msg);
@@ -273,7 +330,8 @@ public class NetworkGameView extends JPanel {
     }
 
     private void onScores(NetworkMessage msg) {
-        if (msg.scores == null || msg.scores.size() < 2) return;
+        if (msg.scores == null || msg.scores.size() < 2)
+            return;
         if (msg.playerNames != null && msg.playerNames.size() >= 2) {
             playerNames[0] = msg.playerNames.get(0);
             playerNames[1] = msg.playerNames.get(1);
@@ -289,7 +347,8 @@ public class NetworkGameView extends JPanel {
         feedback("Game over — " + winner, MindWarsTheme.PINK);
         readyButton.setText("Back to Menu");
         readyButton.setEnabled(true);
-        for (var al : readyButton.getActionListeners()) readyButton.removeActionListener(al);
+        for (var al : readyButton.getActionListeners())
+            readyButton.removeActionListener(al);
         readyButton.addActionListener(e -> {
             session.disconnect();
             nav.showMainMenu();
@@ -299,15 +358,18 @@ public class NetworkGameView extends JPanel {
     // ── View → server ──
 
     private void onReady() {
-        if (!isMyTurn() || !session.isConnected()) return;
+        if (!isMyTurn() || !session.isConnected())
+            return;
         session.getClient().sendReady();
         readyButton.setEnabled(false);
     }
 
     private void onSubmit(ActionEvent e) {
-        if (!isMyTurn() || !session.isConnected()) return;
+        if (!isMyTurn() || !session.isConnected())
+            return;
         String answer = readAnswer();
-        if (answer == null) return;
+        if (answer == null)
+            return;
         long elapsed = System.currentTimeMillis() - questionStartMs;
         session.getClient().sendAnswer(answer, elapsed);
         submitButton.setEnabled(false);
@@ -322,8 +384,10 @@ public class NetworkGameView extends JPanel {
     }
 
     private String nameOf(Integer index) {
-        if (index == null) return "opponent";
-        if (index < 0 || index >= playerNames.length) return "Player " + (index + 1);
+        if (index == null)
+            return "opponent";
+        if (index < 0 || index >= playerNames.length)
+            return "Player " + (index + 1);
         return playerNames[index];
     }
 
@@ -360,7 +424,8 @@ public class NetworkGameView extends JPanel {
     }
 
     private void stopTimer() {
-        if (swingTimer != null) swingTimer.stop();
+        if (swingTimer != null)
+            swingTimer.stop();
     }
 
     private void feedback(String text, Color bg) {
@@ -398,7 +463,8 @@ public class NetworkGameView extends JPanel {
     }
 
     private static String escape(String s) {
-        if (s == null) return "";
+        if (s == null)
+            return "";
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 }

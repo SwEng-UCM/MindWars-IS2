@@ -20,17 +20,21 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * Authoritative game server for multiplayer play (#87).
  *
- * <p>Accepts up to {@link GameSettings#numPlayers} TCP connections on a
+ * <p>
+ * Accepts up to {@link GameSettings#numPlayers} TCP connections on a
  * chosen port. Each connected client sends a {@code JOIN} message with
  * their display name; once every seat is filled, the server starts a game
  * using the {@link GameSettings} it was built with and begins broadcasting
- * turn state to both clients.</p>
+ * turn state to both clients.
+ * </p>
  *
- * <p>The server is the only place that runs the {@link GameModel}. Clients
+ * <p>
+ * The server is the only place that runs the {@link GameModel}. Clients
  * cannot advance the phase themselves — they send {@code READY} / {@code
  * ANSWER} messages and the server decides when to move on. Every phase
  * transition fires a {@code PHASE}/{@code QUESTION}/{@code SCORES}/
- * {@code TURN}/{@code GAME_OVER} broadcast so both clients stay in sync.</p>
+ * {@code TURN}/{@code GAME_OVER} broadcast so both clients stay in sync.
+ * </p>
  */
 public class GameServer {
 
@@ -53,7 +57,9 @@ public class GameServer {
      */
     private final boolean[] readyFlags;
 
-    /** The in-flight answer submitted by each player index for the current question. */
+    /**
+     * The in-flight answer submitted by each player index for the current question.
+     */
     private final NetworkMessage[] pendingAnswers;
 
     public GameServer(int port, GameSettings settings, GameModel model) {
@@ -70,7 +76,10 @@ public class GameServer {
         });
     }
 
-    /** Returns the port the server is actually bound to (useful when 0 was requested). */
+    /**
+     * Returns the port the server is actually bound to (useful when 0 was
+     * requested).
+     */
     public int getBoundPort() {
         return serverSocket == null ? port : serverSocket.getLocalPort();
     }
@@ -83,9 +92,12 @@ public class GameServer {
         return clients.size();
     }
 
-    /** Opens the server socket and starts the accept loop on a background thread. */
+    /**
+     * Opens the server socket and starts the accept loop on a background thread.
+     */
     public void start() throws IOException {
-        if (running) return;
+        if (running)
+            return;
         serverSocket = new ServerSocket(port);
         running = true;
         acceptThread = new Thread(this::acceptLoop, "MindWars-ServerAccept");
@@ -95,10 +107,12 @@ public class GameServer {
 
     public void stop() {
         running = false;
-        for (ClientHandler h : clients) h.close();
+        for (ClientHandler h : clients)
+            h.close();
         clients.clear();
         try {
-            if (serverSocket != null) serverSocket.close();
+            if (serverSocket != null)
+                serverSocket.close();
         } catch (IOException ignored) {
         }
     }
@@ -110,7 +124,8 @@ public class GameServer {
                 ClientHandler handler = new ClientHandler(sock);
                 handler.start();
             } catch (IOException e) {
-                if (running) System.err.println("[server] accept failed: " + e.getMessage());
+                if (running)
+                    System.err.println("[server] accept failed: " + e.getMessage());
                 break;
             }
         }
@@ -155,7 +170,8 @@ public class GameServer {
                 String line;
                 while ((line = in.readLine()) != null) {
                     NetworkMessage msg = MessageCodec.decode(line);
-                    if (msg == null || msg.type == null) continue;
+                    if (msg == null || msg.type == null)
+                        continue;
                     handle(msg);
                 }
             } catch (IOException ignored) {
@@ -169,6 +185,10 @@ public class GameServer {
                 case JOIN -> onJoin(msg);
                 case READY -> onReady();
                 case ANSWER -> onAnswer(msg);
+                case CHAT -> {
+                    msg.senderIndex = seatIndex;
+                    broadcast(msg);
+                }
                 default -> send(NetworkMessage.error("unsupported client message: " + msg.type));
             }
         }
@@ -200,7 +220,8 @@ public class GameServer {
         }
 
         private void onReady() {
-            if (seatIndex < 0) return;
+            if (seatIndex < 0)
+                return;
             synchronized (GameServer.this) {
                 GamePhase phase = model.getPhase();
                 if (phase != GamePhase.HOT_SEAT_PASS && phase != GamePhase.INVASION_PASS) {
@@ -221,7 +242,8 @@ public class GameServer {
         }
 
         private void onAnswer(NetworkMessage msg) {
-            if (seatIndex < 0) return;
+            if (seatIndex < 0)
+                return;
             synchronized (GameServer.this) {
                 GamePhase phase = model.getPhase();
                 if (phase != GamePhase.QUESTION) {
@@ -246,7 +268,8 @@ public class GameServer {
 
     private synchronized void onPhaseChanged(GamePhase phase) {
         // Reset ready flags on every phase transition so they don't leak.
-        for (int i = 0; i < readyFlags.length; i++) readyFlags[i] = false;
+        for (int i = 0; i < readyFlags.length; i++)
+            readyFlags[i] = false;
 
         NetworkMessage m = new NetworkMessage(NetworkMessage.Type.PHASE);
         m.phase = phase.name();
@@ -266,7 +289,8 @@ public class GameServer {
 
     private void broadcastQuestion() {
         Question q = model.getCurrentQuestion();
-        if (q == null) return;
+        if (q == null)
+            return;
         NetworkMessage m = new NetworkMessage(NetworkMessage.Type.QUESTION);
         m.questionType = q.getType() == null ? null : q.getType().name();
         m.category = q.getCategory();
@@ -311,7 +335,8 @@ public class GameServer {
     private void broadcastLobby() {
         NetworkMessage m = new NetworkMessage(NetworkMessage.Type.LOBBY);
         List<String> names = new ArrayList<>();
-        for (ClientHandler h : clients) names.add(h.displayName);
+        for (ClientHandler h : clients)
+            names.add(h.displayName);
         m.playerNames = names;
         broadcast(m);
     }

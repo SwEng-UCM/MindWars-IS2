@@ -13,7 +13,10 @@ import java.util.function.Consumer;
  * update arrives as a broadcast from the server and is dispatched to the
  * consumer registered via {@link #setListener(Consumer)}.
  *
- * <p>Typical usage:</p>
+ * <p>
+ * Typical usage:
+ * </p>
+ * 
  * <pre>
  * GameClient c = new GameClient();
  * c.setListener(msg -&gt; ...);
@@ -30,10 +33,12 @@ public class GameClient {
     private Thread readerThread;
     private volatile boolean running;
 
-    private Consumer<NetworkMessage> listener = msg -> {};
+    private Consumer<NetworkMessage> listener = msg -> {
+    };
 
     public void setListener(Consumer<NetworkMessage> listener) {
-        this.listener = listener == null ? (msg -> {}) : listener;
+        this.listener = listener == null ? (msg -> {
+        }) : listener;
     }
 
     public boolean isConnected() {
@@ -65,14 +70,16 @@ public class GameClient {
     }
 
     public void send(NetworkMessage msg) {
-        if (out == null) return;
+        if (out == null)
+            return;
         out.println(MessageCodec.encode(msg));
     }
 
     public void close() {
         running = false;
         try {
-            if (socket != null) socket.close();
+            if (socket != null)
+                socket.close();
         } catch (IOException ignored) {
         }
     }
@@ -82,12 +89,21 @@ public class GameClient {
             String line;
             while (running && (line = in.readLine()) != null) {
                 NetworkMessage msg = MessageCodec.decode(line);
-                if (msg != null) listener.accept(msg);
+                if (msg != null)
+                    listener.accept(msg);
             }
         } catch (IOException e) {
-            if (running) System.err.println("[client] read failed: " + e.getMessage());
+            if (running)
+                System.err.println("[client] read failed: " + e.getMessage());
         } finally {
             running = false;
         }
+    }
+
+    public void sendChat(String text) {
+        NetworkMessage msg = new NetworkMessage();
+        msg.type = NetworkMessage.Type.CHAT;
+        msg.text = text;
+        send(msg);
     }
 }

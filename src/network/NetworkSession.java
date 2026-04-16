@@ -8,9 +8,11 @@ import java.util.function.Consumer;
  * Holds the active {@link GameServer} / {@link GameClient} for the current
  * process and dispatches inbound messages to any UI observers (#85).
  *
- * <p>Views register through {@link #addMessageListener(Consumer)} and each
+ * <p>
+ * Views register through {@link #addMessageListener(Consumer)} and each
  * gets every server broadcast on the EDT-agnostic reader thread. They are
- * expected to marshal back to the EDT themselves when touching Swing.</p>
+ * expected to marshal back to the EDT themselves when touching Swing.
+ * </p>
  */
 public class NetworkSession {
 
@@ -67,15 +69,18 @@ public class NetworkSession {
     }
 
     public void disconnect() {
-        if (client != null) client.close();
-        if (server != null) server.stop();
+        if (client != null)
+            client.close();
+        if (server != null)
+            server.stop();
         client = null;
         server = null;
         myPlayerIndex = null;
     }
 
     private void onMessage(NetworkMessage msg) {
-        if (msg == null || msg.type == null) return;
+        if (msg == null || msg.type == null)
+            return;
 
         // Track our seat so downstream views know whose turn it is.
         if (msg.type == NetworkMessage.Type.WELCOME && msg.playerIndex != null) {
@@ -83,8 +88,10 @@ public class NetworkSession {
         }
         if (msg.type == NetworkMessage.Type.LOBBY) {
             List<String> names = msg.playerNames == null ? new ArrayList<>() : msg.playerNames;
-            for (Consumer<List<String>> l : lobbyListeners) l.accept(names);
+            for (Consumer<List<String>> l : lobbyListeners)
+                l.accept(names);
         }
-        for (Consumer<NetworkMessage> l : messageListeners) l.accept(msg);
+        for (Consumer<NetworkMessage> l : messageListeners)
+            l.accept(msg);
     }
 }

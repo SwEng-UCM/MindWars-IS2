@@ -7,10 +7,12 @@ import java.util.List;
  * (#87). Serialised to JSON (one message per line) by Gson. A single POJO
  * shape is used in both directions; unused fields are left null.
  *
- * <p>Message {@link #type} names come from {@link Type}. The server drives
+ * <p>
+ * Message {@link #type} names come from {@link Type}. The server drives
  * turn state and broadcasts {@code PHASE}, {@code QUESTION}, {@code RESULT},
  * {@code SCORES}, {@code TURN} and {@code GAME_OVER}. Clients send
- * {@code JOIN}, {@code READY} and {@code ANSWER}.</p>
+ * {@code JOIN}, {@code READY} and {@code ANSWER}.
+ * </p>
  */
 public class NetworkMessage {
 
@@ -29,9 +31,14 @@ public class NetworkMessage {
         TURN,
         GAME_OVER,
         ERROR,
+        // chat box
+        CHAT
     }
 
     public Type type;
+
+    public String text;
+    public Integer senderIndex;
 
     // Identification
     public String name;

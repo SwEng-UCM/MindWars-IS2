@@ -177,7 +177,8 @@ public class NetworkSetupView extends JPanel {
     private int parsePort() {
         try {
             int p = Integer.parseInt(portField.getText().trim());
-            if (p < 1 || p > 65535) return -1;
+            if (p < 1 || p > 65535)
+                return -1;
             return p;
         } catch (NumberFormatException e) {
             return -1;
