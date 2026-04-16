@@ -33,11 +33,8 @@ public class MainWindow extends JFrame {
 
         // Add panels. MenuPanel contains the login UI with logo and gradient.
         // We pass 'this' so MenuPanel can call methods like startGameSession().
-        mainContainer.add(new MenuPanel(this), "MENU");
-        mainContainer.add(new RegisterPanel(this), "REGISTER");
         // If you have a separate RegisterPanel, add it here:
         // mainContainer.add(new RegisterPanel(this), "REGISTER");
-
         MenuPanel menuPanel = new MenuPanel(this);
         RegisterPanel registerPanel = new RegisterPanel(this);
         RegisterController registerController =
