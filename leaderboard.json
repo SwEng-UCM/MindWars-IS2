@@ -3,7 +3,7 @@
     "name": "Player 1",
     "wins": 7,
     "totalScore": 444,
-    "gamesPlayed": 17
+    "gamesPlayed": 18
   },
   {
     "name": "Player 2",
@@ -12,15 +12,15 @@
     "gamesPlayed": 16
   },
   {
+    "name": "Bot",
+    "wins": 1,
+    "totalScore": 25,
+    "gamesPlayed": 2
+  },
+  {
     "name": "ana",
     "wins": 1,
     "totalScore": 10,
-    "gamesPlayed": 1
-  },
-  {
-    "name": "Bot",
-    "wins": 0,
-    "totalScore": 0,
     "gamesPlayed": 1
   },
   {

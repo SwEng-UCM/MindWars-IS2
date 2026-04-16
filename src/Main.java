@@ -1,15 +1,15 @@
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
-import game.Game;
 import game.UnitTests;
+import model.GameModel;
 import trivia.QuestionBank;
-import ui.ConsoleIO;
 import ui.MainWindow;
 
 /**
  * PURPOSE:
  * - Entry point of the program.
- * - Wires objects together and starts the game.
+ * - Runs unit tests, then launches the Swing GUI.
  */
 
 public class Main {
@@ -17,11 +17,16 @@ public class Main {
 
         UnitTests.runAll();
 
-        ConsoleIO io = ConsoleIO.getConsole();
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ignored) {
+        }
+
         QuestionBank bank = new QuestionBank("questions.json");
+        GameModel model = new GameModel(bank);
 
-        Game engine = new Game(io, bank);
-
-        engine.run();
+        SwingUtilities.invokeLater(() -> {
+            new MainWindow(model).setVisible(true);
+        });
     }
 }
