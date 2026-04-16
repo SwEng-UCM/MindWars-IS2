@@ -14,18 +14,16 @@ public class SaveGameRepository {
             int mapSize,
             String gameMode,
             String phase,
-            String gameStateJson
-    ){
-        String query =  """
-            INSERT INTO saved_games
-            (save_name, player1_user_id, player2_user_id, current_turn_user_id,
-             map_size, game_mode, phase, game_state_json)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """;
+            String gameStateJson) {
+        String query = """
+                    INSERT INTO saved_games
+                    (save_name, player1_user_id, player2_user_id, current_turn_user_id,
+                     map_size, game_mode, phase, game_state_json)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """;
 
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query);
-        ){
+                PreparedStatement stmt = conn.prepareStatement(query);) {
             stmt.setString(1, saveName);
             stmt.setInt(2, player1UserId);
             stmt.setInt(3, player2UserId);
@@ -44,7 +42,7 @@ public class SaveGameRepository {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to save game",e);
+            throw new RuntimeException("Failed to save game", e);
         }
 
     }

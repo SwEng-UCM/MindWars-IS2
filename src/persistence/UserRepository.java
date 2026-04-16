@@ -9,14 +9,14 @@ public class UserRepository {
     public boolean usernameExists(String username) {
         String query = "SELECT 1 FROM users WHERE username = ? LIMIT 1";
 
-        try(Connection conn= DatabaseManager.getConnection()) {
+        try (Connection conn = DatabaseManager.getConnection()) {
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setString(1, username);
-            try(ResultSet rs = stmt.executeQuery()) {
+            try (ResultSet rs = stmt.executeQuery()) {
                 return (rs.next());
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to check username",e);
+            throw new RuntimeException("Failed to check username", e);
         }
 
     }
@@ -24,23 +24,22 @@ public class UserRepository {
     public boolean emailExists(String username) {
         String query = "SELECT 1 FROM users WHERE email = ? LIMIT 1";
 
-        try(Connection conn= DatabaseManager.getConnection()) {
+        try (Connection conn = DatabaseManager.getConnection()) {
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setString(1, username);
-            try(ResultSet rs = stmt.executeQuery()) {
+            try (ResultSet rs = stmt.executeQuery()) {
                 return (rs.next());
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to check username",e);
+            throw new RuntimeException("Failed to check username", e);
         }
 
     }
 
     public User registerUser(String username, String email, String passwordHash) {
         String query = "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)";
-        try(Connection conn = DatabaseManager.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)
-        ) {
+        try (Connection conn = DatabaseManager.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, username);
             stmt.setString(2, email);
             stmt.setString(3, passwordHash);
@@ -56,15 +55,13 @@ public class UserRepository {
             throw new RuntimeException("Failed to register user", e);
         }
 
-
     }
 
     public User findByEmail(String email) {
         String query = "SELECT * FROM users WHERE email = ?";
 
-        try(Connection conn = DatabaseManager.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)
-        ) {
+        try (Connection conn = DatabaseManager.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, email);
 
             try (ResultSet rs = stmt.executeQuery()) {

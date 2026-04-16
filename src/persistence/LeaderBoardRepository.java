@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class LeaderBoardRepository {
 
-    public void saveMatchResults(Player player, boolean won, int territoriesOwned,String gameMode, int mapSize){
+    public void saveMatchResults(Player player, boolean won, int territoriesOwned, String gameMode, int mapSize) {
         String query = """
                 INSERT INTO leaderboard_entries
                 (user_id, score, territories_owned, correct_answers, wrong_answers,
@@ -16,9 +16,8 @@ public class LeaderBoardRepository {
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
-        try (Connection conn =DatabaseManager.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)
-        ) {
+        try (Connection conn = DatabaseManager.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)) {
             if (player.getUserID() == null) {
                 throw new IllegalArgumentException("Player has no userId. Cannot save leaderboard entry.");
             }
@@ -36,7 +35,7 @@ public class LeaderBoardRepository {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to save leaderbord entry",e);
+            throw new RuntimeException("Failed to save leaderbord entry", e);
         }
     }
 }

@@ -198,7 +198,16 @@ public class NetworkGameView extends JPanel {
 
     private void handleMessage(NetworkMessage msg) {
         switch (msg.type) {
-            case CHAT -> appendChat(nameOf(msg.senderIndex) + ": " + msg.text);
+            case CHAT -> {
+                int senderIdx = msg.senderIndex != null ? msg.senderIndex : 0;
+                String displayName;
+                if (session.getMyPlayerIndex() != null && session.getMyPlayerIndex() == senderIdx) {
+                    displayName = "Me";
+                } else {
+                    displayName = (msg.name != null) ? msg.name : nameOf(senderIdx);
+                }
+                appendChat(displayName + ": " + msg.text);
+            }
             case PHASE -> onPhase(msg);
             case QUESTION -> onQuestion(msg);
             case RESULT -> onResult(msg);
@@ -387,8 +396,8 @@ public class NetworkGameView extends JPanel {
         if (index == null)
             return "opponent";
         if (index < 0 || index >= playerNames.length)
-            return "Player " + (index + 1);
-        return playerNames[index];
+            return playerNames[index];
+        return "Player " + (index + 1);
     }
 
     private String readAnswer() {

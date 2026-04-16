@@ -187,6 +187,7 @@ public class GameServer {
                 case ANSWER -> onAnswer(msg);
                 case CHAT -> {
                     msg.senderIndex = seatIndex;
+                    msg.name = this.displayName;
                     broadcast(msg);
                 }
                 default -> send(NetworkMessage.error("unsupported client message: " + msg.type));
@@ -316,9 +317,12 @@ public class GameServer {
         NetworkMessage m = new NetworkMessage(NetworkMessage.Type.SCORES);
         List<Integer> scores = new ArrayList<>();
         List<String> names = new ArrayList<>();
+        for (ClientHandler h : clients) {
+            names.add(h.displayName);
+        }
         for (Player p : model.getPlayers()) {
             scores.add(p.getScore());
-            names.add(p.getName());
+            // names.add(p.getName());
         }
         m.scores = scores;
         m.playerNames = names;
