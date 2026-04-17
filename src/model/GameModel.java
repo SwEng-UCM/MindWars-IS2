@@ -61,8 +61,8 @@ public class GameModel {
     private int currentWager = 0;
     // Tracks the results of the two players for the current round, used to
     // decide who claims how many cells in the territory phase.
-    private boolean[] roundCorrect = new boolean[2];
-    private long[] roundTimes = new long[2];
+    private boolean[] roundCorrect;
+    private long[] roundTimes;
 
     // Invasion phase state
     private int invaderIndex;
@@ -188,16 +188,23 @@ public class GameModel {
         this.roundIndex = 0;
         this.currentPlayerIndex = 0;
 
-        Player p1 = new Player(settings.player1Name);
-        p1.setSymbol('X');
-        Player p2 = new Player(settings.player2Name);
-        p2.setSymbol('O');
-        players.add(p1);
-        players.add(p2);
+        char[] symbols = { 'X', 'O', 'A', 'B' };
+        String[] names = { settings.player1Name, settings.player2Name, "Player 3", "Player 4" };
+
+        for (int i = 0; i < settings.numPlayers; i++) {
+            String name = (i < 2) ? names[i] : "Player " + (i + 1);
+            Player p = new Player(name);
+            p.setSymbol(symbols[i]);
+            players.add(p);
+        }
 
         this.map = new MapGrid(settings.mapSize);
-        map.initVisibilityForPlayer('X');
-        map.initVisibilityForPlayer('O');
+        for (Player p : players) {
+            map.initVisibilityForPlayer(p.getSymbol());
+        }
+
+        this.roundCorrect = new boolean[players.size()];
+        this.roundTimes = new long[players.size()];
 
         loadQuestions();
         setPhase(GamePhase.HOT_SEAT_PASS);

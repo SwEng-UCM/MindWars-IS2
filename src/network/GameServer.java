@@ -39,7 +39,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class GameServer {
 
     public static final int DEFAULT_PORT = 5555;
-    public static final int MAX_PLAYERS = 2;
+    public static final int MAX_PLAYERS = 4;
 
     private final int port;
     private GameSettings settings;
@@ -66,8 +66,11 @@ public class GameServer {
         this.port = port;
         this.settings = settings;
         this.model = model;
-        this.readyFlags = new boolean[MAX_PLAYERS];
-        this.pendingAnswers = new NetworkMessage[MAX_PLAYERS];
+
+        int playerCount = settings.numPlayers;
+
+        this.readyFlags = new boolean[playerCount];
+        this.pendingAnswers = new NetworkMessage[playerCount];
 
         model.addPropertyChangeListener(evt -> {
             if (GameModel.PROP_PHASE.equals(evt.getPropertyName())) {
@@ -353,10 +356,18 @@ public class GameServer {
     }
 
     private static GameSettings withJoinedNames(GameSettings base, List<ClientHandler> clients) {
-        String p1 = clients.size() >= 1 ? clients.get(0).displayName : base.player1Name;
-        String p2 = clients.size() >= 2 ? clients.get(1).displayName : base.player2Name;
+        int count = clients.size();
+        String p1 = clients.get(0).displayName;
+        String p2 = (count >= 2) ? clients.get(1).displayName : base.player2Name;
+
         return new GameSettings(
-                base.mapSize, base.vsBot, p1, p2,
-                base.randomMode, base.category, base.difficulty);
+                base.mapSize,
+                base.vsBot,
+                p1,
+                p2,
+                base.randomMode,
+                base.category,
+                base.difficulty,
+                count);
     }
 }

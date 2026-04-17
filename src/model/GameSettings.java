@@ -12,10 +12,11 @@ public final class GameSettings {
     public final boolean randomMode;
     public final String category; // null if random mode
     public final String difficulty; // null if random mode
+    public final int numPlayers;
 
     public GameSettings(int mapSize, boolean vsBot,
             String player1Name, String player2Name,
-            boolean randomMode, String category, String difficulty) {
+            boolean randomMode, String category, String difficulty, int numPlayers) {
         this.mapSize = mapSize;
         this.vsBot = vsBot;
         this.player1Name = player1Name;
@@ -23,5 +24,6 @@ public final class GameSettings {
         this.randomMode = randomMode;
         this.category = category;
         this.difficulty = difficulty;
+        this.numPlayers = numPlayers;
     }
 }
