@@ -156,17 +156,16 @@ public class TerritoryClaimView extends JPanel {
         }
     }
 
-}
-
     private void rebuildGrid(GameModel model) {
         gridPanel.removeAll();
         MapGrid map = model.getMap();
-        if (map == null) return;
- 
+        if (map == null)
+            return;
+
         int size = map.getSize();
         gridPanel.setLayout(new GridLayout(size, size, 6, 6));
         cellButtons = new JButton[size][size];
- 
+
         for (int r = 0; r < size; r++) {
             for (int c = 0; c < size; c++) {
                 char owner = map.getOwner(r, c);
@@ -175,7 +174,51 @@ public class TerritoryClaimView extends JPanel {
                 gridPanel.add(btn);
             }
         }
- 
+
         gridPanel.revalidate();
         gridPanel.repaint();
     }
+
+    private JButton buildCellButton(char owner, int row, int col, GameModel model) {
+        JButton btn = new JButton();
+        btn.setFont(MindWarsTheme.BODY_BOLD);
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(true);
+        btn.setBorder(BorderFactory.createLineBorder(MindWarsTheme.DARK_BORDER, 2));
+        btn.setPreferredSize(new Dimension(72, 72));
+
+        applyOwnerStyle(btn, owner);
+
+        if (owner == '.') {
+            // Empty cell → clickable
+            final int fr = row, fc = col;
+            btn.addActionListener(e -> onCellClicked(fr, fc));
+        } else {
+            btn.setEnabled(false);
+        }
+
+        return btn;
+    }
+
+    private void applyOwnerStyle(JButton btn, char owner) {
+        switch (owner) {
+            case 'X' -> {
+                btn.setBackground(MindWarsTheme.PLAYER_X);
+                btn.setForeground(MindWarsTheme.WHITE);
+                btn.setText("X");
+                btn.setEnabled(false);
+            }
+            case 'O' -> {
+                btn.setBackground(MindWarsTheme.PLAYER_O);
+                btn.setForeground(MindWarsTheme.WHITE);
+                btn.setText("O");
+                btn.setEnabled(false);
+            }
+            default -> {
+                btn.setBackground(MindWarsTheme.DARK_CARD);
+                btn.setForeground(MindWarsTheme.GRAY_LIGHT);
+                btn.setText("");
+            }
+        }
+    }
+}
