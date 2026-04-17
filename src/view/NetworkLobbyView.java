@@ -68,6 +68,7 @@ public class NetworkLobbyView extends JPanel {
         startButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         startButton.addActionListener(e -> {
             NetworkMessage msg = new NetworkMessage(NetworkMessage.Type.START_GAME);
+            session.getClient().send(msg);
         });
         card.add(Box.createVerticalStrut(10));
         card.add(startButton);
