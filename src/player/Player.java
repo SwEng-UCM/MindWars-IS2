@@ -28,9 +28,10 @@ public class Player {
     private BotStrategy strategy;
     private boolean isBot;
 
-    public Player(String name){
+    public Player(String name) {
         this(name, null);
     }
+
     public Player(String name, Integer userId) {
         this.userId = userId;
         this.name = name;
@@ -300,6 +301,10 @@ public class Player {
 
     public boolean isBot() {
         return isBot;
+    }
+
+    public void setBot(boolean bot) {
+        isBot = bot;
     }
 
 }
