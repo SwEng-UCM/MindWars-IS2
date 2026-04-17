@@ -29,16 +29,20 @@ public class GameController {
     private final LeaderboardStore leaderboard;
     private boolean leaderboardRecorded;
     private GameSettings lastSettings;
+    private network.GameClient networkClient;
+
+    public void setNetworkClient(network.GameClient client) {
+        this.networkClient = client;
+    }
 
     public GameController(GameModel model, NavigationController nav) {
         this(model, nav, new LeaderboardStore());
     }
 
     public GameController(
-        GameModel model,
-        NavigationController nav,
-        LeaderboardStore leaderboard
-    ) {
+            GameModel model,
+            NavigationController nav,
+            LeaderboardStore leaderboard) {
         this.model = model;
         this.nav = nav;
         this.leaderboard = leaderboard;
@@ -75,7 +79,8 @@ public class GameController {
      * call multiple times — only the first call per game has an effect.
      */
     public void recordGameOnLeaderboard() {
-        if (leaderboardRecorded) return;
+        if (leaderboardRecorded)
+            return;
         leaderboardRecorded = true;
         Player winner = model.computeWinner();
         for (Player p : model.getPlayers()) {
@@ -92,18 +97,15 @@ public class GameController {
 
     /** The hot-seat "Press ENTER when ready" button was pressed. */
     public void onHotSeatReady() {
-        GamePhase phase = model.getPhase();
-        if (phase == GamePhase.HOT_SEAT_PASS) {
-            if (
-                model.getRoundNumber() == 4 &&
-                model.getCurrentPlayer().getScore() > 0
-            ) {
-                nav.showBetting();
-            } else {
+        if (networkClient != null && networkClient.isConnected()) {
+            networkClient.sendReady();
+        } else {
+            GamePhase phase = model.getPhase();
+            if (phase == GamePhase.HOT_SEAT_PASS) {
                 model.beginQuestion();
+            } else if (phase == GamePhase.INVASION_PASS) {
+                model.beginInvasionSelect();
             }
-        } else if (phase == GamePhase.INVASION_PASS) {
-            model.beginInvasionSelect();
         }
     }
 
@@ -120,11 +122,17 @@ public class GameController {
      * Returns the result so the view can flash correct/wrong feedback
      * before calling {@link #onAnswerAcknowledged()}.
      */
+
     public AnswerResult onAnswerSubmitted(String rawAnswer, long elapsedMs) {
-        AnswerCommand cmd = new AnswerCommand(model, rawAnswer, elapsedMs);
-        cmd.execute();
-        history.push(cmd);
-        return cmd.getResult();
+        if (networkClient != null && networkClient.isConnected()) {
+            networkClient.sendAnswer(rawAnswer, elapsedMs);
+            return null;
+        } else {
+            AnswerCommand cmd = new AnswerCommand(model, rawAnswer, elapsedMs);
+            cmd.execute();
+            history.push(cmd);
+            return cmd.getResult();
+        }
     }
 
     public void onAnswerAcknowledged() {
@@ -134,11 +142,10 @@ public class GameController {
     /** The player clicked a cell during the territory claim phase. */
     public boolean onCellClaimed(int playerIndex, int row, int col) {
         ClaimCellCommand cmd = new ClaimCellCommand(
-            model,
-            playerIndex,
-            row,
-            col
-        );
+                model,
+                playerIndex,
+                row,
+                col);
         cmd.execute();
         if (cmd.wasAccepted()) {
             history.push(cmd);
@@ -162,14 +169,12 @@ public class GameController {
     }
 
     public void onInvasionResolved(
-        String attackerAnswer,
-        String defenderAnswer
-    ) {
+            String attackerAnswer,
+            String defenderAnswer) {
         InvasionCommand cmd = new InvasionCommand(
-            model,
-            attackerAnswer,
-            defenderAnswer
-        );
+                model,
+                attackerAnswer,
+                defenderAnswer);
         cmd.execute();
         history.push(cmd);
         if (model.getPhase() == GamePhase.GAME_OVER) {
@@ -197,7 +202,8 @@ public class GameController {
     }
 
     public void restartGame() {
-        if (lastSettings == null) return;
+        if (lastSettings == null)
+            return;
 
         history.clear();
         leaderboardRecorded = false;
