@@ -221,4 +221,79 @@ public class TerritoryClaimView extends JPanel {
             }
         }
     }
+
+    private void onCellClicked(int row, int col) {
+        if (pickIndex >= pickOrder.length)
+            return; // all picks done
+
+        int playerIndex = pickOrder[pickIndex];
+        boolean accepted = controller.onCellClaimed(playerIndex, row, col);
+
+        if (!accepted)
+            return; // cell already taken (race condition guard)
+
+        pickIndex++;
+
+        // Animate and update the clicked button immediately
+        GameModel model = controller.getModel();
+        char newOwner = model.getMap().getOwner(row, col);
+        JButton btn = cellButtons[row][col];
+        applyOwnerStyle(btn, newOwner);
+        btn.setEnabled(false);
+
+        // Flash animation for the claimed cell
+        Color flash = (playerIndex == 0) ? MindWarsTheme.PLAYER_X : MindWarsTheme.PLAYER_O;
+        Color target = flash;
+        AnimationHelper.flashBackground(btn, flash.brighter(), target, 6, 60);
+
+        // Advance UI state
+        List<Player> players = model.getPlayers();
+        if (pickIndex >= pickOrder.length || model.getMap().isMapFull()) {
+            // All picks exhausted → enable Finish Round
+            disableAllEmptyCells();
+            instructionLabel.setText("All territories claimed! Press Finish Round.");
+            instructionLabel.setForeground(MindWarsTheme.PINK);
+            finishButton.setEnabled(true);
+        } else {
+            updateInstruction(players);
+        }
+    }
+
+    /** Greys out remaining empty cells once picks are exhausted. */
+    private void disableAllEmptyCells() {
+        if (cellButtons == null)
+            return;
+        for (JButton[] row : cellButtons) {
+            for (JButton btn : row) {
+                if (btn != null && btn.isEnabled()) {
+                    btn.setEnabled(false);
+                }
+            }
+        }
+    }
+
+    private void updateInstruction(List<Player> players) {
+        if (pickIndex >= pickOrder.length)
+            return;
+        int currentPlayerIndex = pickOrder[pickIndex];
+        Player current = players.get(currentPlayerIndex);
+        int picksLeft = countRemainingPicksFor(currentPlayerIndex);
+
+        // Highlight whose turn it is
+        Color playerColor = (currentPlayerIndex == 0) ? MindWarsTheme.PLAYER_X : MindWarsTheme.PLAYER_O;
+        instructionLabel.setForeground(playerColor);
+        instructionLabel.setText(
+                current.getName() + " — choose " + picksLeft
+                        + (picksLeft == 1 ? " territory" : " territories"));
+    }
+
+    /** Counts how many picks remain for the given player index in pickOrder. */
+    private int countRemainingPicksFor(int playerIndex) {
+        int count = 0;
+        for (int i = pickIndex; i < pickOrder.length; i++) {
+            if (pickOrder[i] == playerIndex)
+                count++;
+        }
+        return count;
+    }
 }
