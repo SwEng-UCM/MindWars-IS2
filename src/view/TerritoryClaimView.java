@@ -1,11 +1,14 @@
 package view;
 
 import controller.GameController;
+import game.MapGrid;
+import model.GameModel;
+import player.Player;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-
 import java.awt.*;
+import java.util.List;
 
 /**
  * Placeholder territory claim screen. The real implementation will show the
@@ -83,5 +86,29 @@ public class TerritoryClaimView extends JPanel {
     }
 
     public void refresh() {
-        /* stub */ }
+        GameModel model = controller.getModel();
+        List<Player> players = model.getPlayers();
+        if (players == null || players.size() < 2)
+            return;
+
+        Player p0 = players.get(0);
+        Player p1 = players.get(1);
+
+        // ── Score labels ──
+        p1Label.setText(p0.getName() + ": " + p0.getScore() + " pts");
+        p2Label.setText(p1.getName() + ": " + p1.getScore() + " pts");
+
+        // ── Determine pick order ──
+        buildPickOrder(p0.getScore(), p1.getScore());
+        pickIndex = 0;
+
+        // ── Rebuild map grid ──
+        rebuildGrid(model);
+
+        updateInstruction(players);
+        finishButton.setEnabled(false);
+
+        revalidate();
+        repaint();
+    }
 }
