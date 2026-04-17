@@ -111,4 +111,71 @@ public class TerritoryClaimView extends JPanel {
         revalidate();
         repaint();
     }
+
+    private void buildPickOrder(int score0, int score1) {
+        if (score0 == score1) {
+            // Tied → each gets LOSER_CLAIMS picks, alternating
+            int total = LOSER_CLAIMS * 2;
+            pickOrder = new int[total];
+            for (int i = 0; i < total; i++) {
+                pickOrder[i] = i % 2; // 0,1,0,1,…
+            }
+            return;
+        }
+
+        int winner = score0 >= score1 ? 0 : 1;
+        int loser = 1 - winner;
+
+        // Interleave: winner, loser, winner (for WINNER=2, LOSER=1)
+        // Generalised: distribute loser picks as evenly as possible between winner
+        // picks
+        int total = WINNER_CLAIMS + LOSER_CLAIMS;
+        pickOrder = new int[total];
+        int wi = 0, li = 0, idx = 0;
+        // Interleave winner first, then loser, repeating
+        boolean winnerTurn = true;
+        while (wi < WINNER_CLAIMS || li < LOSER_CLAIMS) {
+            if (winnerTurn && wi < WINNER_CLAIMS) {
+                pickOrder[idx++] = winner;
+                wi++;
+                // After every winner pick, let loser go once
+                if (li < LOSER_CLAIMS) {
+                    pickOrder[idx++] = loser;
+                    li++;
+                }
+            } else if (li < LOSER_CLAIMS) {
+                pickOrder[idx++] = loser;
+                li++;
+            } else {
+                pickOrder[idx++] = winner;
+                wi++;
+            }
+            // Prevent infinite loop guard
+            if (idx >= total)
+                break;
+        }
+    }
+
 }
+
+    private void rebuildGrid(GameModel model) {
+        gridPanel.removeAll();
+        MapGrid map = model.getMap();
+        if (map == null) return;
+ 
+        int size = map.getSize();
+        gridPanel.setLayout(new GridLayout(size, size, 6, 6));
+        cellButtons = new JButton[size][size];
+ 
+        for (int r = 0; r < size; r++) {
+            for (int c = 0; c < size; c++) {
+                char owner = map.getOwner(r, c);
+                JButton btn = buildCellButton(owner, r, c, model);
+                cellButtons[r][c] = btn;
+                gridPanel.add(btn);
+            }
+        }
+ 
+        gridPanel.revalidate();
+        gridPanel.repaint();
+    }
