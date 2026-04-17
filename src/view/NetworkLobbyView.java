@@ -21,6 +21,7 @@ public class NetworkLobbyView extends JPanel {
     private final JLabel headerLabel;
     private final JTextArea playersArea;
     private final JLabel statusLabel;
+    private final JButton startButton;
 
     public NetworkLobbyView(NavigationController nav, NetworkSession session) {
         this.nav = nav;
@@ -63,6 +64,14 @@ public class NetworkLobbyView extends JPanel {
         disconnect.addActionListener(e -> onDisconnect());
         card.add(disconnect);
 
+        startButton = MindWarsTheme.createGradientButton("Start Match");
+        startButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        startButton.addActionListener(e -> {
+            NetworkMessage msg = new NetworkMessage(NetworkMessage.Type.START_GAME);
+        });
+        card.add(Box.createVerticalStrut(10));
+        card.add(startButton);
+
         bg.add(card);
         add(bg, BorderLayout.CENTER);
 
@@ -78,15 +87,20 @@ public class NetworkLobbyView extends JPanel {
     }
 
     public void refresh() {
-        if (session.isHost() && session.getServer() != null) {
+        boolean isHost = session.isHost();
+        if (isHost && session.getServer() != null) {
             headerLabel.setText("Lobby (Host, port " + session.getServer().getBoundPort() + ")");
-            statusLabel.setText("Waiting for an opponent to join...");
+            statusLabel.setText("Waiting for players to join...");
         } else {
             headerLabel.setText("Lobby");
             statusLabel.setText(session.isConnected()
                     ? "Connected — waiting for host to start."
                     : "Disconnected.");
         }
+
+        startButton.setVisible(isHost);
+        startButton.setEnabled(false);
+
         playersArea.setText(session.isConnected() ? "(you)\n" : "");
     }
 
@@ -100,8 +114,13 @@ public class NetworkLobbyView extends JPanel {
             sb.append((i + 1)).append(". ").append(names.get(i)).append('\n');
         }
         playersArea.setText(sb.toString());
-        if (names.size() >= 2) {
-            statusLabel.setText("Both players connected — the host will start the match.");
+        if (names != null && names.size() >= 2) {
+            statusLabel.setText("Players ready — you can start the match!");
+            if (session.isHost()) {
+                startButton.setEnabled(true);
+            }
+        } else {
+            startButton.setEnabled(false);
         }
     }
 

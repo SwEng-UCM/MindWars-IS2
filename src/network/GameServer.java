@@ -188,6 +188,14 @@ public class GameServer {
                 case JOIN -> onJoin(msg);
                 case READY -> onReady();
                 case ANSWER -> onAnswer(msg);
+                case START_GAME -> {
+                    if (seatIndex == 0) {
+                        synchronized (GameServer.this) {
+                            settings = withJoinedNames(settings, clients);
+                            model.startGame(settings);
+                        }
+                    }
+                }
                 case CHAT -> {
                     msg.senderIndex = seatIndex;
                     msg.name = this.displayName;
@@ -215,11 +223,13 @@ public class GameServer {
 
                 broadcastLobby();
 
-                if (clients.size() == MAX_PLAYERS) {
-                    // Swap in the names collected at JOIN time before starting.
-                    settings = withJoinedNames(settings, clients);
-                    model.startGame(settings);
-                }
+                /*
+                 * if (clients.size() == settings.numPlayers) {
+                 * // Swap in the names collected at JOIN time before starting.
+                 * settings = withJoinedNames(settings, clients);
+                 * model.startGame(settings);
+                 * }
+                 */
             }
         }
 

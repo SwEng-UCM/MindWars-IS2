@@ -144,7 +144,7 @@ public class NetworkSetupView extends JPanel {
             // proper pre-lobby screen exists (#88 territory). That keeps the
             // server wiring self-contained here for #85.
             GameSettings defaults = new GameSettings(
-                    3, false, name, "Player 2", true, null, null);
+                    3, false, name, "Player 2", true, null, null, 2);
             GameModel hostedModel = new GameModel(model.getQuestionBank());
             GameServer server = new GameServer(port, defaults, hostedModel);
             server.start();

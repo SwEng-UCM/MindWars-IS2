@@ -21,6 +21,7 @@ public class NetworkMessage {
         JOIN,
         READY,
         ANSWER,
+        START_GAME,
         // Server -> Client
         WELCOME,
         LOBBY,
