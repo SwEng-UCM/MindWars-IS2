@@ -28,6 +28,8 @@ public final class MindWarsTheme {
     public static final Color GRAY_LIGHT = new Color(0xCCCCCC);
     public static final Color PLAYER_X = PINK;
     public static final Color PLAYER_O = ORANGE;
+    public static final Color PLAYER_A = new Color(0x4CAF50);
+    public static final Color PLAYER_B = new Color(0x2196F3);
     public static final Color FOG_COLOR = new Color(0xBDBDBD);
     public static final Color EMPTY_CELL = new Color(0xF5F5F5);
     public static final Color CORRECT_GREEN = new Color(0x4CAF50);
