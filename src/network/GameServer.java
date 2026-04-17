@@ -1,0 +1,362 @@
+package network;
+
+import model.AnswerResult;
+import model.GameModel;
+import model.GamePhase;
+import model.GameSettings;
+import player.Player;
+import trivia.Question;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+/**
+ * Authoritative game server for multiplayer play (#87).
+ *
+ * <p>
+ * Accepts up to {@link GameSettings#numPlayers} TCP connections on a
+ * chosen port. Each connected client sends a {@code JOIN} message with
+ * their display name; once every seat is filled, the server starts a game
+ * using the {@link GameSettings} it was built with and begins broadcasting
+ * turn state to both clients.
+ * </p>
+ *
+ * <p>
+ * The server is the only place that runs the {@link GameModel}. Clients
+ * cannot advance the phase themselves — they send {@code READY} / {@code
+ * ANSWER} messages and the server decides when to move on. Every phase
+ * transition fires a {@code PHASE}/{@code QUESTION}/{@code SCORES}/
+ * {@code TURN}/{@code GAME_OVER} broadcast so both clients stay in sync.
+ * </p>
+ */
+public class GameServer {
+
+    public static final int DEFAULT_PORT = 5555;
+    public static final int MAX_PLAYERS = 2;
+
+    private final int port;
+    private GameSettings settings;
+    private final GameModel model;
+
+    private ServerSocket serverSocket;
+    private Thread acceptThread;
+
+    private final List<ClientHandler> clients = new CopyOnWriteArrayList<>();
+    private volatile boolean running;
+
+    /**
+     * Tracks which players have sent READY for the current HOT_SEAT_PASS /
+     * INVASION_PASS phase. Cleared on every phase change.
+     */
+    private final boolean[] readyFlags;
+
+    /**
+     * The in-flight answer submitted by each player index for the current question.
+     */
+    private final NetworkMessage[] pendingAnswers;
+
+    public GameServer(int port, GameSettings settings, GameModel model) {
+        this.port = port;
+        this.settings = settings;
+        this.model = model;
+        this.readyFlags = new boolean[MAX_PLAYERS];
+        this.pendingAnswers = new NetworkMessage[MAX_PLAYERS];
+
+        model.addPropertyChangeListener(evt -> {
+            if (GameModel.PROP_PHASE.equals(evt.getPropertyName())) {
+                onPhaseChanged((GamePhase) evt.getNewValue());
+            }
+        });
+    }
+
+    /**
+     * Returns the port the server is actually bound to (useful when 0 was
+     * requested).
+     */
+    public int getBoundPort() {
+        return serverSocket == null ? port : serverSocket.getLocalPort();
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public int getConnectedCount() {
+        return clients.size();
+    }
+
+    /**
+     * Opens the server socket and starts the accept loop on a background thread.
+     */
+    public void start() throws IOException {
+        if (running)
+            return;
+        serverSocket = new ServerSocket(port);
+        running = true;
+        acceptThread = new Thread(this::acceptLoop, "MindWars-ServerAccept");
+        acceptThread.setDaemon(true);
+        acceptThread.start();
+    }
+
+    public void stop() {
+        running = false;
+        for (ClientHandler h : clients)
+            h.close();
+        clients.clear();
+        try {
+            if (serverSocket != null)
+                serverSocket.close();
+        } catch (IOException ignored) {
+        }
+    }
+
+    private void acceptLoop() {
+        while (running) {
+            try {
+                Socket sock = serverSocket.accept();
+                ClientHandler handler = new ClientHandler(sock);
+                handler.start();
+            } catch (IOException e) {
+                if (running)
+                    System.err.println("[server] accept failed: " + e.getMessage());
+                break;
+            }
+        }
+    }
+
+    // ── Per-client wire handler ──
+
+    private final class ClientHandler {
+
+        private final Socket socket;
+        private final BufferedReader in;
+        private final PrintWriter out;
+        private final Thread readerThread;
+        private volatile int seatIndex = -1;
+        private volatile String displayName = "";
+
+        ClientHandler(Socket sock) throws IOException {
+            this.socket = sock;
+            this.in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+            this.out = new PrintWriter(sock.getOutputStream(), true);
+            this.readerThread = new Thread(this::readLoop, "MindWars-Client-" + sock.getPort());
+            this.readerThread.setDaemon(true);
+        }
+
+        void start() {
+            readerThread.start();
+        }
+
+        void send(NetworkMessage msg) {
+            out.println(MessageCodec.encode(msg));
+        }
+
+        void close() {
+            try {
+                socket.close();
+            } catch (IOException ignored) {
+            }
+        }
+
+        private void readLoop() {
+            try {
+                String line;
+                while ((line = in.readLine()) != null) {
+                    NetworkMessage msg = MessageCodec.decode(line);
+                    if (msg == null || msg.type == null)
+                        continue;
+                    handle(msg);
+                }
+            } catch (IOException ignored) {
+            } finally {
+                clients.remove(this);
+            }
+        }
+
+        private void handle(NetworkMessage msg) {
+            switch (msg.type) {
+                case JOIN -> onJoin(msg);
+                case READY -> onReady();
+                case ANSWER -> onAnswer(msg);
+                case CHAT -> {
+                    msg.senderIndex = seatIndex;
+                    msg.name = this.displayName;
+                    broadcast(msg);
+                }
+                default -> send(NetworkMessage.error("unsupported client message: " + msg.type));
+            }
+        }
+
+        private void onJoin(NetworkMessage msg) {
+            synchronized (GameServer.this) {
+                if (clients.size() >= MAX_PLAYERS) {
+                    send(NetworkMessage.error("server full"));
+                    close();
+                    return;
+                }
+                seatIndex = clients.size();
+                displayName = msg.name == null ? ("Player " + (seatIndex + 1)) : msg.name;
+                clients.add(this);
+
+                NetworkMessage welcome = new NetworkMessage(NetworkMessage.Type.WELCOME);
+                welcome.playerIndex = seatIndex;
+                welcome.totalRounds = settings.mapSize;
+                send(welcome);
+
+                broadcastLobby();
+
+                if (clients.size() == MAX_PLAYERS) {
+                    // Swap in the names collected at JOIN time before starting.
+                    settings = withJoinedNames(settings, clients);
+                    model.startGame(settings);
+                }
+            }
+        }
+
+        private void onReady() {
+            if (seatIndex < 0)
+                return;
+            synchronized (GameServer.this) {
+                GamePhase phase = model.getPhase();
+                if (phase != GamePhase.HOT_SEAT_PASS && phase != GamePhase.INVASION_PASS) {
+                    return;
+                }
+                // Only the current player's READY advances the phase.
+                if (seatIndex != model.getCurrentPlayerIndex()
+                        && phase == GamePhase.HOT_SEAT_PASS) {
+                    return;
+                }
+                readyFlags[seatIndex] = true;
+                if (phase == GamePhase.HOT_SEAT_PASS) {
+                    model.beginQuestion();
+                } else {
+                    model.beginInvasionSelect();
+                }
+            }
+        }
+
+        private void onAnswer(NetworkMessage msg) {
+            if (seatIndex < 0)
+                return;
+            synchronized (GameServer.this) {
+                GamePhase phase = model.getPhase();
+                if (phase != GamePhase.QUESTION) {
+                    send(NetworkMessage.error("no question in progress"));
+                    return;
+                }
+                if (seatIndex != model.getCurrentPlayerIndex()) {
+                    send(NetworkMessage.error("not your turn"));
+                    return;
+                }
+                pendingAnswers[seatIndex] = msg;
+                long elapsed = msg.elapsedMs == null ? 0L : msg.elapsedMs;
+                AnswerResult result = model.submitAnswer(msg.answer, elapsed);
+                broadcastResult(result, seatIndex);
+                broadcastScores();
+                model.advanceAfterAnswer();
+            }
+        }
+    }
+
+    // ── Broadcasts ──
+
+    private synchronized void onPhaseChanged(GamePhase phase) {
+        // Reset ready flags on every phase transition so they don't leak.
+        for (int i = 0; i < readyFlags.length; i++)
+            readyFlags[i] = false;
+
+        NetworkMessage m = new NetworkMessage(NetworkMessage.Type.PHASE);
+        m.phase = phase.name();
+        m.currentPlayer = model.getCurrentPlayerIndex();
+        m.round = model.getRoundNumber();
+        m.totalRounds = model.getTotalRounds();
+        broadcast(m);
+
+        switch (phase) {
+            case QUESTION, INVASION_BATTLE -> broadcastQuestion();
+            case GAME_OVER -> broadcastGameOver();
+            default -> {
+                // HOT_SEAT_PASS / TERRITORY_CLAIM etc. only need the PHASE ping.
+            }
+        }
+    }
+
+    private void broadcastQuestion() {
+        Question q = model.getCurrentQuestion();
+        if (q == null)
+            return;
+        NetworkMessage m = new NetworkMessage(NetworkMessage.Type.QUESTION);
+        m.questionType = q.getType() == null ? null : q.getType().name();
+        m.category = q.getCategory();
+        m.difficulty = q.getDifficulty();
+        m.prompt = q.getPrompt();
+        m.choices = q.getChoices() == null ? null : new ArrayList<>(q.getChoices());
+        m.currentPlayer = model.getCurrentPlayerIndex();
+        broadcast(m);
+    }
+
+    private void broadcastResult(AnswerResult result, int playerIndex) {
+        NetworkMessage m = new NetworkMessage(NetworkMessage.Type.RESULT);
+        m.playerIndex = playerIndex;
+        m.correct = result.correct;
+        m.timedOut = result.timedOut;
+        m.pointsDelta = result.pointsDelta;
+        m.correctAnswer = result.correctAnswer;
+        m.elapsedMs = result.elapsedMs;
+        broadcast(m);
+    }
+
+    private void broadcastScores() {
+        NetworkMessage m = new NetworkMessage(NetworkMessage.Type.SCORES);
+        List<Integer> scores = new ArrayList<>();
+        List<String> names = new ArrayList<>();
+        for (ClientHandler h : clients) {
+            names.add(h.displayName);
+        }
+        for (Player p : model.getPlayers()) {
+            scores.add(p.getScore());
+            // names.add(p.getName());
+        }
+        m.scores = scores;
+        m.playerNames = names;
+        broadcast(m);
+    }
+
+    private void broadcastGameOver() {
+        Player winner = model.computeWinner();
+        NetworkMessage m = new NetworkMessage(NetworkMessage.Type.GAME_OVER);
+        m.winnerIndex = winner == null ? null : model.getPlayers().indexOf(winner);
+        broadcast(m);
+    }
+
+    private void broadcastLobby() {
+        NetworkMessage m = new NetworkMessage(NetworkMessage.Type.LOBBY);
+        List<String> names = new ArrayList<>();
+        for (ClientHandler h : clients)
+            names.add(h.displayName);
+        m.playerNames = names;
+        broadcast(m);
+    }
+
+    private void broadcast(NetworkMessage msg) {
+        String encoded = MessageCodec.encode(msg);
+        for (ClientHandler h : clients) {
+            h.out.println(encoded);
+        }
+    }
+
+    private static GameSettings withJoinedNames(GameSettings base, List<ClientHandler> clients) {
+        String p1 = clients.size() >= 1 ? clients.get(0).displayName : base.player1Name;
+        String p2 = clients.size() >= 2 ? clients.get(1).displayName : base.player2Name;
+        return new GameSettings(
+                base.mapSize, base.vsBot, p1, p2,
+                base.randomMode, base.category, base.difficulty);
+    }
+}

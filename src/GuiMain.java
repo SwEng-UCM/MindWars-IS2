@@ -15,7 +15,7 @@ public class GuiMain {
 
         QuestionBank bank = new QuestionBank("questions.json");
         GameModel model = new GameModel(bank);
-
+        // persistence.DatabaseInitializer.initialize();
         SwingUtilities.invokeLater(() -> {
             new ui.MainWindow(model).setVisible(true);
         });

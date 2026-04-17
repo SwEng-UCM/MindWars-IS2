@@ -1,5 +1,9 @@
 package ui;
 
+import controller.RegisterController;
+import persistence.DatabaseInitializer;
+import persistence.UserRepository;
+
 import javax.swing.*;
 import java.awt.*;
 import model.GameModel;
@@ -29,11 +33,18 @@ public class MainWindow extends JFrame {
 
         // Add panels. MenuPanel contains the login UI with logo and gradient.
         // We pass 'this' so MenuPanel can call methods like startGameSession().
-        mainContainer.add(new MenuPanel(this), "MENU");
-        mainContainer.add(new RegisterPanel(this), "REGISTER");
         // If you have a separate RegisterPanel, add it here:
         // mainContainer.add(new RegisterPanel(this), "REGISTER");
+        MenuPanel menuPanel = new MenuPanel(this);
+        RegisterPanel registerPanel = new RegisterPanel(this);
+        RegisterController registerController =
+                new RegisterController(registerPanel, new UserRepository());
+        registerPanel.setController(registerController);
 
+        MainMenuPanel mainMenuPanel = new MainMenuPanel(this);
+        mainContainer.add(menuPanel, "MENU");
+        mainContainer.add(registerPanel, "REGISTER");
+        mainContainer.add(mainMenuPanel, "MAIN_MENU");
         add(mainContainer);
     }
 
@@ -74,6 +85,8 @@ public class MainWindow extends JFrame {
         } catch (Exception ignored) {
         }
 
+        DatabaseInitializer.initialize();
+        // Run Swing components on the Event Dispatch Thread (EDT)
         SwingUtilities.invokeLater(() -> {
             // Usually initialized in GuiMain, but added here for testing purposes
             // GameModel dummyModel = new GameModel(new
