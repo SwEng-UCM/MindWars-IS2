@@ -38,6 +38,10 @@ public class GameBoardView extends JPanel {
     private final JLabel playerLabel;
     private final JLabel p1ScoreLabel;
     private final JLabel p2ScoreLabel;
+    private JLabel p3ScoreLabel;
+    private JLabel p4ScoreLabel;
+    private JButton readyButton;
+    private JPanel scoreContainer;
 
     // Timer
     private final JProgressBar timerBar;
@@ -73,6 +77,8 @@ public class GameBoardView extends JPanel {
     private char[][] previousOwners;
     private JLabel[][] cellLabels;
 
+    private int localPlayerIndex = -1;
+
     public GameBoardView(GameController controller, boolean invasionMode) {
         this.controller = controller;
         this.invasionMode = invasionMode;
@@ -93,7 +99,7 @@ public class GameBoardView extends JPanel {
         playerLabel.setForeground(MindWarsTheme.WHITE);
         playerLabel.setFont(MindWarsTheme.BODY_BOLD);
 
-        JPanel scores = new JPanel(new GridLayout(1, 2, 12, 0));
+        JPanel scores = new JPanel(new GridLayout(1, 4, 12, 0));
         scores.setOpaque(false);
         p1ScoreLabel = new JLabel("", SwingConstants.RIGHT);
         p1ScoreLabel.setForeground(MindWarsTheme.PLAYER_X);
@@ -101,8 +107,16 @@ public class GameBoardView extends JPanel {
         p2ScoreLabel = new JLabel("", SwingConstants.RIGHT);
         p2ScoreLabel.setForeground(MindWarsTheme.PLAYER_O);
         p2ScoreLabel.setFont(MindWarsTheme.BODY_BOLD);
+        p3ScoreLabel = new JLabel("", SwingConstants.RIGHT);
+        p3ScoreLabel.setForeground(Color.CYAN);
+        p3ScoreLabel.setFont(MindWarsTheme.BODY_BOLD);
+        p4ScoreLabel = new JLabel("", SwingConstants.RIGHT);
+        p4ScoreLabel.setForeground(Color.YELLOW);
+        p4ScoreLabel.setFont(MindWarsTheme.BODY_BOLD);
         scores.add(p1ScoreLabel);
         scores.add(p2ScoreLabel);
+        scores.add(p3ScoreLabel);
+        scores.add(p4ScoreLabel);
 
         header.add(roundLabel);
         header.add(playerLabel);
@@ -184,6 +198,13 @@ public class GameBoardView extends JPanel {
         bottom.add(qCard, BorderLayout.CENTER);
         bottom.add(buttons, BorderLayout.SOUTH);
 
+        readyButton = MindWarsTheme.createGradientButton("Ready");
+        readyButton.addActionListener(e -> controller.onHotSeatReady());
+
+        scoreContainer = new JPanel();
+        scoreContainer.setLayout(new BoxLayout(scoreContainer, BoxLayout.Y_AXIS));
+        scoreContainer.setOpaque(false);
+
         // ── Feedback overlay label (stacked at bottom) ──
         feedbackLabel = new JLabel("", SwingConstants.CENTER);
         feedbackLabel.setFont(MindWarsTheme.HEADING_FONT);
@@ -210,14 +231,35 @@ public class GameBoardView extends JPanel {
 
         // Header
         roundLabel.setText("Round " + model.getRoundNumber() + " / " + model.getTotalRounds());
-        Player p = invasionMode
+
+        Player activePlayer = invasionMode
                 ? (invasionDefenderTurn ? model.getDefender() : model.getInvader())
                 : model.getCurrentPlayer();
-        playerLabel.setText((invasionMode
-                ? (invasionDefenderTurn ? "Defender: " : "Attacker: ")
-                : "Turn: ") + p.getName());
-        p1ScoreLabel.setText(players.get(0).getName() + ": " + players.get(0).getScore());
-        p2ScoreLabel.setText(players.get(1).getName() + ": " + players.get(1).getScore());
+
+        int activeIndex = players.indexOf(activePlayer);
+
+        boolean isMyTurn = (localPlayerIndex < 0) || (localPlayerIndex == activeIndex);
+
+        if (isMyTurn) {
+            playerLabel.setText("YOUR TURN — " + (invasionMode ? "Battle!" : "Press Ready"));
+            playerLabel.setForeground(MindWarsTheme.PINK);
+        } else {
+            playerLabel.setText("Waiting for " + activePlayer.getName() + "...");
+            playerLabel.setForeground(Color.GRAY);
+        }
+
+        if (players.size() >= 1)
+            p1ScoreLabel.setText(players.get(0).getName() + ": " + players.get(0).getScore());
+        if (players.size() >= 2)
+            p2ScoreLabel.setText(players.get(1).getName() + ": " + players.get(1).getScore());
+        if (players.size() >= 3)
+            p3ScoreLabel.setText(players.get(2).getName() + ": " + players.get(2).getScore());
+        else
+            p3ScoreLabel.setText("");
+        if (players.size() >= 4)
+            p4ScoreLabel.setText(players.get(3).getName() + ": " + players.get(3).getScore());
+        else
+            p4ScoreLabel.setText("");
 
         // Grid
         rebuildGrid(model);
@@ -227,21 +269,29 @@ public class GameBoardView extends JPanel {
         if (q == null) {
             categoryLabel.setText("");
             promptLabel.setText("<html>(no question)</html>");
+            submitButton.setEnabled(false);
+            readyButton.setEnabled(isMyTurn);
             return;
         }
+
         categoryLabel.setText((q.getCategory() == null ? "" : q.getCategory().toUpperCase())
                 + "  •  " + (q.getDifficulty() == null ? "" : q.getDifficulty()));
         promptLabel.setText("<html><body style='width: 380px'>" + escape(q.getPrompt()) + "</body></html>");
         populateAnswerInput(q);
 
-        // Reset per-question UI
         feedbackLabel.setVisible(false);
-        submitButton.setEnabled(true);
-        undoButton.setEnabled(controller.canUndo());
+
+        submitButton.setEnabled(isMyTurn);
+        readyButton.setEnabled(isMyTurn);
+        undoButton.setEnabled(isMyTurn && controller.canUndo());
 
         // force swing to redraw
         this.revalidate();
         this.repaint();
+    }
+
+    public void setLocalPlayerIndex(int index) {
+        this.localPlayerIndex = index;
     }
 
     /** Starts the 15 s countdown. Called by MainFrame when this screen is shown. */
@@ -312,26 +362,41 @@ public class GameBoardView extends JPanel {
         cell.setFont(MindWarsTheme.BODY_BOLD);
         cell.setPreferredSize(new Dimension(44, 44));
         cell.setBorder(BorderFactory.createLineBorder(MindWarsTheme.DARK_BORDER));
-        if (owner == 'X') {
-            cell.setBackground(MindWarsTheme.PLAYER_X);
-            cell.setForeground(MindWarsTheme.WHITE);
-            cell.setText("X");
-        } else if (owner == 'O') {
-            cell.setBackground(MindWarsTheme.PLAYER_O);
-            cell.setForeground(MindWarsTheme.WHITE);
-            cell.setText("O");
-        } else {
-            cell.setBackground(MindWarsTheme.DARK_CARD);
+        switch (owner) {
+            case 'X' -> {
+                cell.setBackground(MindWarsTheme.PLAYER_X);
+                cell.setForeground(MindWarsTheme.WHITE);
+                cell.setText("X");
+            }
+            case 'O' -> {
+                cell.setBackground(MindWarsTheme.PLAYER_O);
+                cell.setForeground(MindWarsTheme.WHITE);
+                cell.setText("O");
+            }
+            case 'A' -> {
+                cell.setBackground(new Color(0, 200, 100));
+                cell.setForeground(MindWarsTheme.WHITE);
+                cell.setText("A");
+            }
+            case 'B' -> {
+                cell.setBackground(new Color(255, 180, 0));
+                cell.setForeground(MindWarsTheme.WHITE);
+                cell.setText("B");
+            }
+            default -> cell.setBackground(MindWarsTheme.DARK_CARD);
         }
         return cell;
     }
 
     private void animateOwnershipChange(JLabel cell, char from, char to) {
-        // Empty → owned is a territory claim; owned → owned is an invasion
-        // capture. Flash green for claims and red for captures to make the
-        // difference obvious (#90).
         Color flash = (from == '.') ? MindWarsTheme.CORRECT_GREEN : MindWarsTheme.WRONG_RED;
-        Color finalColor = (to == 'X') ? MindWarsTheme.PLAYER_X : MindWarsTheme.PLAYER_O;
+        Color finalColor = switch (to) {
+            case 'X' -> MindWarsTheme.PLAYER_X;
+            case 'O' -> MindWarsTheme.PLAYER_O;
+            case 'A' -> new Color(0, 200, 100);
+            case 'B' -> new Color(255, 180, 0);
+            default -> MindWarsTheme.DARK_CARD;
+        };
         AnimationHelper.flashBackground(cell, flash, finalColor, 8, 70);
     }
 
@@ -600,5 +665,21 @@ public class GameBoardView extends JPanel {
         if (s == null)
             return "";
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+    }
+
+    private void updateScoreSidebar(List<Player> players) {
+        scoreContainer.removeAll();
+        GameModel model = controller.getModel();
+        for (Player p : players) {
+            JLabel label = new JLabel(p.getName() + ": " + p.getScore());
+            label.setFont(MindWarsTheme.BODY_BOLD);
+            if (p == model.getCurrentPlayer())
+                label.setForeground(MindWarsTheme.PINK);
+            else
+                label.setForeground(MindWarsTheme.WHITE);
+            scoreContainer.add(label);
+        }
+        scoreContainer.revalidate();
+        scoreContainer.repaint();
     }
 }

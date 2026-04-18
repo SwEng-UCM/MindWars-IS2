@@ -254,14 +254,9 @@ public class GameSetupView extends JPanel {
         }
 
         GameSettings settings = new GameSettings(
-                mapSize,
-                vsBot,
-                p1,
-                p2,
-                randomMode,
-                category,
-                difficulty,
-                finalNumPlayers);
+                mapSize, vsBot,
+                p1, p2, p3, p4,
+                randomMode, category, difficulty, finalNumPlayers);
 
         controller.startNewGame(settings);
     }

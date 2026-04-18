@@ -33,14 +33,16 @@ public class GameServerTest {
 
     private static GameSettings defaultSettings() {
         return new GameSettings(
-                3,
+                10,
                 false,
-                "Alice",
-                "Bob",
-                false,
-                "Tech",
-                "Easy",
-                2);
+                "Player 1", // p1 name
+                "Player 2", // p2 name
+                "Player 3", // p3 name
+                "Player 4", // p4 name
+                false, // randomMode
+                "General",
+                "Normal",
+                1);
     }
 
     /** Minimal bank with one MCQ so the server has questions to broadcast. */

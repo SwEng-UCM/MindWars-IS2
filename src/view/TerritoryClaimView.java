@@ -10,45 +10,32 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.List;
 
-/**
- * Territory claim screen shown after each round's Q&A phase.
- *
- * <p>
- * Rules:
- * <ul>
- * <li>The round winner gets {@link #WINNER_CLAIMS} cell picks first.</li>
- * <li>The round loser (or the tied second player) gets {@link #LOSER_CLAIMS}
- * pick.</li>
- * <li>If scores are tied, each player gets {@link #LOSER_CLAIMS} pick.</li>
- * <li>Picks alternate: winner picks one → loser picks one → winner picks second
- * (if any).</li>
- * <li>A cell can only be claimed if it is currently empty ('.').</li>
- * </ul>
- *
- * <p>
- * The grid is rebuilt via {@link #refresh()} whenever the model changes.
- */
 public class TerritoryClaimView extends JPanel {
 
     private static final int WINNER_CLAIMS = 2;
     private static final int LOSER_CLAIMS = 1;
 
-    // pick order: index into players list, repeated WINNER_CLAIMS / LOSER_CLAIMS
-    // times
-    private int[] pickOrder; // e.g. [0, 1, 0] → player0 picks, then player1, then player0 again
-    private int pickIndex; // current position in pickOrder
+    private int[] pickOrder;
+    private int pickIndex;
 
     private final GameController controller;
 
     // ── UI ──
     private final JLabel instructionLabel;
-    private final JLabel p1Label;
-    private final JLabel p2Label;
+    private JLabel[] scoreLabels;
+    private final JPanel scoreRow;
     private final JPanel gridPanel;
     private final JButton finishButton;
 
-    // Keep references so we can re-enable / re-color cells when refresh() is called
     private JButton[][] cellButtons;
+
+    private static final char[] SYMBOLS = { 'X', 'O', 'A', 'B' };
+    private static final Color[] PLAYER_COLORS = {
+            MindWarsTheme.PLAYER_X,
+            MindWarsTheme.PLAYER_O,
+            new Color(0, 200, 100),
+            new Color(255, 180, 0)
+    };
 
     public TerritoryClaimView(GameController controller) {
         this.controller = controller;
@@ -57,7 +44,7 @@ public class TerritoryClaimView extends JPanel {
         setBackground(MindWarsTheme.DARK_BG);
         setBorder(new EmptyBorder(20, 24, 20, 24));
 
-        // ── Top: title + player score row ──
+        // ── Top ──
         JPanel top = new JPanel(new BorderLayout(0, 8));
         top.setOpaque(false);
 
@@ -66,16 +53,8 @@ public class TerritoryClaimView extends JPanel {
                 MindWarsTheme.HEADING_FONT, MindWarsTheme.WHITE);
         top.add(title, BorderLayout.NORTH);
 
-        JPanel scoreRow = new JPanel(new GridLayout(1, 2, 16, 0));
+        scoreRow = new JPanel();
         scoreRow.setOpaque(false);
-        p1Label = new JLabel("", SwingConstants.CENTER);
-        p1Label.setFont(MindWarsTheme.BODY_BOLD);
-        p1Label.setForeground(MindWarsTheme.PLAYER_X);
-        p2Label = new JLabel("", SwingConstants.CENTER);
-        p2Label.setFont(MindWarsTheme.BODY_BOLD);
-        p2Label.setForeground(MindWarsTheme.PLAYER_O);
-        scoreRow.add(p1Label);
-        scoreRow.add(p2Label);
         top.add(scoreRow, BorderLayout.CENTER);
 
         instructionLabel = MindWarsTheme.centeredLabel(
@@ -84,16 +63,14 @@ public class TerritoryClaimView extends JPanel {
 
         add(top, BorderLayout.NORTH);
 
-        // ── Centre: grid ──
         gridPanel = new JPanel();
         gridPanel.setOpaque(false);
         gridPanel.setBorder(new EmptyBorder(8, 0, 8, 0));
         add(gridPanel, BorderLayout.CENTER);
 
-        // ── Bottom: finish button ──
         finishButton = MindWarsTheme.createGradientButton("Finish Round");
         finishButton.addActionListener(e -> controller.onTerritoryPhaseFinished());
-        finishButton.setEnabled(false); // enabled only when all picks are done
+        finishButton.setEnabled(false);
 
         JPanel south = new JPanel();
         south.setOpaque(false);
@@ -104,21 +81,26 @@ public class TerritoryClaimView extends JPanel {
     public void refresh() {
         GameModel model = controller.getModel();
         List<Player> players = model.getPlayers();
-        if (players == null || players.size() < 2)
+        if (players == null || players.isEmpty())
             return;
 
-        Player p0 = players.get(0);
-        Player p1 = players.get(1);
+        scoreRow.removeAll();
+        scoreRow.setLayout(new GridLayout(1, players.size(), 16, 0));
+        scoreLabels = new JLabel[players.size()];
+        for (int i = 0; i < players.size(); i++) {
+            Player p = players.get(i);
+            JLabel lbl = new JLabel(
+                    p.getName() + ": " + p.getScore() + " pts",
+                    SwingConstants.CENTER);
+            lbl.setFont(MindWarsTheme.BODY_BOLD);
+            lbl.setForeground(playerColor(i));
+            scoreLabels[i] = lbl;
+            scoreRow.add(lbl);
+        }
 
-        // ── Score labels ──
-        p1Label.setText(p0.getName() + ": " + p0.getScore() + " pts");
-        p2Label.setText(p1.getName() + ": " + p1.getScore() + " pts");
-
-        // ── Determine pick order ──
-        buildPickOrder(p0.getScore(), p1.getScore());
+        buildPickOrder(model);
         pickIndex = 0;
 
-        // ── Rebuild map grid ──
         rebuildGrid(model);
 
         updateInstruction(players);
@@ -128,47 +110,32 @@ public class TerritoryClaimView extends JPanel {
         repaint();
     }
 
-    private void buildPickOrder(int score0, int score1) {
-        if (score0 == score1) {
-            // Tied → each gets LOSER_CLAIMS picks, alternating
-            int total = LOSER_CLAIMS * 2;
-            pickOrder = new int[total];
-            for (int i = 0; i < total; i++) {
-                pickOrder[i] = i % 2; // 0,1,0,1,…
-            }
-            return;
+    private void buildPickOrder(GameModel model) {
+        int winnerIdx = model.determineRoundWinnerIndex();
+        int n = model.getPlayers().size();
+
+        int total = WINNER_CLAIMS + LOSER_CLAIMS * (n - 1);
+        pickOrder = new int[total];
+
+        int idx = 0;
+        int[] remaining = new int[n];
+        for (int i = 0; i < n; i++) {
+            remaining[i] = (i == winnerIdx) ? WINNER_CLAIMS : LOSER_CLAIMS;
         }
 
-        int winner = score0 >= score1 ? 0 : 1;
-        int loser = 1 - winner;
-
-        // Interleave: winner, loser, winner (for WINNER=2, LOSER=1)
-        // Generalised: distribute loser picks as evenly as possible between winner
-        // picks
-        int total = WINNER_CLAIMS + LOSER_CLAIMS;
-        pickOrder = new int[total];
-        int wi = 0, li = 0, idx = 0;
-        // Interleave winner first, then loser, repeating
-        boolean winnerTurn = true;
-        while (wi < WINNER_CLAIMS || li < LOSER_CLAIMS) {
-            if (winnerTurn && wi < WINNER_CLAIMS) {
-                pickOrder[idx++] = winner;
-                wi++;
-                // After every winner pick, let loser go once
-                if (li < LOSER_CLAIMS) {
-                    pickOrder[idx++] = loser;
-                    li++;
-                }
-            } else if (li < LOSER_CLAIMS) {
-                pickOrder[idx++] = loser;
-                li++;
-            } else {
-                pickOrder[idx++] = winner;
-                wi++;
+        int current = winnerIdx;
+        while (idx < total) {
+            if (remaining[current] > 0) {
+                pickOrder[idx++] = current;
+                remaining[current]--;
             }
-            // Prevent infinite loop guard
-            if (idx >= total)
-                break;
+            int next = (current + 1) % n;
+            int checked = 0;
+            while (remaining[next] == 0 && checked < n) {
+                next = (next + 1) % n;
+                checked++;
+            }
+            current = next;
         }
     }
 
@@ -203,10 +170,9 @@ public class TerritoryClaimView extends JPanel {
         btn.setBorder(BorderFactory.createLineBorder(MindWarsTheme.DARK_BORDER, 2));
         btn.setPreferredSize(new Dimension(72, 72));
 
-        applyOwnerStyle(btn, owner);
+        applyOwnerStyle(btn, owner, model);
 
         if (owner == '.') {
-            // Empty cell → clickable
             final int fr = row, fc = col;
             btn.addActionListener(e -> onCellClicked(fr, fc));
         } else {
@@ -216,56 +182,46 @@ public class TerritoryClaimView extends JPanel {
         return btn;
     }
 
-    private void applyOwnerStyle(JButton btn, char owner) {
-        switch (owner) {
-            case 'X' -> {
-                btn.setBackground(MindWarsTheme.PLAYER_X);
-                btn.setForeground(MindWarsTheme.WHITE);
-                btn.setText("X");
-                btn.setEnabled(false);
-            }
-            case 'O' -> {
-                btn.setBackground(MindWarsTheme.PLAYER_O);
-                btn.setForeground(MindWarsTheme.WHITE);
-                btn.setText("O");
-                btn.setEnabled(false);
-            }
-            default -> {
-                btn.setBackground(MindWarsTheme.DARK_CARD);
-                btn.setForeground(MindWarsTheme.GRAY_LIGHT);
-                btn.setText("");
-            }
+    private void applyOwnerStyle(JButton btn, char owner, GameModel model) {
+        if (owner == '.') {
+            btn.setBackground(MindWarsTheme.DARK_CARD);
+            btn.setForeground(MindWarsTheme.GRAY_LIGHT);
+            btn.setText("");
+            btn.setEnabled(true);
+            return;
         }
+
+        int playerIdx = playerIndexForSymbol(owner, model);
+        Color color = playerColor(playerIdx);
+
+        btn.setBackground(color);
+        btn.setForeground(MindWarsTheme.WHITE);
+        btn.setText(String.valueOf(owner));
+        btn.setEnabled(false);
     }
 
     private void onCellClicked(int row, int col) {
         if (pickIndex >= pickOrder.length)
-            return; // all picks done
+            return;
 
         int playerIndex = pickOrder[pickIndex];
         boolean accepted = controller.onCellClaimed(playerIndex, row, col);
-
         if (!accepted)
-            return; // cell already taken (race condition guard)
+            return;
 
         pickIndex++;
 
-        // Animate and update the clicked button immediately
         GameModel model = controller.getModel();
         char newOwner = model.getMap().getOwner(row, col);
         JButton btn = cellButtons[row][col];
-        applyOwnerStyle(btn, newOwner);
+        applyOwnerStyle(btn, newOwner, model);
         btn.setEnabled(false);
 
-        // Flash animation for the claimed cell
-        Color flash = (playerIndex == 0) ? MindWarsTheme.PLAYER_X : MindWarsTheme.PLAYER_O;
-        Color target = flash;
-        AnimationHelper.flashBackground(btn, flash.brighter(), target, 6, 60);
+        Color flash = playerColor(playerIndex);
+        AnimationHelper.flashBackground(btn, flash.brighter(), flash, 6, 60);
 
-        // Advance UI state
         List<Player> players = model.getPlayers();
         if (pickIndex >= pickOrder.length || model.getMap().isMapFull()) {
-            // All picks exhausted → enable Finish Round
             disableAllEmptyCells();
             instructionLabel.setText("All territories claimed! Press Finish Round.");
             instructionLabel.setForeground(MindWarsTheme.PINK);
@@ -275,17 +231,13 @@ public class TerritoryClaimView extends JPanel {
         }
     }
 
-    /** Greys out remaining empty cells once picks are exhausted. */
     private void disableAllEmptyCells() {
         if (cellButtons == null)
             return;
-        for (JButton[] row : cellButtons) {
-            for (JButton btn : row) {
-                if (btn != null && btn.isEnabled()) {
+        for (JButton[] row : cellButtons)
+            for (JButton btn : row)
+                if (btn != null && btn.isEnabled())
                     btn.setEnabled(false);
-                }
-            }
-        }
     }
 
     private void updateInstruction(List<Player> players) {
@@ -295,21 +247,34 @@ public class TerritoryClaimView extends JPanel {
         Player current = players.get(currentPlayerIndex);
         int picksLeft = countRemainingPicksFor(currentPlayerIndex);
 
-        // Highlight whose turn it is
-        Color playerColor = (currentPlayerIndex == 0) ? MindWarsTheme.PLAYER_X : MindWarsTheme.PLAYER_O;
-        instructionLabel.setForeground(playerColor);
+        instructionLabel.setForeground(playerColor(currentPlayerIndex));
         instructionLabel.setText(
                 current.getName() + " — choose " + picksLeft
                         + (picksLeft == 1 ? " territory" : " territories"));
     }
 
-    /** Counts how many picks remain for the given player index in pickOrder. */
     private int countRemainingPicksFor(int playerIndex) {
         int count = 0;
-        for (int i = pickIndex; i < pickOrder.length; i++) {
+        for (int i = pickIndex; i < pickOrder.length; i++)
             if (pickOrder[i] == playerIndex)
                 count++;
-        }
         return count;
+    }
+
+    // ── Helpers ──
+
+    private Color playerColor(int playerIndex) {
+        if (playerIndex >= 0 && playerIndex < PLAYER_COLORS.length)
+            return PLAYER_COLORS[playerIndex];
+        return MindWarsTheme.GRAY_LIGHT;
+    }
+
+    private int playerIndexForSymbol(char symbol, GameModel model) {
+        List<Player> players = model.getPlayers();
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).getSymbol() == symbol)
+                return i;
+        }
+        return 0;
     }
 }

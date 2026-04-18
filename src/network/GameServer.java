@@ -369,12 +369,13 @@ public class GameServer {
         int count = clients.size();
         String p1 = clients.get(0).displayName;
         String p2 = (count >= 2) ? clients.get(1).displayName : base.player2Name;
+        String p3 = (count >= 3) ? clients.get(2).displayName : base.player3Name;
+        String p4 = (count >= 4) ? clients.get(3).displayName : base.player4Name;
 
         return new GameSettings(
                 base.mapSize,
                 base.vsBot,
-                p1,
-                p2,
+                p1, p2, p3, p4,
                 base.randomMode,
                 base.category,
                 base.difficulty,

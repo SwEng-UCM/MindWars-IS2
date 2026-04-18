@@ -189,11 +189,15 @@ public class GameModel {
         this.currentPlayerIndex = 0;
 
         char[] symbols = { 'X', 'O', 'A', 'B' };
-        String[] names = { settings.player1Name, settings.player2Name, "Player 3", "Player 4" };
+        String[] names = {
+                settings.player1Name,
+                settings.player2Name,
+                (settings.player3Name == null || settings.player3Name.isBlank()) ? "Player 3" : settings.player3Name,
+                (settings.player4Name == null || settings.player4Name.isBlank()) ? "Player 4" : settings.player4Name
+        };
 
         for (int i = 0; i < settings.numPlayers; i++) {
-            String name = (i < 2) ? names[i] : "Player " + (i + 1);
-            Player p = new Player(name);
+            Player p = new Player(names[i]);
             p.setSymbol(symbols[i]);
             players.add(p);
         }
@@ -304,14 +308,12 @@ public class GameModel {
 
     /** Called by the controller after showing answer feedback to move on. */
     public void advanceAfterAnswer() {
-        // If player 2 still needs to answer this question, hand off.
         if (currentPlayerIndex < players.size() - 1) {
             currentPlayerIndex++;
             pcs.firePropertyChange(PROP_CURRENT_PLAYER, null, getCurrentPlayer());
             setPhase(GamePhase.HOT_SEAT_PASS);
             return;
         }
-        // Both players answered: enter territory claim phase.
         setPhase(GamePhase.TERRITORY_CLAIM);
     }
 
@@ -326,23 +328,30 @@ public class GameModel {
         int size = map.getSize();
         int winnerClaims = size / 2 + 1;
         int loserClaims = size / 2;
-        int winner = determineRoundWinnerIndex();
-        int loser = 1 - winner;
+
+        int winnerIdx = determineRoundWinnerIndex();
         int[] out = new int[players.size()];
-        out[winner] = winnerClaims;
-        out[loser] = loserClaims;
+
+        for (int i = 0; i < players.size(); i++) {
+            out[i] = (i == winnerIdx) ? winnerClaims : loserClaims;
+        }
         return out;
     }
 
     public int determineRoundWinnerIndex() {
-        boolean a = roundCorrect[0];
-        boolean b = roundCorrect[1];
-        if (a && !b)
-            return 0;
-        if (!a && b)
-            return 1;
-        // Both same outcome → fastest time wins.
-        return roundTimes[0] <= roundTimes[1] ? 0 : 1;
+        int bestIdx = 0;
+        for (int i = 1; i < players.size(); i++) {
+            boolean bestCorrect = roundCorrect[bestIdx];
+            boolean iCorrect = roundCorrect[i];
+            if (iCorrect && !bestCorrect) {
+                bestIdx = i;
+            } else if (iCorrect == bestCorrect) {
+                if (roundTimes[i] < roundTimes[bestIdx]) {
+                    bestIdx = i;
+                }
+            }
+        }
+        return bestIdx;
     }
 
     /**
@@ -366,7 +375,6 @@ public class GameModel {
      * to next round or to invasion phase or to game over.
      */
     public void finishRound() {
-        // Reset round trackers
         roundCorrect = new boolean[players.size()];
         roundTimes = new long[players.size()];
 
@@ -380,7 +388,6 @@ public class GameModel {
             setPhase(GamePhase.GAME_OVER);
             return;
         }
-        // Next round: player 0 goes first again.
         currentPlayerIndex = 0;
         pcs.firePropertyChange(PROP_CURRENT_PLAYER, null, getCurrentPlayer());
         pcs.firePropertyChange(PROP_ROUND, null, roundIndex);
@@ -425,7 +432,12 @@ public class GameModel {
     }
 
     public Player getDefender() {
-        return players.get(1 - invaderIndex);
+        for (int i = 0; i < players.size(); i++) {
+            if (i != invaderIndex) {
+                return players.get(i);
+            }
+        }
+        return players.get(0);
     }
 
     /**
@@ -434,15 +446,17 @@ public class GameModel {
      */
     public void resolveInvasion(String attackerAnswer, String defenderAnswer) {
         Question q = getCurrentQuestion();
+        Player invader = getInvader();
+        Player defender = getDefender();
+
         boolean attCorrect = attackerAnswer != null && AnswerValidator.isCorrect(q, attackerAnswer);
         boolean defCorrect = defenderAnswer != null && AnswerValidator.isCorrect(q, defenderAnswer);
 
         if (attCorrect && !defCorrect) {
-            // Attacker conquers the target cell.
-            map.setOwner(attackToRow, attackToCol, getInvader().getSymbol());
+            map.setOwner(attackToRow, attackToCol, invader.getSymbol());
             pcs.firePropertyChange(PROP_MAP, null, map);
         }
-        // Move to the next invader (each player attacks once, then game over).
+
         invaderIndex++;
         if (invaderIndex >= players.size()) {
             setPhase(GamePhase.GAME_OVER);
