@@ -1,12 +1,14 @@
 package ui;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
+import controller.LoginController;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
+import javax.swing.*;
+import javax.swing.JOptionPane;
+import javax.swing.border.EmptyBorder;
 
 /**
  * MenuPanel handles the Login UI, including the gradient background,
@@ -19,6 +21,7 @@ public class MenuPanel extends JPanel {
 
     private JTextField emailField;
     private JPasswordField passField;
+    private LoginController controller;
 
     public MenuPanel(MainWindow parent) {
         this.parent = parent;
@@ -29,7 +32,9 @@ public class MenuPanel extends JPanel {
         try {
             logoImage = ImageIO.read(new File("assets/logo.png"));
         } catch (Exception e) {
-            System.err.println("Could not load logo.png. Ensure it is in the assets/ folder.");
+            System.err.println(
+                "Could not load logo.png. Ensure it is in the assets/ folder."
+            );
         }
 
         // Main White Card Container with rounded corners
@@ -37,9 +42,21 @@ public class MenuPanel extends JPanel {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g.create();
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+                );
                 g2d.setColor(Color.WHITE);
-                g2d.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 40, 40));
+                g2d.fill(
+                    new RoundRectangle2D.Double(
+                        0,
+                        0,
+                        getWidth(),
+                        getHeight(),
+                        40,
+                        40
+                    )
+                );
                 g2d.dispose();
             }
         };
@@ -58,8 +75,13 @@ public class MenuPanel extends JPanel {
         JLabel logoLabel = new JLabel();
         if (logoImage != null) {
             int targetHeight = 150;
-            int targetWidth = (int) (logoImage.getWidth() * ((double) targetHeight / logoImage.getHeight()));
-            Image scaledLogo = logoImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
+            int targetWidth = (int) (logoImage.getWidth() *
+                ((double) targetHeight / logoImage.getHeight()));
+            Image scaledLogo = logoImage.getScaledInstance(
+                targetWidth,
+                targetHeight,
+                Image.SCALE_SMOOTH
+            );
             logoLabel.setIcon(new ImageIcon(scaledLogo));
         }
         logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -68,7 +90,10 @@ public class MenuPanel extends JPanel {
         // 2. Subtitle text
         gbc.gridy = 1;
         gbc.insets = new Insets(0, 30, 20, 30);
-        JLabel sub = new JLabel("Welcome back! Login to continue", SwingConstants.CENTER);
+        JLabel sub = new JLabel(
+            "Welcome back! Login to continue",
+            SwingConstants.CENTER
+        );
         sub.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         sub.setForeground(Color.GRAY);
         card.add(sub, gbc);
@@ -108,17 +133,8 @@ public class MenuPanel extends JPanel {
         JButton loginBtn = createGradientButton("→ Login to Game");
 
         loginBtn.addActionListener(e -> {
-            player.Player registeredPlayer = parent.getSessionPlayer();
-
-            if (registeredPlayer == null) {
-                // If no player is registered, redirect to Register screen
-                JOptionPane.showMessageDialog(this, "Account not found! Please register first.", "Error",
-                        JOptionPane.ERROR_MESSAGE);
-                parent.showScreen("REGISTER");
-            } else {
-                // Success: Greet player and launch the MainFrame game engine
-                JOptionPane.showMessageDialog(this, "Welcome back, " + registeredPlayer.getName() + "!");
-                parent.startGameSession();
+            if (controller != null) {
+                controller.login();
             }
         });
         card.add(loginBtn, gbc);
@@ -148,8 +164,14 @@ public class MenuPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
-        GradientPaint gp = new GradientPaint(0, 0, new Color(213, 58, 137), getWidth(), getHeight(),
-                new Color(223, 103, 31));
+        GradientPaint gp = new GradientPaint(
+            0,
+            0,
+            new Color(213, 58, 137),
+            getWidth(),
+            getHeight(),
+            new Color(223, 103, 31)
+        );
         g2d.setPaint(gp);
         g2d.fillRect(0, 0, getWidth(), getHeight());
     }
@@ -184,7 +206,13 @@ public class MenuPanel extends JPanel {
         if (active) {
             btn.setBackground(Color.WHITE);
             btn.setForeground(new Color(213, 58, 137));
-            btn.setBorder(BorderFactory.createLineBorder(new Color(213, 58, 137, 80), 1, true));
+            btn.setBorder(
+                BorderFactory.createLineBorder(
+                    new Color(213, 58, 137, 80),
+                    1,
+                    true
+                )
+            );
         } else {
             btn.setBackground(new Color(248, 248, 248));
             btn.setForeground(Color.GRAY);
@@ -195,18 +223,32 @@ public class MenuPanel extends JPanel {
     private JTextField createStyledTextField(String placeholder) {
         JTextField tf = new JTextField(placeholder);
         tf.setPreferredSize(new Dimension(300, 45));
-        tf.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(220, 220, 220), 1, true),
-                BorderFactory.createEmptyBorder(0, 15, 0, 15)));
+        tf.setBorder(
+            BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(
+                    new Color(220, 220, 220),
+                    1,
+                    true
+                ),
+                BorderFactory.createEmptyBorder(0, 15, 0, 15)
+            )
+        );
         return tf;
     }
 
     private JPasswordField createStyledPasswordField() {
         JPasswordField pf = new JPasswordField("");
         pf.setPreferredSize(new Dimension(300, 45));
-        pf.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(220, 220, 220), 1, true),
-                BorderFactory.createEmptyBorder(0, 15, 0, 15)));
+        pf.setBorder(
+            BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(
+                    new Color(220, 220, 220),
+                    1,
+                    true
+                ),
+                BorderFactory.createEmptyBorder(0, 15, 0, 15)
+            )
+        );
         return pf;
     }
 
@@ -218,11 +260,29 @@ public class MenuPanel extends JPanel {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g.create();
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                GradientPaint gp = new GradientPaint(0, 0, new Color(213, 58, 137), getWidth(), 0,
-                        new Color(180, 80, 0));
+                g2d.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+                );
+                GradientPaint gp = new GradientPaint(
+                    0,
+                    0,
+                    new Color(213, 58, 137),
+                    getWidth(),
+                    0,
+                    new Color(180, 80, 0)
+                );
                 g2d.setPaint(gp);
-                g2d.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 25, 25));
+                g2d.fill(
+                    new RoundRectangle2D.Double(
+                        0,
+                        0,
+                        getWidth(),
+                        getHeight(),
+                        25,
+                        25
+                    )
+                );
                 super.paintComponent(g);
                 g2d.dispose();
             }
@@ -234,5 +294,39 @@ public class MenuPanel extends JPanel {
         btn.setFocusPainted(false);
         btn.setPreferredSize(new Dimension(300, 55));
         return btn;
+    }
+
+    public void setController(LoginController controller) {
+        this.controller = controller;
+    }
+
+    public String getEmailInput() {
+        return emailField.getText().trim();
+    }
+
+    public String getPasswordInput() {
+        return new String(passField.getPassword());
+    }
+
+    public MainWindow getParentWindow() {
+        return parent;
+    }
+
+    public void showError(String msg) {
+        JOptionPane.showMessageDialog(
+            this,
+            msg,
+            "Login Error",
+            JOptionPane.ERROR_MESSAGE
+        );
+    }
+
+    public void showSuccess(String msg) {
+        JOptionPane.showMessageDialog(
+            this,
+            msg,
+            "Success",
+            JOptionPane.INFORMATION_MESSAGE
+        );
     }
 }
