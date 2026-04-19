@@ -1,13 +1,15 @@
 package ui;
 
+import controller.LoginController;
+import controller.NavigationController;
 import controller.RegisterController;
+import java.awt.*;
+import javax.swing.*;
+import model.GameModel;
 import persistence.DatabaseInitializer;
 import persistence.UserRepository;
-
-import javax.swing.*;
-import java.awt.*;
-import model.GameModel;
 import view.MainFrame;
+import view.MainMenuView;
 
 /**
  * Main authentication window (Login/Register).
@@ -37,14 +39,21 @@ public class MainWindow extends JFrame {
         // mainContainer.add(new RegisterPanel(this), "REGISTER");
         MenuPanel menuPanel = new MenuPanel(this);
         RegisterPanel registerPanel = new RegisterPanel(this);
-        RegisterController registerController =
-                new RegisterController(registerPanel, new UserRepository());
+        RegisterController registerController = new RegisterController(
+            registerPanel,
+            new UserRepository()
+        );
         registerPanel.setController(registerController);
 
-        MainMenuPanel mainMenuPanel = new MainMenuPanel(this);
+        LoginController loginController = new LoginController(
+            menuPanel,
+            new UserRepository()
+        );
+
+        menuPanel.setController(loginController);
+
         mainContainer.add(menuPanel, "MENU");
         mainContainer.add(registerPanel, "REGISTER");
-        mainContainer.add(mainMenuPanel, "MAIN_MENU");
         add(mainContainer);
     }
 
@@ -54,7 +63,6 @@ public class MainWindow extends JFrame {
      * clicked.
      */
     public void startGameSession() {
-
         MainFrame gameFrame = new MainFrame(model);
 
         gameFrame.setBounds(this.getBounds());
@@ -82,8 +90,7 @@ public class MainWindow extends JFrame {
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignored) {
-        }
+        } catch (Exception ignored) {}
 
         DatabaseInitializer.initialize();
         // Run Swing components on the Event Dispatch Thread (EDT)
