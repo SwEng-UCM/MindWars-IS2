@@ -8,6 +8,7 @@ import bot.BotStrategy;
 
 public class Player {
 
+    private Integer userId;
     private String name;
     private int score;
     private long timer;
@@ -28,12 +29,25 @@ public class Player {
     private boolean isBot;
 
     public Player(String name) {
+        this(name, null);
+    }
+
+    public Player(String name, Integer userId) {
+        this.userId = userId;
         this.name = name;
         this.score = 0;
         this.timer = 0;
         this.answerTimeMs = 0;
         this.streak = 0;
         this.symbol = ' ';
+    }
+
+    public Integer getUserID() {
+        return userId;
+    }
+
+    public void setUserID(Integer userID) {
+        this.userId = userID;
     }
 
     public String getName() {
@@ -287,6 +301,10 @@ public class Player {
 
     public boolean isBot() {
         return isBot;
+    }
+
+    public void setBot(boolean bot) {
+        isBot = bot;
     }
 
 }

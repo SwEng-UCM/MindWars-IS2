@@ -1,5 +1,7 @@
 package ui;
 
+import controller.RegisterController;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -20,6 +22,7 @@ public class RegisterPanel extends JPanel {
     private JTextField emailField;
     private JPasswordField passField;
     private JPasswordField confirmPassField;
+    private RegisterController controller;
 
     public RegisterPanel(MainWindow parent) {
         this.parent = parent;
@@ -111,39 +114,55 @@ public class RegisterPanel extends JPanel {
         JButton regBtn = createGradientButton("Create Account");
 
         regBtn.addActionListener(e -> {
-            String username = userField.getText().trim();
-            String email = emailField.getText().trim();
-            String password = new String(passField.getPassword());
-            String confirmPassword = new String(confirmPassField.getPassword());
+            System.out.println("Create Account pressed");
+            if (controller != null){
+                controller.register();
 
-            // validation
-            if (username.isEmpty() || username.equals("Choose a username") || email.isEmpty()
-                    || email.equals("email@example.com")) {
-                JOptionPane.showMessageDialog(this, "Please fill in all the fields", "Error",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            if (!password.equals(confirmPassword)) {
-                JOptionPane.showMessageDialog(this, "Passwords do not match!", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            // create player object
-            player.Player newPlayer = new player.Player(username);
-            newPlayer.setSymbol('X');
-
-            // save game in MainWindow
-            parent.setSessionPlayer(newPlayer);
-
-            JOptionPane.showMessageDialog(this, "Account created successfully! Welcome, " + username);
-            parent.showScreen("MENU");
-        });
-
+            }        });
         card.add(regBtn, gbc);
-
         add(card);
     }
+
+    public void setController(RegisterController controller) {
+        this.controller = controller;
+        System.out.println("RegisterController connected");
+
+    }
+
+    public MainWindow getParentWindow() {
+        return parent;
+    }
+
+    public String getUsernameInput(){
+        return userField.getText().trim();
+    }
+
+    public String getEmailInput(){
+        return emailField.getText().trim();
+    }
+
+    public String getPasswordInput(){
+        return new String (passField.getPassword());
+    }
+    public String getConfirmPasswordInput(){
+        return new String (confirmPassField.getPassword());
+    }
+
+    public void showError(String message) {
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    public void showSuccess(String message) {
+        JOptionPane.showMessageDialog(this, message);
+    }
+
+    public void clearFields() {
+        userField.setText("");
+        emailField.setText("");
+        passField.setText("");
+        confirmPassField.setText("");
+    }
+
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -250,6 +269,8 @@ public class RegisterPanel extends JPanel {
         btn.setContentAreaFilled(false);
         btn.setBorderPainted(false);
         btn.setFocusPainted(false);
+        btn.setFocusable(false);
+        btn.setOpaque(false);
         btn.setPreferredSize(new Dimension(300, 45));
         return btn;
     }

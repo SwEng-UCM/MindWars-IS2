@@ -31,6 +31,9 @@ public class GameSetupView extends JPanel {
     // Widgets
     private final JTextField player1Field;
     private final JTextField player2Field;
+    private final JTextField player3Field;
+    private final JTextField player4Field;
+    private int numPlayers = 2;
     private final List<JToggleButton> sizeButtons = new ArrayList<>();
     private final List<JToggleButton> modeButtons = new ArrayList<>();
     private final JCheckBox randomCheck;
@@ -60,9 +63,16 @@ public class GameSetupView extends JPanel {
         player1Field.setText("Player 1");
         player2Field = MindWarsTheme.createTextField("Player 2 name");
         player2Field.setText("Player 2");
+        player3Field = MindWarsTheme.createTextField("Player 3 name");
+        player4Field = MindWarsTheme.createTextField("Player 4 name");
+
         card.add(player1Field);
         card.add(Box.createVerticalStrut(8));
         card.add(player2Field);
+        card.add(Box.createVerticalStrut(8));
+        card.add(player3Field);
+        card.add(Box.createVerticalStrut(8));
+        card.add(player4Field);
         card.add(Box.createVerticalStrut(16));
 
         // ── Game mode ──
@@ -224,19 +234,30 @@ public class GameSetupView extends JPanel {
 
     private void onStart() {
         String p1 = player1Field.getText().isBlank() ? "Player 1" : player1Field.getText().trim();
-        String p2 = player2Field.getText().isBlank()
-                ? (vsBot ? "Bot" : "Player 2")
-                : player2Field.getText().trim();
+        String p2 = player2Field.getText().isBlank() ? (vsBot ? "Bot" : "Player 2") : player2Field.getText().trim();
+        String p3 = player3Field.getText().trim();
+        String p4 = player4Field.getText().trim();
 
-        String category = null, difficulty = null;
+        int finalNumPlayers = 2;
+        if (!p4.isEmpty())
+            finalNumPlayers = 4;
+        else if (!p3.isEmpty())
+            finalNumPlayers = 3;
+
+        String category = null;
+        String difficulty = null;
         if (!randomMode) {
             Object c = categoryCombo.getSelectedItem();
             Object d = difficultyCombo.getSelectedItem();
-            category = c == null ? null : c.toString();
-            difficulty = d == null ? null : d.toString();
+            category = (c == null) ? null : c.toString();
+            difficulty = (d == null) ? null : d.toString();
         }
 
-        controller.startNewGame(new GameSettings(
-                mapSize, vsBot, p1, p2, randomMode, category, difficulty));
+        GameSettings settings = new GameSettings(
+                mapSize, vsBot,
+                p1, p2, p3, p4,
+                randomMode, category, difficulty, finalNumPlayers);
+
+        controller.startNewGame(settings);
     }
 }

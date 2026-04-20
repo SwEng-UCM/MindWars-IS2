@@ -22,4 +22,10 @@ public interface NavigationController {
     void showGameOver();
 
     void showBetting();
+
+    void showMultiplayer();
+
+    void showMultiplayerLobby();
+
+    void showMultiplayerGame();
 }

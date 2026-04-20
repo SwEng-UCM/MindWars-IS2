@@ -1,9 +1,15 @@
 package ui;
 
-import javax.swing.*;
+import controller.LoginController;
+import controller.NavigationController;
+import controller.RegisterController;
 import java.awt.*;
+import javax.swing.*;
 import model.GameModel;
+import persistence.DatabaseInitializer;
+import persistence.UserRepository;
 import view.MainFrame;
+import view.MainMenuView;
 
 /**
  * Main authentication window (Login/Register).
@@ -29,11 +35,25 @@ public class MainWindow extends JFrame {
 
         // Add panels. MenuPanel contains the login UI with logo and gradient.
         // We pass 'this' so MenuPanel can call methods like startGameSession().
-        mainContainer.add(new MenuPanel(this), "MENU");
-        mainContainer.add(new RegisterPanel(this), "REGISTER");
         // If you have a separate RegisterPanel, add it here:
         // mainContainer.add(new RegisterPanel(this), "REGISTER");
+        MenuPanel menuPanel = new MenuPanel(this);
+        RegisterPanel registerPanel = new RegisterPanel(this);
+        RegisterController registerController = new RegisterController(
+            registerPanel,
+            new UserRepository()
+        );
+        registerPanel.setController(registerController);
 
+        LoginController loginController = new LoginController(
+            menuPanel,
+            new UserRepository()
+        );
+
+        menuPanel.setController(loginController);
+
+        mainContainer.add(menuPanel, "MENU");
+        mainContainer.add(registerPanel, "REGISTER");
         add(mainContainer);
     }
 
@@ -43,7 +63,6 @@ public class MainWindow extends JFrame {
      * clicked.
      */
     public void startGameSession() {
-
         MainFrame gameFrame = new MainFrame(model);
 
         gameFrame.setBounds(this.getBounds());
@@ -71,9 +90,10 @@ public class MainWindow extends JFrame {
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignored) {
-        }
+        } catch (Exception ignored) {}
 
+        DatabaseInitializer.initialize();
+        // Run Swing components on the Event Dispatch Thread (EDT)
         SwingUtilities.invokeLater(() -> {
             // Usually initialized in GuiMain, but added here for testing purposes
             // GameModel dummyModel = new GameModel(new

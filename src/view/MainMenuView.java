@@ -33,6 +33,8 @@ public class MainMenuView extends JPanel {
 
         card.add(menuButton("New Game", nav::showGameSetup));
         card.add(Box.createVerticalStrut(12));
+        card.add(menuButton("Multiplayer", nav::showMultiplayer));
+        card.add(Box.createVerticalStrut(12));
         card.add(menuButton("Load Game", nav::showLoadGame));
         card.add(Box.createVerticalStrut(12));
         card.add(menuButton("Leaderboard", nav::showLeaderboard));
