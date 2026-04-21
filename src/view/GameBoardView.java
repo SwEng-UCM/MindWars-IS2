@@ -13,6 +13,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
+import util.SoundManager;
 
 /**
  * The main gameplay screen. Addresses #66: shows the grid map, both
@@ -57,6 +58,7 @@ public class GameBoardView extends JPanel {
     private final JPanel answerPanel;
     private final JPanel choicesPanel;
     private final JTextField textInput;
+    private final SoundManager soundManager;
     private final ButtonGroup choiceGroup = new ButtonGroup();
     private java.util.List<JToggleButton> choiceButtons = new java.util.ArrayList<>();
 
@@ -80,9 +82,10 @@ public class GameBoardView extends JPanel {
 
     private int localPlayerIndex = -1;
 
-    public GameBoardView(GameController controller, boolean invasionMode) {
+    public GameBoardView(GameController controller, boolean invasionMode, SoundManager soundManager) {
         this.controller = controller;
         this.invasionMode = invasionMode;
+        this.soundManager = soundManager;
 
         setLayout(new BorderLayout());
         setBackground(MindWarsTheme.DARK_BG);
@@ -331,8 +334,10 @@ public class GameBoardView extends JPanel {
 
     /** Starts the 15 s countdown. Called by MainFrame when this screen is shown. */
     public void startTimer() {
+        soundManager.startTimer();
         if (swingTimer != null)
             swingTimer.stop();
+        soundManager.stopTimer();
         timerStartMs = System.currentTimeMillis();
         timerBar.setValue(100);
         timerLabel.setText("15s");
@@ -559,6 +564,7 @@ public class GameBoardView extends JPanel {
 
         if (swingTimer != null)
             swingTimer.stop();
+        soundManager.stopTimer();
 
         long elapsed = System.currentTimeMillis() - timerStartMs;
 
@@ -586,6 +592,7 @@ public class GameBoardView extends JPanel {
     private void onTimeout() {
         if (!submitButton.isEnabled())
             return;
+        soundManager.stopTimer();
         long elapsed = GameModel.TIME_LIMIT_MS;
 
         if (invasionMode) {
@@ -650,6 +657,15 @@ public class GameBoardView extends JPanel {
 
         String text;
         Color bg;
+
+        if (result.timedOut) {
+            soundManager.play(SoundManager.INCORRECT);
+        } else if (result.correct) {
+            soundManager.play(SoundManager.CORRECT);
+        } else {
+            soundManager.play(SoundManager.INCORRECT);
+        }
+
         if (q.getType() == QuestionType.NUMERIC) {
             // Special feedback for numeric estimation
             text = "Estimation complete! Analyzing proximity...";
