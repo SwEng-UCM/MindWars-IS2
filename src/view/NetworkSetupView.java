@@ -5,6 +5,7 @@ import model.GameModel;
 import model.GameSettings;
 import network.GameClient;
 import network.GameServer;
+import network.NetworkAddress;
 import network.NetworkSession;
 
 import javax.swing.*;
@@ -119,7 +120,14 @@ public class NetworkSetupView extends JPanel {
         restyleToggle(joinToggle, !host);
         hostField.setEnabled(!host);
         actionButton.setText(host ? "Start Server" : "Connect");
-        statusLabel.setText(host ? "IP will be bound to this machine." : "");
+        if (host) {
+            String ip = NetworkAddress.getLanAddress();
+            statusLabel.setText(ip == null
+                    ? "Will bind on all interfaces."
+                    : "This machine will be reachable at " + ip);
+        } else {
+            statusLabel.setText("");
+        }
     }
 
     private void onAction() {
