@@ -5,10 +5,11 @@ import controller.NavigationController;
 import model.GameModel;
 import model.GamePhase;
 import network.NetworkSession;
+import util.SoundManager;
 
 import javax.swing.*;
 import java.awt.*;
-
+import util.SoundManager;
 /**
  * The application window. Owns a {@link CardLayout} and hosts every screen.
  * Acts as the {@link NavigationController} so views can request a screen
@@ -58,11 +59,13 @@ public class MainFrame extends JFrame implements NavigationController {
     private final NetworkSetupView networkSetupView;
     private final NetworkLobbyView networkLobbyView;
     private final NetworkGameView networkGameView;
+    private final SoundManager soundManager;
     private BettingView bettingView;
 
-    public MainFrame(GameModel model) {
+    public MainFrame(GameModel model, SoundManager soundManager) {
         super("MindWars");
         this.model = model;
+        this.soundManager = soundManager;
         this.controller = new GameController(model, this);
         this.bettingView = new BettingView(controller);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
