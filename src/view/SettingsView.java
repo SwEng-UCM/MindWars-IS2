@@ -1,6 +1,5 @@
 package view;
 
-import util.AudioSettings;
 import util.SoundManager;
 
 import javax.swing.*;
@@ -9,13 +8,10 @@ import controller.NavigationController;
 
 public class SettingsView extends JPanel {
 
-    public SettingsView(NavigationController nav) {
+    public SettingsView(NavigationController nav, SoundManager soundManager) {
         setLayout(new BorderLayout());
 
-        AudioSettings audioSettings = new AudioSettings();
-        SoundManager soundManager = new SoundManager(audioSettings);
-        SettingsPanel settingsPanel = new SettingsPanel(audioSettings, soundManager);
-
+        SettingsPanel settingsPanel = new SettingsPanel(soundManager.getSettings(), soundManager);
         settingsPanel.getBackButton().addActionListener(e -> nav.showMainMenu());
 
         add(settingsPanel, BorderLayout.CENTER);
