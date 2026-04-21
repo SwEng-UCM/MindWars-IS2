@@ -175,13 +175,34 @@ public class NetworkSetupView extends JPanel {
     private void joinRemote(String host, int port, String name) {
         GameClient client = new GameClient();
         session.attachClient(client);
-        try {
-            client.connect(host, port, name);
-            statusLabel.setText("Connected to " + host + ":" + port);
-            nav.showMultiplayerLobby();
-        } catch (IOException ex) {
-            statusLabel.setText("Connection failed: " + ex.getMessage());
-        }
+
+        actionButton.setEnabled(false);
+        statusLabel.setText("Connecting to " + host + ":" + port + "...");
+
+        new SwingWorker<Void, Void>() {
+            private IOException error;
+
+            @Override
+            protected Void doInBackground() {
+                try {
+                    client.connect(host, port, name);
+                } catch (IOException ex) {
+                    error = ex;
+                }
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                actionButton.setEnabled(true);
+                if (error != null) {
+                    statusLabel.setText("Connection failed: " + error.getMessage());
+                    return;
+                }
+                statusLabel.setText("Connected to " + host + ":" + port);
+                nav.showMultiplayerLobby();
+            }
+        }.execute();
     }
 
     private int parsePort() {

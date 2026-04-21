@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.function.Consumer;
 
@@ -45,13 +46,18 @@ public class GameClient {
         return running && socket != null && !socket.isClosed();
     }
 
+    /** Connect attempt gives up after this many ms. */
+    public static final int CONNECT_TIMEOUT_MS = 5_000;
+
     /**
      * Opens the socket, sends the initial {@code JOIN} with the given name,
-     * and spins up a background reader. Throws if the connection cannot be
-     * established so callers can surface the failure to the user.
+     * and spins up a background reader. Uses a bounded connect timeout so a
+     * silently-dropped handshake (common on networks with AP isolation) does
+     * not hang the caller. Throws on failure so callers can surface it.
      */
     public void connect(String host, int port, String playerName) throws IOException {
-        this.socket = new Socket(host, port);
+        this.socket = new Socket();
+        this.socket.connect(new InetSocketAddress(host, port), CONNECT_TIMEOUT_MS);
         this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.out = new PrintWriter(socket.getOutputStream(), true);
         this.running = true;
