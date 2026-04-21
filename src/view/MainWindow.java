@@ -7,6 +7,7 @@ import javax.swing.*;
 import model.GameModel;
 import persistence.DatabaseInitializer;
 import persistence.UserRepository;
+import util.SoundManager;
 
 /**
  * Main authentication window (Login/Register).
@@ -17,10 +18,12 @@ public class MainWindow extends JFrame {
     private CardLayout cardLayout;
     private JPanel mainContainer;
     private final GameModel model;
+    private final SoundManager soundManager;
     private player.Player sessionPlayer;
 
     public MainWindow(GameModel model) {
         this.model = model;
+        this.soundManager = soundManager;
 
         setTitle("MindWars Trivia - Welcome");
         setSize(1000, 700);
@@ -36,6 +39,7 @@ public class MainWindow extends JFrame {
         // mainContainer.add(new RegisterPanel(this), "REGISTER");
         MenuPanel menuPanel = new MenuPanel(this);
         RegisterPanel registerPanel = new RegisterPanel(this);
+
         RegisterController registerController = new RegisterController(
             registerPanel,
             new UserRepository()
@@ -46,6 +50,7 @@ public class MainWindow extends JFrame {
             menuPanel,
             new UserRepository()
         );
+        
 
         menuPanel.setController(loginController);
 
