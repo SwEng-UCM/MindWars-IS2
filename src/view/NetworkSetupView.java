@@ -122,10 +122,12 @@ public class NetworkSetupView extends JPanel {
         actionButton.setText(host ? "Start Server" : "Connect");
         if (host) {
             String ip = NetworkAddress.getLanAddress();
+            hostField.setText(ip == null ? "(no LAN IP found)" : ip);
             statusLabel.setText(ip == null
                     ? "Will bind on all interfaces."
-                    : "This machine will be reachable at " + ip);
+                    : "Share this IP with the other player.");
         } else {
+            hostField.setText("127.0.0.1");
             statusLabel.setText("");
         }
     }
