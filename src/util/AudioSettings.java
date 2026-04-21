@@ -1,16 +1,14 @@
-package ui;
+package util;
 
 /**
- * Stores user-configurable settings for the game UI.
- * This class can later be extended with more options
- * such as difficulty, theme, volume, etc.
+ * Stores user-configurable audio settings.
  */
-public class GameSettings {
+public class AudioSettings {
 
     private boolean soundEffectsEnabled;
     private boolean musicEnabled;
 
-    public GameSettings() {
+    public AudioSettings() {
         this.soundEffectsEnabled = true;
         this.musicEnabled = true;
     }

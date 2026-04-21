@@ -1,6 +1,6 @@
 package game;
 
-import ui.ConsoleIO;
+import util.ConsoleIO;
 
 import java.util.ArrayList;
 import java.util.HashMap;

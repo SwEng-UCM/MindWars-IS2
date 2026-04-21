@@ -1,4 +1,4 @@
-package ui;
+package util;
 
 import javax.sound.sampled.*;
 import java.io.File;
@@ -20,17 +20,17 @@ public class SoundManager {
     private Clip backgroundClip;
     private Clip timerClip;
 
-    private final GameSettings settings;
+    private final AudioSettings settings;
 
-    public SoundManager(GameSettings settings) {
+    public SoundManager(AudioSettings settings) {
         this.settings = settings;
     }
 
     public SoundManager() {
-        this(new GameSettings());
+        this(new AudioSettings());
     }
 
-    public GameSettings getSettings() {
+    public AudioSettings getSettings() {
         return settings;
     }
 

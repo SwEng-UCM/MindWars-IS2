@@ -1,4 +1,4 @@
-package ui;
+package view;
 
 import controller.LoginController;
 import java.awt.*;

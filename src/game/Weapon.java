@@ -8,7 +8,7 @@ import player.Player;
 import trivia.Question;
 import trivia.QuestionBank;
 import trivia.QuestionType;
-import ui.ConsoleIO;
+import util.ConsoleIO;
 
 public class Weapon {
 
