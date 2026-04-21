@@ -1,13 +1,15 @@
-package ui;
+package view;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import util.AudioSettings;
+import util.SoundManager;
 
 
 public class SettingsPanel extends JPanel {
 
-    private final GameSettings settings;
+    private final AudioSettings settings;
 
     private final SoundManager soundManager;
 
@@ -19,7 +21,7 @@ public class SettingsPanel extends JPanel {
 
     private JButton backButton;
 
-    public SettingsPanel(GameSettings settings, SoundManager soundManager) {
+    public SettingsPanel(AudioSettings settings, SoundManager soundManager) {
         this.settings = settings;
         this.soundManager = soundManager;
 

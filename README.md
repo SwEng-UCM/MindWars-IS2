@@ -33,13 +33,16 @@ src/
 │  ├─ LeaderboardStore.java          # JSON leaderboard persistence
 │  └─ LeaderboardEntry.java, User.java
 │
-├─ view/                             # MVC — Views (Swing screens)
+├─ view/                             # MVC — Views (Swing screens + widgets)
 │  ├─ MainFrame.java                 # Main game window (CardLayout host)
+│  ├─ MainWindow.java                # Login/register window (shown before MainFrame)
 │  ├─ MainMenuView, GameSetupView, GameBoardView
 │  ├─ TerritoryClaimView, HotSeatView, InvasionSelectView
 │  ├─ GameOverView, BettingView, LeaderboardView
 │  ├─ RulesView, SettingsView, LoadGameView
 │  ├─ NetworkSetupView, NetworkLobbyView, NetworkGameView
+│  ├─ MenuPanel, RegisterPanel, SettingsPanel, SettingOptionCard
+│  ├─ GradientButton                 # Shared Swing widget
 │  └─ PlaceholderView, MindWarsTheme, AnimationHelper
 │
 ├─ controller/                       # MVC — Controllers
@@ -84,11 +87,8 @@ src/
 │  ├─ DatabaseInitializer.java, DatabaseManager.java
 │  └─ UserRepository.java, PasswordUtil.java
 │
-└─ ui/                               # Login window, settings widgets, console IO
-   ├─ MainWindow.java                # Login/register window (shown before MainFrame)
-   ├─ MenuPanel.java, RegisterPanel.java
-   ├─ SettingsPanel.java, SettingOptionCard.java, GameSettings.java
-   ├─ GradientButton.java            # Shared Swing widget
+└─ util/                             # Non-view helpers (console + audio)
    ├─ ConsoleIO.java                 # Console I/O with timeout and countdown
-   └─ SoundManager.java              # Async WAV playback (one-shot + looping)
+   ├─ SoundManager.java              # Async WAV playback (one-shot + looping)
+   └─ AudioSettings.java             # Sound/music toggles
 ```

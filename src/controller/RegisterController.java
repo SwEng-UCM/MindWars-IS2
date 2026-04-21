@@ -4,7 +4,7 @@ import model.User;
 import persistence.PasswordUtil;
 import persistence.UserRepository;
 import player.Player;
-import ui.RegisterPanel;
+import view.RegisterPanel;
 
 import javax.swing.*;
 

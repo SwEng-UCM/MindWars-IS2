@@ -5,8 +5,8 @@ import game.Game;
 import game.UnitTests;
 import model.GameModel;
 import trivia.QuestionBank;
-import ui.ConsoleIO;
-import ui.MainWindow;
+import util.ConsoleIO;
+import view.MainWindow;
 
 /**
  * PURPOSE:

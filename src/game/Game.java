@@ -13,8 +13,8 @@ import trivia.AnswerValidator;
 import trivia.Question;
 import trivia.QuestionBank;
 import trivia.QuestionType;
-import ui.ConsoleIO;
-import ui.SoundManager;
+import util.ConsoleIO;
+import util.SoundManager;
 
 public class Game {
 

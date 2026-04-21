@@ -1,8 +1,7 @@
 package view;
 
-import ui.GameSettings;
-import ui.SettingsPanel;
-import ui.SoundManager;
+import util.AudioSettings;
+import util.SoundManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,9 +12,9 @@ public class SettingsView extends JPanel {
     public SettingsView(NavigationController nav) {
         setLayout(new BorderLayout());
 
-        GameSettings gameSettings = new GameSettings();
-        SoundManager soundManager = new SoundManager(gameSettings);
-        SettingsPanel settingsPanel = new SettingsPanel(gameSettings, soundManager);
+        AudioSettings audioSettings = new AudioSettings();
+        SoundManager soundManager = new SoundManager(audioSettings);
+        SettingsPanel settingsPanel = new SettingsPanel(audioSettings, soundManager);
 
         settingsPanel.getBackButton().addActionListener(e -> nav.showMainMenu());
 

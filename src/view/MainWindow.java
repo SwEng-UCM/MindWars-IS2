@@ -1,4 +1,4 @@
-package ui;
+package view;
 
 import controller.LoginController;
 import controller.RegisterController;
@@ -7,7 +7,6 @@ import javax.swing.*;
 import model.GameModel;
 import persistence.DatabaseInitializer;
 import persistence.UserRepository;
-import view.MainFrame;
 
 /**
  * Main authentication window (Login/Register).
