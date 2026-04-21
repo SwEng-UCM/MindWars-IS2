@@ -1,5 +1,6 @@
 package model;
 
+import bot.EasyBot;
 import game.GameState;
 import game.MapGrid;
 import game.WinnerCalculator;
@@ -200,6 +201,10 @@ public class GameModel {
             Player p = new Player(names[i]);
             p.setSymbol(symbols[i]);
             players.add(p);
+        }
+
+        if (settings.vsBot && players.size() >= 2) {
+            players.get(1).setStrategy(new EasyBot());
         }
 
         this.map = new MapGrid(settings.mapSize);

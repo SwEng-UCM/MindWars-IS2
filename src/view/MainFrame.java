@@ -124,11 +124,13 @@ public class MainFrame extends JFrame implements NavigationController {
             case HOT_SEAT_PASS -> {
                 hotSeatView.refresh();
                 cards.show(root, CARD_HOT_SEAT);
+                controller.processBotReadyIfNeeded();
             }
             case QUESTION -> {
                 gameBoardView.refresh();
                 cards.show(root, CARD_GAME);
                 gameBoardView.startTimer();
+                gameBoardView.triggerBotAnswerIfNeeded();
             }
             case TERRITORY_CLAIM -> {
                 claimView.refresh();
@@ -137,6 +139,7 @@ public class MainFrame extends JFrame implements NavigationController {
             case INVASION_PASS -> {
                 invasionPassView.refresh();
                 cards.show(root, CARD_INV_PASS);
+                controller.processBotReadyIfNeeded();
             }
             case INVASION_SELECT -> {
                 invasionSelectView.refresh();

@@ -108,6 +108,8 @@ public class TerritoryClaimView extends JPanel {
 
         revalidate();
         repaint();
+
+        triggerBotPickIfNeeded();
     }
 
     private void buildPickOrder(GameModel model) {
@@ -228,7 +230,39 @@ public class TerritoryClaimView extends JPanel {
             finishButton.setEnabled(true);
         } else {
             updateInstruction(players);
+            triggerBotPickIfNeeded();
         }
+    }
+
+    /**
+     * If it is a bot's turn to pick, auto-claim a random empty cell after a
+     * short delay so the territory phase proceeds without human input.
+     */
+    private void triggerBotPickIfNeeded() {
+        if (pickOrder == null || pickIndex >= pickOrder.length) return;
+        GameModel model = controller.getModel();
+        Player cur = model.getPlayers().get(pickOrder[pickIndex]);
+        if (!cur.isBot()) return;
+        javax.swing.Timer t = new javax.swing.Timer(700, e -> {
+            if (pickIndex >= pickOrder.length) return;
+            int[] target = pickRandomEmptyCell(model.getMap());
+            if (target == null) return;
+            onCellClicked(target[0], target[1]);
+        });
+        t.setRepeats(false);
+        t.start();
+    }
+
+    private int[] pickRandomEmptyCell(MapGrid map) {
+        int size = map.getSize();
+        java.util.List<int[]> empties = new java.util.ArrayList<>();
+        for (int r = 0; r < size; r++) {
+            for (int c = 0; c < size; c++) {
+                if (map.getOwner(r, c) == '.') empties.add(new int[] { r, c });
+            }
+        }
+        if (empties.isEmpty()) return null;
+        return empties.get(new java.util.Random().nextInt(empties.size()));
     }
 
     private void disableAllEmptyCells() {

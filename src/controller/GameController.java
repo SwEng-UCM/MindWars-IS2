@@ -11,6 +11,8 @@ import model.GameSettings;
 import model.LeaderboardStore;
 import player.Player;
 
+import javax.swing.Timer;
+
 /**
  * The Controller in MVC. Receives view events (button clicks, cell clicks,
  * answer submissions) and translates them into model operations. It holds no
@@ -94,6 +96,21 @@ public class GameController {
     }
 
     // ── Gameplay events ──
+
+    /**
+     * If the current player is a bot and the current phase is a "press ready"
+     * screen, auto-press the ready button after a short delay so the game
+     * flows without human intervention on the bot's side.
+     */
+    public void processBotReadyIfNeeded() {
+        Player cur = model.getCurrentPlayer();
+        if (cur == null || !cur.isBot()) return;
+        GamePhase phase = model.getPhase();
+        if (phase != GamePhase.HOT_SEAT_PASS && phase != GamePhase.INVASION_PASS) return;
+        Timer t = new Timer(700, e -> onHotSeatReady());
+        t.setRepeats(false);
+        t.start();
+    }
 
     /** The hot-seat "Press ENTER when ready" button was pressed. */
     public void onHotSeatReady() {
