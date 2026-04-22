@@ -51,7 +51,7 @@ public class Main {
             soundManager.startBackground();
         }
 
-        SwingUtilities.invokeLater(() -> new MainWindow(model).setVisible(true));
+        SwingUtilities.invokeLater(() -> new MainWindow(model, soundManager).setVisible(true));
 
     }
 }
