@@ -529,10 +529,25 @@ public class GameBoardView extends JPanel {
     private void styleToggleButton(JToggleButton tb) {
         tb.setFont(MindWarsTheme.BODY_FONT);
         tb.setFocusPainted(false);
+        tb.setOpaque(true);
+        tb.setContentAreaFilled(true);
+        tb.setBorderPainted(true);
+
         tb.setBackground(MindWarsTheme.DARK_CARD);
-        tb.setForeground(MindWarsTheme.WHITE);
+        tb.setForeground(Color.BLACK);   // προσωρινά για έλεγχο
         tb.setAlignmentX(Component.LEFT_ALIGNMENT);
         tb.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+
+        tb.addItemListener(e -> {
+            if (tb.isSelected()) {
+                tb.setBackground(MindWarsTheme.PINK);
+                tb.setForeground(Color.BLACK);
+            } else {
+                tb.setBackground(MindWarsTheme.DARK_CARD);
+                tb.setForeground(Color.WHITE);
+            }
+            tb.repaint();
+        });
     }
 
     private String readAnswer() {
