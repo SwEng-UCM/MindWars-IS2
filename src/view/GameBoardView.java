@@ -297,23 +297,38 @@ public class GameBoardView extends JPanel {
      * If the current player is a bot, schedules an auto-answer after the
      * bot's "thinking" delay. No-op in invasion mode (bots do not invade).
      */
-    public void triggerBotAnswerIfNeeded() {
+   public void triggerBotAnswerIfNeeded() {
+    
         if (invasionMode) return;
+
         GameModel model = controller.getModel();
         Player cur = model.getCurrentPlayer();
         if (cur == null || !cur.isBot() || cur.getStrategy() == null) return;
+
         Question q = model.getCurrentQuestion();
         if (q == null) return;
+
         BotStrategy strat = cur.getStrategy();
         long delay = Math.min(strat.getResponseTime(), GameModel.TIME_LIMIT_MS - 500);
         String botAnswer = resolveBotAnswer(strat, q);
+
         submitButton.setEnabled(false);
+
         Timer t = new Timer((int) delay, ev -> {
-            if (swingTimer != null) swingTimer.stop();
+            if (swingTimer != null) {
+                swingTimer.stop();
+            }
+
+            soundManager.stopTimer();
+
             AnswerResult result = controller.onAnswerSubmitted(botAnswer, delay);
-            if (result != null) showFeedback(result);
+            if (result != null) {
+                showFeedback(result);
+            }
+
             schedulePendingAck();
         });
+
         t.setRepeats(false);
         t.start();
     }
