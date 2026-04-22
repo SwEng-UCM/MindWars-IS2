@@ -1,6 +1,7 @@
 package view;
 
 import controller.NavigationController;
+import network.NetworkAddress;
 import network.NetworkMessage;
 import network.NetworkSession;
 
@@ -90,8 +91,13 @@ public class NetworkLobbyView extends JPanel {
     public void refresh() {
         boolean isHost = session.isHost();
         if (isHost && session.getServer() != null) {
-            headerLabel.setText("Lobby (Host, port " + session.getServer().getBoundPort() + ")");
-            statusLabel.setText("Waiting for players to join...");
+            int port = session.getServer().getBoundPort();
+            String ip = NetworkAddress.getLanAddress();
+            String ipText = ip == null ? "(unknown — check wifi)" : ip;
+            headerLabel.setText("<html><center>Lobby — Host<br>"
+                    + "<span style='color:#d53a89'>" + ipText + " : " + port + "</span>"
+                    + "</center></html>");
+            statusLabel.setText("Share the address above with the other player.");
         } else {
             headerLabel.setText("Lobby");
             statusLabel.setText(session.isConnected()

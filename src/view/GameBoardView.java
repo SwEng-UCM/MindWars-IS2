@@ -1,5 +1,6 @@
 package view;
 
+import bot.BotStrategy;
 import controller.GameController;
 import model.AnswerResult;
 import model.GameModel;
@@ -65,6 +66,9 @@ public class GameBoardView extends JPanel {
 
     // Feedback overlay
     private final JLabel feedbackLabel;
+
+    // Deferred acknowledgement fired ~1.6s after an answer; cancelled on undo.
+    private Timer pendingAck;
 
     // Invasion battle state
     private String invasionAttackerAnswer = null;
@@ -297,6 +301,49 @@ public class GameBoardView extends JPanel {
 
     public void setLocalPlayerIndex(int index) {
         this.localPlayerIndex = index;
+    }
+
+    /**
+     * If the current player is a bot, schedules an auto-answer after the
+     * bot's "thinking" delay. No-op in invasion mode (bots do not invade).
+     */
+    public void triggerBotAnswerIfNeeded() {
+        if (invasionMode) return;
+        GameModel model = controller.getModel();
+        Player cur = model.getCurrentPlayer();
+        if (cur == null || !cur.isBot() || cur.getStrategy() == null) return;
+        Question q = model.getCurrentQuestion();
+        if (q == null) return;
+        BotStrategy strat = cur.getStrategy();
+        long delay = Math.min(strat.getResponseTime(), GameModel.TIME_LIMIT_MS - 500);
+        String botAnswer = resolveBotAnswer(strat, q);
+        submitButton.setEnabled(false);
+        Timer t = new Timer((int) delay, ev -> {
+            if (swingTimer != null) swingTimer.stop();
+            AnswerResult result = controller.onAnswerSubmitted(botAnswer, delay);
+            if (result != null) showFeedback(result);
+            schedulePendingAck();
+        });
+        t.setRepeats(false);
+        t.start();
+    }
+
+    private String resolveBotAnswer(BotStrategy strat, Question q) {
+        String raw = strat.getAnswer(q);
+        if (q.getType() == QuestionType.MULTIPLE_CHOICE && q.getChoices() != null) {
+            if (raw != null && raw.length() == 1
+                    && Character.isLetter(raw.charAt(0))) {
+                return raw.toUpperCase();
+            }
+            int idx = (raw == null) ? -1 : q.getChoices().indexOf(raw);
+            if (idx < 0) idx = 0;
+            return String.valueOf((char) ('A' + idx));
+        }
+        if (q.getType() == QuestionType.TRUE_FALSE) {
+            if (raw == null) return "T";
+            return raw.trim().toUpperCase().startsWith("T") ? "T" : "F";
+        }
+        return raw == null ? "" : raw;
     }
 
     /** Starts the 15 s countdown. Called by MainFrame when this screen is shown. */
@@ -550,9 +597,7 @@ public class GameBoardView extends JPanel {
         submitButton.setEnabled(false);
         undoButton.setEnabled(controller.canUndo());
 
-        Timer done = new Timer(1600, ev -> controller.onAnswerAcknowledged());
-        done.setRepeats(false);
-        done.start();
+        schedulePendingAck();
     }
 
     private void onTimeout() {
@@ -569,9 +614,17 @@ public class GameBoardView extends JPanel {
         showFeedback(result);
         submitButton.setEnabled(false);
 
-        Timer done = new Timer(1600, ev -> controller.onAnswerAcknowledged());
-        done.setRepeats(false);
-        done.start();
+        schedulePendingAck();
+    }
+
+    private void schedulePendingAck() {
+        if (pendingAck != null) pendingAck.stop();
+        pendingAck = new Timer(1600, ev -> {
+            pendingAck = null;
+            controller.onAnswerAcknowledged();
+        });
+        pendingAck.setRepeats(false);
+        pendingAck.start();
     }
 
     private void handleInvasionSubmit(String answer, long elapsed) {
@@ -592,7 +645,16 @@ public class GameBoardView extends JPanel {
     }
 
     private void onUndo() {
+        // Cancel any pending auto-acknowledge so the phase doesn't advance
+        // past the answer we're about to roll back.
+        if (pendingAck != null) {
+            pendingAck.stop();
+            pendingAck = null;
+        }
         if (controller.undoLast()) {
+            feedbackLabel.setVisible(false);
+            submitButton.setEnabled(true);
+            startTimer();
             refresh();
         }
     }

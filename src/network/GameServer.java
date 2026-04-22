@@ -273,8 +273,22 @@ public class GameServer {
                 AnswerResult result = model.submitAnswer(msg.answer, elapsed);
                 broadcastResult(result, seatIndex);
                 broadcastScores();
-                model.advanceAfterAnswer();
             }
+            // Give clients time to render the RESULT feedback before the next
+            // PHASE/QUESTION broadcast overwrites it. Scheduled outside the
+            // synchronized block so the server thread isn't blocked.
+            new Thread(() -> {
+                try {
+                    Thread.sleep(1600);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                synchronized (GameServer.this) {
+                    if (model.getPhase() == GamePhase.QUESTION) {
+                        model.advanceAfterAnswer();
+                    }
+                }
+            }, "MindWars-PostAnswer").start();
         }
     }
 

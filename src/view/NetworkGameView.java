@@ -45,7 +45,7 @@ public class NetworkGameView extends JPanel {
     private String currentQuestionType = "";
     private List<String> lastChoices = new ArrayList<>();
     private Integer currentPlayer;
-    private String[] playerNames = new String[] { "Player 1", "Player 2" };
+    private String[] playerNames = new String[] { "Player 1", "Player 2", "Player 3", "Player 4" };
 
     // for chat box
     private JTextArea chatArea;
@@ -339,14 +339,19 @@ public class NetworkGameView extends JPanel {
     }
 
     private void onScores(NetworkMessage msg) {
-        if (msg.scores == null || msg.scores.size() < 2)
+        if (msg.scores == null || msg.scores.isEmpty())
             return;
-        if (msg.playerNames != null && msg.playerNames.size() >= 2) {
-            playerNames[0] = msg.playerNames.get(0);
-            playerNames[1] = msg.playerNames.get(1);
+        if (msg.playerNames != null) {
+            for (int i = 0; i < msg.playerNames.size() && i < playerNames.length; i++) {
+                playerNames[i] = msg.playerNames.get(i);
+            }
         }
-        scoreLabel.setText(playerNames[0] + ": " + msg.scores.get(0)
-                + "   " + playerNames[1] + ": " + msg.scores.get(1));
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < msg.scores.size(); i++) {
+            if (i > 0) sb.append("   ");
+            sb.append(nameOf(i)).append(": ").append(msg.scores.get(i));
+        }
+        scoreLabel.setText(sb.toString());
     }
 
     private void onGameOver(NetworkMessage msg) {
@@ -395,7 +400,7 @@ public class NetworkGameView extends JPanel {
     private String nameOf(Integer index) {
         if (index == null)
             return "opponent";
-        if (index < 0 || index >= playerNames.length)
+        if (index >= 0 && index < playerNames.length)
             return playerNames[index];
         return "Player " + (index + 1);
     }

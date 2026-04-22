@@ -5,6 +5,7 @@ import model.GameModel;
 import model.GameSettings;
 import network.GameClient;
 import network.GameServer;
+import network.NetworkAddress;
 import network.NetworkSession;
 
 import javax.swing.*;
@@ -119,7 +120,16 @@ public class NetworkSetupView extends JPanel {
         restyleToggle(joinToggle, !host);
         hostField.setEnabled(!host);
         actionButton.setText(host ? "Start Server" : "Connect");
-        statusLabel.setText(host ? "IP will be bound to this machine." : "");
+        if (host) {
+            String ip = NetworkAddress.getLanAddress();
+            hostField.setText(ip == null ? "(no LAN IP found)" : ip);
+            statusLabel.setText(ip == null
+                    ? "Will bind on all interfaces."
+                    : "Share this IP with the other player.");
+        } else {
+            hostField.setText("127.0.0.1");
+            statusLabel.setText("");
+        }
     }
 
     private void onAction() {
@@ -165,13 +175,34 @@ public class NetworkSetupView extends JPanel {
     private void joinRemote(String host, int port, String name) {
         GameClient client = new GameClient();
         session.attachClient(client);
-        try {
-            client.connect(host, port, name);
-            statusLabel.setText("Connected to " + host + ":" + port);
-            nav.showMultiplayerLobby();
-        } catch (IOException ex) {
-            statusLabel.setText("Connection failed: " + ex.getMessage());
-        }
+
+        actionButton.setEnabled(false);
+        statusLabel.setText("Connecting to " + host + ":" + port + "...");
+
+        new SwingWorker<Void, Void>() {
+            private IOException error;
+
+            @Override
+            protected Void doInBackground() {
+                try {
+                    client.connect(host, port, name);
+                } catch (IOException ex) {
+                    error = ex;
+                }
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                actionButton.setEnabled(true);
+                if (error != null) {
+                    statusLabel.setText("Connection failed: " + error.getMessage());
+                    return;
+                }
+                statusLabel.setText("Connected to " + host + ":" + port);
+                nav.showMultiplayerLobby();
+            }
+        }.execute();
     }
 
     private int parsePort() {

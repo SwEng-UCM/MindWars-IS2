@@ -206,6 +206,10 @@ public class GameModel {
             players.add(p);
         }
 
+        if (settings.vsBot && players.size() >= 2) {
+            players.get(1).setStrategy(new EasyBot());
+        }
+
         this.map = new MapGrid(settings.mapSize);
         for (Player p : players) {
             map.initVisibilityForPlayer(p.getSymbol());
