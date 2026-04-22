@@ -172,9 +172,13 @@ public class GameBoardView extends JPanel {
 
         textInput = MindWarsTheme.createTextField("Your answer");
         textInput.addActionListener(this::onSubmit);
+        textInput.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
+        textInput.setPreferredSize(new Dimension(300, 42));
+
         JPanel textWrap = new JPanel(new BorderLayout());
         textWrap.setOpaque(false);
-        textWrap.add(textInput, BorderLayout.NORTH);
+        textWrap.add(textInput, BorderLayout.CENTER);
+
         answerPanel.add(textWrap, "text");
 
         qCard.add(categoryLabel);
