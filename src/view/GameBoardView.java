@@ -753,4 +753,22 @@ public class GameBoardView extends JPanel {
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
+
+
+    public void stopAllRoundAudio(){
+
+        if(swingTimer != null){
+            swingTimer.stop();
+        }
+
+        if(pendingAck != null){
+            pendingAck.stop();
+            pendingAck = null;
+        }
+
+        soundManager.stopTimer();
+
+
+    }
+
 }
