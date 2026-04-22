@@ -5,7 +5,9 @@ import game.Game;
 import game.UnitTests;
 import model.GameModel;
 import trivia.QuestionBank;
+import util.AudioSettings;
 import util.ConsoleIO;
+import util.SoundManager;
 import view.MainWindow;
 
 /**
@@ -42,6 +44,14 @@ public class Main {
         QuestionBank bank = new QuestionBank("questions.json");
         GameModel model = new GameModel(bank);
 
-        SwingUtilities.invokeLater(() -> new MainWindow(model).setVisible(true));
+        AudioSettings audioSettings = new AudioSettings();
+        SoundManager soundManager = new SoundManager(audioSettings);
+
+        if (audioSettings.isMusicEnabled()) {
+            soundManager.startBackground();
+        }
+
+        SwingUtilities.invokeLater(() -> new MainWindow(model, soundManager).setVisible(true));
+
     }
 }

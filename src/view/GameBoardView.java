@@ -13,6 +13,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
+import util.SoundManager;
 
 /**
  * The main gameplay screen. Addresses #66: shows the grid map, both
@@ -57,6 +58,7 @@ public class GameBoardView extends JPanel {
     private final JPanel answerPanel;
     private final JPanel choicesPanel;
     private final JTextField textInput;
+    private final SoundManager soundManager;
     private final ButtonGroup choiceGroup = new ButtonGroup();
     private java.util.List<JToggleButton> choiceButtons = new java.util.ArrayList<>();
 
@@ -80,9 +82,10 @@ public class GameBoardView extends JPanel {
 
     private int localPlayerIndex = -1;
 
-    public GameBoardView(GameController controller, boolean invasionMode) {
+    public GameBoardView(GameController controller, boolean invasionMode, SoundManager soundManager) {
         this.controller = controller;
         this.invasionMode = invasionMode;
+        this.soundManager = soundManager;
 
         setLayout(new BorderLayout());
         setBackground(MindWarsTheme.DARK_BG);
@@ -169,9 +172,13 @@ public class GameBoardView extends JPanel {
 
         textInput = MindWarsTheme.createTextField("Your answer");
         textInput.addActionListener(this::onSubmit);
+        textInput.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
+        textInput.setPreferredSize(new Dimension(300, 42));
+
         JPanel textWrap = new JPanel(new BorderLayout());
         textWrap.setOpaque(false);
-        textWrap.add(textInput, BorderLayout.NORTH);
+        textWrap.add(textInput, BorderLayout.CENTER);
+
         answerPanel.add(textWrap, "text");
 
         qCard.add(categoryLabel);
@@ -307,23 +314,38 @@ public class GameBoardView extends JPanel {
      * If the current player is a bot, schedules an auto-answer after the
      * bot's "thinking" delay. No-op in invasion mode (bots do not invade).
      */
-    public void triggerBotAnswerIfNeeded() {
+   public void triggerBotAnswerIfNeeded() {
+    
         if (invasionMode) return;
+
         GameModel model = controller.getModel();
         Player cur = model.getCurrentPlayer();
         if (cur == null || !cur.isBot() || cur.getStrategy() == null) return;
+
         Question q = model.getCurrentQuestion();
         if (q == null) return;
+
         BotStrategy strat = cur.getStrategy();
         long delay = Math.min(strat.getResponseTime(), GameModel.TIME_LIMIT_MS - 500);
         String botAnswer = resolveBotAnswer(strat, q);
+
         submitButton.setEnabled(false);
+
         Timer t = new Timer((int) delay, ev -> {
-            if (swingTimer != null) swingTimer.stop();
+            if (swingTimer != null) {
+                swingTimer.stop();
+            }
+
+            soundManager.stopTimer();
+
             AnswerResult result = controller.onAnswerSubmitted(botAnswer, delay);
-            if (result != null) showFeedback(result);
+            if (result != null) {
+                showFeedback(result);
+            }
+
             schedulePendingAck();
         });
+
         t.setRepeats(false);
         t.start();
     }
@@ -346,10 +368,14 @@ public class GameBoardView extends JPanel {
         return raw == null ? "" : raw;
     }
 
-    /** Starts the 15 s countdown. Called by MainFrame when this screen is shown. */
     public void startTimer() {
-        if (swingTimer != null)
+        if (swingTimer != null) {
             swingTimer.stop();
+        }
+
+        soundManager.stopTimer();
+        soundManager.startTimer();
+
         timerStartMs = System.currentTimeMillis();
         timerBar.setValue(100);
         timerLabel.setText("15s");
@@ -360,11 +386,14 @@ public class GameBoardView extends JPanel {
             int pct = (int) ((remaining * 100L) / GameModel.TIME_LIMIT_MS);
             timerBar.setValue(pct);
             timerLabel.setText((remaining / 1000) + "s");
+
             if (remaining <= 0) {
                 swingTimer.stop();
+                soundManager.stopTimer();
                 onTimeout();
             }
         });
+
         swingTimer.start();
     }
 
@@ -535,10 +564,25 @@ public class GameBoardView extends JPanel {
     private void styleToggleButton(JToggleButton tb) {
         tb.setFont(MindWarsTheme.BODY_FONT);
         tb.setFocusPainted(false);
+        tb.setOpaque(true);
+        tb.setContentAreaFilled(true);
+        tb.setBorderPainted(true);
+
         tb.setBackground(MindWarsTheme.DARK_CARD);
-        tb.setForeground(MindWarsTheme.WHITE);
+        tb.setForeground(Color.BLACK);   // προσωρινά για έλεγχο
         tb.setAlignmentX(Component.LEFT_ALIGNMENT);
         tb.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+
+        tb.addItemListener(e -> {
+            if (tb.isSelected()) {
+                tb.setBackground(MindWarsTheme.PINK);
+                tb.setForeground(Color.BLACK);
+            } else {
+                tb.setBackground(MindWarsTheme.DARK_CARD);
+                tb.setForeground(Color.WHITE);
+            }
+            tb.repaint();
+        });
     }
 
     private String readAnswer() {
@@ -576,6 +620,7 @@ public class GameBoardView extends JPanel {
 
         if (swingTimer != null)
             swingTimer.stop();
+        soundManager.stopTimer();
 
         long elapsed = System.currentTimeMillis() - timerStartMs;
 
@@ -603,6 +648,7 @@ public class GameBoardView extends JPanel {
     private void onTimeout() {
         if (!submitButton.isEnabled())
             return;
+        soundManager.stopTimer();
         long elapsed = GameModel.TIME_LIMIT_MS;
 
         if (invasionMode) {
@@ -667,6 +713,15 @@ public class GameBoardView extends JPanel {
 
         String text;
         Color bg;
+
+        if (result.timedOut) {
+            soundManager.play(SoundManager.INCORRECT);
+        } else if (result.correct) {
+            soundManager.play(SoundManager.CORRECT);
+        } else {
+            soundManager.play(SoundManager.INCORRECT);
+        }
+
         if (q.getType() == QuestionType.NUMERIC) {
             // Special feedback for numeric estimation
             text = "Estimation complete! Analyzing proximity...";
@@ -731,6 +786,24 @@ public class GameBoardView extends JPanel {
         if (s == null)
             return "";
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+    }
+
+
+
+    public void stopAllRoundAudio(){
+
+        if(swingTimer != null){
+            swingTimer.stop();
+        }
+
+        if(pendingAck != null){
+            pendingAck.stop();
+            pendingAck = null;
+        }
+
+        soundManager.stopTimer();
+
+
     }
 
 }

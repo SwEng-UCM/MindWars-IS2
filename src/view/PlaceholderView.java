@@ -9,6 +9,7 @@ import java.awt.*;
  * Minimal screen used as a stub for features not yet implemented. Shows a
  * title, a subtitle and a Back button that returns to the main menu.
  */
+
 public class PlaceholderView extends JPanel {
 
     public PlaceholderView(String title, String subtitle, NavigationController nav) {

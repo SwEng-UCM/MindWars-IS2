@@ -5,10 +5,11 @@ import controller.NavigationController;
 import model.GameModel;
 import model.GamePhase;
 import network.NetworkSession;
+import util.SoundManager;
 
 import javax.swing.*;
 import java.awt.*;
-
+import util.SoundManager;
 /**
  * The application window. Owns a {@link CardLayout} and hosts every screen.
  * Acts as the {@link NavigationController} so views can request a screen
@@ -58,11 +59,13 @@ public class MainFrame extends JFrame implements NavigationController {
     private final NetworkSetupView networkSetupView;
     private final NetworkLobbyView networkLobbyView;
     private final NetworkGameView networkGameView;
+    private final SoundManager soundManager;
     private BettingView bettingView;
 
-    public MainFrame(GameModel model) {
+    public MainFrame(GameModel model, SoundManager soundManager) {
         super("MindWars");
         this.model = model;
+        this.soundManager = soundManager;
         this.controller = new GameController(model, this);
         this.bettingView = new BettingView(controller);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -73,15 +76,15 @@ public class MainFrame extends JFrame implements NavigationController {
         menuView = new MainMenuView(this);
         setupView = new GameSetupView(controller);
         loadView = new LoadGameView(this);
-        settingsView = new SettingsView(this);
+        settingsView = new SettingsView(this, soundManager);
         leaderboardView = new LeaderboardView(this);
         rulesView = new RulesView(this);
         hotSeatView = new HotSeatView(controller, false);
-        gameBoardView = new GameBoardView(controller, false);
+        gameBoardView = new GameBoardView(controller, false, soundManager);
         claimView = new TerritoryClaimView(controller);
         invasionPassView = new HotSeatView(controller, true);
         invasionSelectView = new InvasionSelectView(controller);
-        invasionBattleView = new GameBoardView(controller, true);
+        invasionBattleView = new GameBoardView(controller, true, soundManager);
         gameOverView = new GameOverView(controller);
         networkSetupView = new NetworkSetupView(this, model, networkSession);
         networkLobbyView = new NetworkLobbyView(this, networkSession);
@@ -198,7 +201,9 @@ public class MainFrame extends JFrame implements NavigationController {
     @Override
     public void showGameOver() {
         gameOverView.refresh();
+        invasionBattleView.stopAllRoundAudio();
         cards.show(root, CARD_GAME_OVER);
+
     }
 
     @Override

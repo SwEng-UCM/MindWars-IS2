@@ -2,12 +2,13 @@ package view;
 
 import controller.LoginController;
 import java.awt.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.JOptionPane;
 import javax.swing.border.EmptyBorder;
 
 /**
@@ -15,6 +16,9 @@ import javax.swing.border.EmptyBorder;
  * custom styled inputs, and the transition to the main game.
  */
 public class MenuPanel extends JPanel {
+
+    private static final String EMAIL_PLACEHOLDER = "your.email@example.com";
+    private static final String PASSWORD_PLACEHOLDER = "Enter your password";
 
     private MainWindow parent;
     private BufferedImage logoImage;
@@ -28,7 +32,6 @@ public class MenuPanel extends JPanel {
         setLayout(new GridBagLayout());
         setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        // Load logo.png from assets folder
         try {
             logoImage = ImageIO.read(new File("assets/logo.png"));
         } catch (Exception e) {
@@ -37,7 +40,6 @@ public class MenuPanel extends JPanel {
             );
         }
 
-        // Main White Card Container with rounded corners
         JPanel card = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -69,7 +71,6 @@ public class MenuPanel extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
 
-        // 1. Logo Display
         gbc.gridy = 0;
         gbc.insets = new Insets(20, 30, 10, 30);
         JLabel logoLabel = new JLabel();
@@ -87,7 +88,6 @@ public class MenuPanel extends JPanel {
         logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
         card.add(logoLabel, gbc);
 
-        // 2. Subtitle text
         gbc.gridy = 1;
         gbc.insets = new Insets(0, 30, 20, 30);
         JLabel sub = new JLabel(
@@ -98,12 +98,10 @@ public class MenuPanel extends JPanel {
         sub.setForeground(Color.GRAY);
         card.add(sub, gbc);
 
-        // 3. Login/Register Tab Selection
         gbc.gridy = 2;
         gbc.insets = new Insets(10, 30, 20, 30);
         card.add(createTabPanel(), gbc);
 
-        // 4. Email Input Section
         gbc.gridy = 3;
         gbc.insets = new Insets(5, 30, 2, 30);
         JLabel emailLabel = new JLabel("✉ Email Address");
@@ -112,10 +110,9 @@ public class MenuPanel extends JPanel {
 
         gbc.gridy = 4;
         gbc.insets = new Insets(0, 30, 15, 30);
-        emailField = createStyledTextField("your.email@example.com");
+        emailField = createStyledTextField(EMAIL_PLACEHOLDER);
         card.add(emailField, gbc);
 
-        // 5. Password Input Section
         gbc.gridy = 5;
         gbc.insets = new Insets(5, 30, 2, 30);
         JLabel passLabel = new JLabel("🔒 Password");
@@ -124,10 +121,9 @@ public class MenuPanel extends JPanel {
 
         gbc.gridy = 6;
         gbc.insets = new Insets(0, 30, 15, 30);
-        passField = createStyledPasswordField();
+        passField = createStyledPasswordField(PASSWORD_PLACEHOLDER);
         card.add(passField, gbc);
 
-        // 6. Primary Action Button (Login to Game)
         gbc.gridy = 7;
         gbc.insets = new Insets(30, 30, 10, 30);
         JButton loginBtn = createGradientButton("→ Login to Game");
@@ -139,7 +135,6 @@ public class MenuPanel extends JPanel {
         });
         card.add(loginBtn, gbc);
 
-        // 7. Skip Button (Guest access)
         gbc.gridy = 8;
         gbc.insets = new Insets(0, 30, 20, 30);
         JButton skipBtn = new JButton("Continue without login");
@@ -149,17 +144,12 @@ public class MenuPanel extends JPanel {
         skipBtn.setBorderPainted(false);
         skipBtn.setFocusPainted(false);
         skipBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        // Skip button directly starts the game session
         skipBtn.addActionListener(e -> parent.startGameSession());
-
         card.add(skipBtn, gbc);
+
         add(card);
     }
 
-    /**
-     * Paints the main gradient background for the panel.
-     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -176,9 +166,6 @@ public class MenuPanel extends JPanel {
         g2d.fillRect(0, 0, getWidth(), getHeight());
     }
 
-    /**
-     * Creates the top navigation tabs for Login/Register.
-     */
     private JPanel createTabPanel() {
         JPanel panel = new JPanel(new GridLayout(1, 2, 12, 0));
         panel.setOpaque(false);
@@ -186,7 +173,6 @@ public class MenuPanel extends JPanel {
         JButton loginTab = new JButton("→ Login");
         JButton regTab = new JButton("👤 Register");
 
-        // Tab switching logic
         regTab.addActionListener(e -> parent.showScreen("REGISTER"));
 
         styleTabButton(loginTab, true);
@@ -221,8 +207,9 @@ public class MenuPanel extends JPanel {
     }
 
     private JTextField createStyledTextField(String placeholder) {
-        JTextField tf = new JTextField(placeholder);
+        JTextField tf = new JTextField();
         tf.setPreferredSize(new Dimension(300, 45));
+        tf.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         tf.setBorder(
             BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(
@@ -233,12 +220,15 @@ public class MenuPanel extends JPanel {
                 BorderFactory.createEmptyBorder(0, 15, 0, 15)
             )
         );
+
+        setupTextPlaceholder(tf, placeholder);
         return tf;
     }
 
-    private JPasswordField createStyledPasswordField() {
-        JPasswordField pf = new JPasswordField("");
+    private JPasswordField createStyledPasswordField(String placeholder) {
+        JPasswordField pf = new JPasswordField();
         pf.setPreferredSize(new Dimension(300, 45));
+        pf.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         pf.setBorder(
             BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(
@@ -249,12 +239,62 @@ public class MenuPanel extends JPanel {
                 BorderFactory.createEmptyBorder(0, 15, 0, 15)
             )
         );
+
+        setupPasswordPlaceholder(pf, placeholder);
         return pf;
     }
 
-    /**
-     * Creates a button with a horizontal color gradient.
-     */
+    private void setupTextPlaceholder(JTextField field, String placeholder) {
+        field.setText(placeholder);
+        field.setForeground(Color.GRAY);
+
+        field.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (field.getText().equals(placeholder)) {
+                    field.setText("");
+                    field.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (field.getText().trim().isEmpty()) {
+                    field.setText(placeholder);
+                    field.setForeground(Color.GRAY);
+                }
+            }
+        });
+    }
+
+    private void setupPasswordPlaceholder(JPasswordField field, String placeholder) {
+        field.setText(placeholder);
+        field.setForeground(Color.GRAY);
+        field.setEchoChar((char) 0);
+
+        field.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                String current = new String(field.getPassword());
+                if (current.equals(placeholder)) {
+                    field.setText("");
+                    field.setForeground(Color.BLACK);
+                    field.setEchoChar('•');
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                String current = new String(field.getPassword()).trim();
+                if (current.isEmpty()) {
+                    field.setText(placeholder);
+                    field.setForeground(Color.GRAY);
+                    field.setEchoChar((char) 0);
+                }
+            }
+        });
+    }
+
     private JButton createGradientButton(String text) {
         JButton btn = new JButton(text) {
             @Override
@@ -301,11 +341,13 @@ public class MenuPanel extends JPanel {
     }
 
     public String getEmailInput() {
-        return emailField.getText().trim();
+        String value = emailField.getText().trim();
+        return value.equals(EMAIL_PLACEHOLDER) ? "" : value;
     }
 
     public String getPasswordInput() {
-        return new String(passField.getPassword());
+        String value = new String(passField.getPassword());
+        return value.equals(PASSWORD_PLACEHOLDER) ? "" : value;
     }
 
     public MainWindow getParentWindow() {
