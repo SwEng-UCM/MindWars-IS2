@@ -332,35 +332,34 @@ public class GameBoardView extends JPanel {
         return raw == null ? "" : raw;
     }
 
-    /** Starts the 15 s countdown. Called by MainFrame when this screen is shown. */
-   public void startTimer() {
-    if (swingTimer != null) {
-        swingTimer.stop();
-    }
-
-    soundManager.stopTimer();
-    soundManager.startTimer();
-
-    timerStartMs = System.currentTimeMillis();
-    timerBar.setValue(100);
-    timerLabel.setText("15s");
-
-    swingTimer = new Timer(100, e -> {
-        long elapsed = System.currentTimeMillis() - timerStartMs;
-        long remaining = Math.max(0, GameModel.TIME_LIMIT_MS - elapsed);
-        int pct = (int) ((remaining * 100L) / GameModel.TIME_LIMIT_MS);
-        timerBar.setValue(pct);
-        timerLabel.setText((remaining / 1000) + "s");
-
-        if (remaining <= 0) {
+    public void startTimer() {
+        if (swingTimer != null) {
             swingTimer.stop();
-            soundManager.stopTimer();
-            onTimeout();
         }
-    });
 
-    swingTimer.start();
-}
+        soundManager.stopTimer();
+        soundManager.startTimer();
+
+        timerStartMs = System.currentTimeMillis();
+        timerBar.setValue(100);
+        timerLabel.setText("15s");
+
+        swingTimer = new Timer(100, e -> {
+            long elapsed = System.currentTimeMillis() - timerStartMs;
+            long remaining = Math.max(0, GameModel.TIME_LIMIT_MS - elapsed);
+            int pct = (int) ((remaining * 100L) / GameModel.TIME_LIMIT_MS);
+            timerBar.setValue(pct);
+            timerLabel.setText((remaining / 1000) + "s");
+
+            if (remaining <= 0) {
+                swingTimer.stop();
+                soundManager.stopTimer();
+                onTimeout();
+            }
+        });
+
+        swingTimer.start();
+    }
 
     // ── Grid rendering ──
 
