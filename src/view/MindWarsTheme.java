@@ -224,7 +224,24 @@ public final class MindWarsTheme {
         field.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(GRAY_LIGHT, 1, true),
                 BorderFactory.createEmptyBorder(8, 12, 8, 12)));
-        field.setHorizontalAlignment(SwingConstants.CENTER);
+        field.setHorizontalAlignment(SwingConstants.LEADING);
+        // Clear default text on focus, restore placeholder behaviour on blur
+        field.addFocusListener(new java.awt.event.FocusAdapter() {
+            private String defaultText = "";
+            @Override
+            public void focusGained(java.awt.event.FocusEvent e) {
+                defaultText = field.getText();
+                if (!defaultText.isEmpty()) {
+                    field.setText("");
+                }
+            }
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                if (field.getText().isBlank()) {
+                    field.setText(defaultText);
+                }
+            }
+        });
         return field;
     }
 

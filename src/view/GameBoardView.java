@@ -276,6 +276,23 @@ public class GameBoardView extends JPanel {
         // force swing to redraw
         this.revalidate();
         this.repaint();
+
+        // If current player is a bot, schedule an automatic answer.
+        if (!invasionMode && activePlayer.isBot()) {
+            submitButton.setEnabled(false);
+            Timer botTimer = new Timer((int) activePlayer.getStrategy().getResponseTime(), e -> {
+                if (swingTimer != null) swingTimer.stop();
+                long elapsed = activePlayer.getStrategy().getResponseTime();
+                String botAnswer = activePlayer.getStrategy().getAnswer(q);
+                AnswerResult result = controller.onAnswerSubmitted(botAnswer, elapsed);
+                showFeedback(result);
+                Timer done = new Timer(1200, ev -> controller.onAnswerAcknowledged());
+                done.setRepeats(false);
+                done.start();
+            });
+            botTimer.setRepeats(false);
+            botTimer.start();
+        }
     }
 
     public void setLocalPlayerIndex(int index) {

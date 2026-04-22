@@ -10,22 +10,30 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Setup wizard — addresses #74. Lets the player choose map size, game mode
- * (vs another player or vs bot), player names, and category/difficulty
- * (or random) before starting a new game.
- *
- * <p>
- * Single-panel form rather than multi-step for now; every option is
- * visible at once so the player can tweak and hit "Start".
- */
+// Scrollable card: tells JScrollPane not to compress the panel vertically.
+class ScrollableCard extends JPanel implements Scrollable {
+    ScrollableCard() { setOpaque(false); }
+    @Override protected void paintComponent(Graphics g) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setColor(Color.WHITE);
+        g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+        g2.dispose();
+    }
+    @Override public Dimension getPreferredScrollableViewportSize() { return getPreferredSize(); }
+    @Override public int getScrollableUnitIncrement(Rectangle r, int o, int d) { return 16; }
+    @Override public int getScrollableBlockIncrement(Rectangle r, int o, int d) { return 64; }
+    @Override public boolean getScrollableTracksViewportWidth() { return true; }
+    @Override public boolean getScrollableTracksViewportHeight() { return false; }
+}
+
+
 public class GameSetupView extends JPanel {
 
     private final GameController controller;
 
     // Form state
     private int mapSize = 4;
-    private boolean vsBot = false;
     private boolean randomMode = true;
 
     // Widgets
@@ -33,9 +41,11 @@ public class GameSetupView extends JPanel {
     private final JTextField player2Field;
     private final JTextField player3Field;
     private final JTextField player4Field;
-    private int numPlayers = 2;
+    private int numPlayers = 1;
+    private final JComboBox<String> numPlayersCombo;
+    private final JPanel playerFieldsPanel;
     private final List<JToggleButton> sizeButtons = new ArrayList<>();
-    private final List<JToggleButton> modeButtons = new ArrayList<>();
+    private JScrollPane scroller;
     private final JCheckBox randomCheck;
     private final JComboBox<String> categoryCombo;
     private final JComboBox<String> difficultyCombo;
@@ -47,49 +57,48 @@ public class GameSetupView extends JPanel {
         JPanel bg = MindWarsTheme.createGradientPanel();
         bg.setLayout(new GridBagLayout());
 
-        JPanel card = MindWarsTheme.createCard();
+        ScrollableCard card = new ScrollableCard();
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setPreferredSize(new Dimension(420, 640));
         card.setBorder(new EmptyBorder(24, 28, 24, 28));
 
-        card.add(MindWarsTheme.centeredLabel("New Game",
-                MindWarsTheme.HEADING_FONT, MindWarsTheme.PINK));
+        JLabel title = MindWarsTheme.centeredLabel("New Game",
+                MindWarsTheme.HEADING_FONT, MindWarsTheme.PINK);
+        title.setAlignmentX(Component.LEFT_ALIGNMENT);
+        card.add(title);
         card.add(Box.createVerticalStrut(18));
 
-        // ── Player names ──
+        // ── Number of players dropdown ──
         card.add(sectionLabel("Players"));
         card.add(Box.createVerticalStrut(6));
+
+        numPlayersCombo = new JComboBox<>(new String[]{
+                "1 Player (vs Bot)", "2 Players", "3 Players", "4 Players"});
+        numPlayersCombo.setSelectedIndex(0);
+        numPlayersCombo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
+        numPlayersCombo.setFont(MindWarsTheme.BODY_FONT);
+        numPlayersCombo.setAlignmentX(Component.LEFT_ALIGNMENT);
+        card.add(numPlayersCombo);
+        card.add(Box.createVerticalStrut(8));
+
+        // ── Player name fields (rebuilt on selection change) ──
         player1Field = MindWarsTheme.createTextField("Player 1 name");
         player1Field.setText("Player 1");
+        player1Field.setAlignmentX(Component.LEFT_ALIGNMENT);
         player2Field = MindWarsTheme.createTextField("Player 2 name");
         player2Field.setText("Player 2");
+        player2Field.setAlignmentX(Component.LEFT_ALIGNMENT);
         player3Field = MindWarsTheme.createTextField("Player 3 name");
+        player3Field.setText("Player 3");
+        player3Field.setAlignmentX(Component.LEFT_ALIGNMENT);
         player4Field = MindWarsTheme.createTextField("Player 4 name");
+        player4Field.setText("Player 4");
+        player4Field.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        card.add(player1Field);
-        card.add(Box.createVerticalStrut(8));
-        card.add(player2Field);
-        card.add(Box.createVerticalStrut(8));
-        card.add(player3Field);
-        card.add(Box.createVerticalStrut(8));
-        card.add(player4Field);
-        card.add(Box.createVerticalStrut(16));
-
-        // ── Game mode ──
-        card.add(sectionLabel("Mode"));
-        card.add(Box.createVerticalStrut(6));
-        JPanel modeRow = new JPanel(new GridLayout(1, 2, 10, 0));
-        modeRow.setOpaque(false);
-        modeRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
-        JToggleButton vsPlayer = optionToggle("vs Player", true);
-        JToggleButton vsBotBtn = optionToggle("vs Bot", false);
-        vsPlayer.addActionListener(e -> selectMode(vsPlayer, vsBotBtn, false));
-        vsBotBtn.addActionListener(e -> selectMode(vsPlayer, vsBotBtn, true));
-        modeButtons.add(vsPlayer);
-        modeButtons.add(vsBotBtn);
-        modeRow.add(vsPlayer);
-        modeRow.add(vsBotBtn);
-        card.add(modeRow);
+        playerFieldsPanel = new JPanel();
+        playerFieldsPanel.setLayout(new BoxLayout(playerFieldsPanel, BoxLayout.Y_AXIS));
+        playerFieldsPanel.setOpaque(false);
+        playerFieldsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        card.add(playerFieldsPanel);
         card.add(Box.createVerticalStrut(16));
 
         // ── Map size ──
@@ -98,6 +107,7 @@ public class GameSetupView extends JPanel {
         JPanel sizeRow = new JPanel(new GridLayout(1, 3, 10, 0));
         sizeRow.setOpaque(false);
         sizeRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
+        sizeRow.setAlignmentX(Component.LEFT_ALIGNMENT);
         for (int s : new int[] { 3, 4, 5 }) {
             JToggleButton tb = optionToggle(s + " × " + s, s == mapSize);
             tb.addActionListener(e -> selectSize(s));
@@ -122,6 +132,7 @@ public class GameSetupView extends JPanel {
         categoryCombo = new JComboBox<>();
         categoryCombo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
         categoryCombo.setFont(MindWarsTheme.BODY_FONT);
+        categoryCombo.setAlignmentX(Component.LEFT_ALIGNMENT);
         categoryCombo.addActionListener(e -> rebuildDifficulties());
         card.add(categoryCombo);
         card.add(Box.createVerticalStrut(8));
@@ -129,35 +140,66 @@ public class GameSetupView extends JPanel {
         difficultyCombo = new JComboBox<>();
         difficultyCombo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
         difficultyCombo.setFont(MindWarsTheme.BODY_FONT);
+        difficultyCombo.setAlignmentX(Component.LEFT_ALIGNMENT);
         card.add(difficultyCombo);
         card.add(Box.createVerticalStrut(20));
 
-        // Populate from the question bank.
         loadCategoriesFromBank();
         onRandomToggled();
 
         // ── Buttons ──
         JButton start = MindWarsTheme.createGradientButton("Start Game");
-        start.setAlignmentX(Component.CENTER_ALIGNMENT);
+        start.setAlignmentX(Component.LEFT_ALIGNMENT);
+        start.setMaximumSize(new Dimension(Integer.MAX_VALUE, 48));
         start.addActionListener(e -> onStart());
         card.add(start);
         card.add(Box.createVerticalStrut(10));
 
         JButton back = MindWarsTheme.createPinkButton("Back");
-        back.setAlignmentX(Component.CENTER_ALIGNMENT);
+        back.setAlignmentX(Component.LEFT_ALIGNMENT);
+        back.setMaximumSize(new Dimension(Integer.MAX_VALUE, 48));
         back.addActionListener(e -> controller.returnToMenu());
         card.add(back);
 
-        bg.add(card);
+        numPlayersCombo.addActionListener(e -> onNumPlayersChanged());
+        onNumPlayersChanged();
+
+        scroller = new JScrollPane(card,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scroller.setPreferredSize(new Dimension(420, 600));
+        scroller.setBorder(null);
+        scroller.setOpaque(false);
+        scroller.getViewport().setOpaque(false);
+        scroller.getViewport().setBackground(new Color(0, 0, 0, 0));
+        scroller.getVerticalScrollBar().setUnitIncrement(16);
+        bg.add(scroller);
+
         add(bg, BorderLayout.CENTER);
+
+        // Once the card has been laid out with 1 player, lock the viewport
+        // height to the card's natural height so that adding a 2nd player
+        // (or more) is what first triggers the scrollbar.
+        addHierarchyListener(e -> {
+            if ((e.getChangeFlags() & java.awt.event.HierarchyEvent.SHOWING_CHANGED) != 0
+                    && isShowing() && !viewportSized) {
+                SwingUtilities.invokeLater(() -> {
+                    int h = card.getPreferredSize().height;
+                    if (h > 0) {
+                        scroller.setPreferredSize(new Dimension(420, h));
+                        scroller.revalidate();
+                        viewportSized = true;
+                    }
+                });
+            }
+        });
     }
 
-    /** Called by the nav layer before showing this view. */
-    public void reset() {
-        // Preserve form state between visits — nothing to do.
-    }
+    private boolean viewportSized = false;
 
-    // ── Form helpers ──
+    public void reset() {}
+
+    // ── Helpers ──
 
     private JLabel sectionLabel(String text) {
         JLabel l = new JLabel(text);
@@ -187,12 +229,27 @@ public class GameSetupView extends JPanel {
                 selected ? MindWarsTheme.PINK : MindWarsTheme.GRAY_LIGHT, 2, true));
     }
 
-    private void selectMode(JToggleButton vsPlayer, JToggleButton vsBotBtn, boolean bot) {
-        this.vsBot = bot;
-        restyleToggle(vsPlayer, !bot);
-        restyleToggle(vsBotBtn, bot);
-        player2Field.setText(bot ? "Bot" : "Player 2");
-        player2Field.setEnabled(!bot);
+    private void onNumPlayersChanged() {
+        numPlayers = numPlayersCombo.getSelectedIndex() + 1;
+
+        playerFieldsPanel.removeAll();
+        JTextField[] fields = {player1Field, player2Field, player3Field, player4Field};
+        // 1 player → show only player 1 field (bot opponent is automatic)
+        // 2-4 players → show that many human name fields
+        for (int i = 0; i < numPlayers; i++) {
+            if (i > 0) playerFieldsPanel.add(Box.createVerticalStrut(8));
+            playerFieldsPanel.add(fields[i]);
+        }
+
+        playerFieldsPanel.revalidate();
+        playerFieldsPanel.repaint();
+
+        if (scroller != null) {
+            SwingUtilities.invokeLater(() -> {
+                JScrollBar vsb = scroller.getVerticalScrollBar();
+                vsb.setValue(vsb.getMaximum());
+            });
+        }
     }
 
     private void selectSize(int s) {
@@ -211,8 +268,7 @@ public class GameSetupView extends JPanel {
 
     private void loadCategoriesFromBank() {
         QuestionBank bank = controller.getModel().getQuestionBank();
-        if (bank == null)
-            return;
+        if (bank == null) return;
         for (String cat : bank.getCategories()) {
             categoryCombo.addItem(cat);
         }
@@ -222,11 +278,9 @@ public class GameSetupView extends JPanel {
     private void rebuildDifficulties() {
         difficultyCombo.removeAllItems();
         QuestionBank bank = controller.getModel().getQuestionBank();
-        if (bank == null)
-            return;
+        if (bank == null) return;
         Object sel = categoryCombo.getSelectedItem();
-        if (sel == null)
-            return;
+        if (sel == null) return;
         for (String diff : bank.getDifficulties(sel.toString())) {
             difficultyCombo.addItem(diff);
         }
@@ -234,15 +288,17 @@ public class GameSetupView extends JPanel {
 
     private void onStart() {
         String p1 = player1Field.getText().isBlank() ? "Player 1" : player1Field.getText().trim();
-        String p2 = player2Field.getText().isBlank() ? (vsBot ? "Bot" : "Player 2") : player2Field.getText().trim();
-        String p3 = player3Field.getText().trim();
-        String p4 = player4Field.getText().trim();
 
-        int finalNumPlayers = 2;
-        if (!p4.isEmpty())
-            finalNumPlayers = 4;
-        else if (!p3.isEmpty())
-            finalNumPlayers = 3;
+        // 1 player → vs bot; 2+ → all humans, no bot
+        boolean vsBot = (numPlayers == 1);
+        String p2 = vsBot ? "Bot"
+                : (player2Field.getText().isBlank() ? "Player 2" : player2Field.getText().trim());
+        String p3 = numPlayers >= 3
+                ? (player3Field.getText().isBlank() ? "Player 3" : player3Field.getText().trim()) : "";
+        String p4 = numPlayers >= 4
+                ? (player4Field.getText().isBlank() ? "Player 4" : player4Field.getText().trim()) : "";
+
+        int totalPlayers = vsBot ? 2 : numPlayers;
 
         String category = null;
         String difficulty = null;
@@ -256,7 +312,7 @@ public class GameSetupView extends JPanel {
         GameSettings settings = new GameSettings(
                 mapSize, vsBot,
                 p1, p2, p3, p4,
-                randomMode, category, difficulty, finalNumPlayers);
+                randomMode, category, difficulty, totalPlayers);
 
         controller.startNewGame(settings);
     }

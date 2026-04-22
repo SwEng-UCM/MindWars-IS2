@@ -64,5 +64,12 @@ public class HotSeatView extends JPanel {
                 subLabel.setText(invasionMode
                                 ? "Prepare to attack"
                                 : "Round " + model.getRoundNumber() + " of " + model.getTotalRounds());
+
+                // Bot players don't need to press Ready — skip automatically.
+                if (!invasionMode && p.isBot()) {
+                        Timer skip = new Timer(600, e -> controller.onHotSeatReady());
+                        skip.setRepeats(false);
+                        skip.start();
+                }
         }
 }

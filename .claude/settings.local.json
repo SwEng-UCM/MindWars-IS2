@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find src *)",
+      "Bash(javac -cp \"lib/*;out\" -d out @/tmp/sources.txt)",
+      "Bash(xargs javac *)",
+      "Bash(xargs grep *)"
+    ]
+  }
+}

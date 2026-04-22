@@ -1,5 +1,6 @@
 package model;
 
+import bot.EasyBot;
 import game.GameState;
 import game.MapGrid;
 import game.WinnerCalculator;
@@ -199,6 +200,9 @@ public class GameModel {
         for (int i = 0; i < settings.numPlayers; i++) {
             Player p = new Player(names[i]);
             p.setSymbol(symbols[i]);
+            if (settings.vsBot && i == 1) {
+                p.setStrategy(new EasyBot());
+            }
             players.add(p);
         }
 
