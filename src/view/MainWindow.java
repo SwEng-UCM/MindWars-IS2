@@ -13,6 +13,8 @@ public class MainWindow extends JFrame {
 
     private CardLayout cardLayout;
     private JPanel mainContainer;
+    private MenuPanel menuPanel;
+    private RegisterPanel registerPanel;
     private final GameModel model;
     private final SoundManager soundManager;
     private player.Player sessionPlayer;
@@ -29,8 +31,8 @@ public class MainWindow extends JFrame {
         cardLayout = new CardLayout();
         mainContainer = new JPanel(cardLayout);
 
-        MenuPanel menuPanel = new MenuPanel(this);
-        RegisterPanel registerPanel = new RegisterPanel(this);
+        menuPanel = new MenuPanel(this);
+        registerPanel = new RegisterPanel(this);
 
         RegisterController registerController = new RegisterController(
             registerPanel,
@@ -66,6 +68,13 @@ public class MainWindow extends JFrame {
 
     public void showScreen(String screenName) {
         cardLayout.show(mainContainer, screenName);
+        SwingUtilities.invokeLater(() -> {
+            if ("MENU".equals(screenName)) {
+                menuPanel.scrollToTop();
+            } else if ("REGISTER".equals(screenName)) {
+                registerPanel.scrollToTop();
+            }
+        });
     }
 
     public static void main(String[] args) {
