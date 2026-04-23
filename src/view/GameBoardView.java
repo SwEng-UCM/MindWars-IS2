@@ -77,6 +77,8 @@ public class GameBoardView extends JPanel {
 
     // Deferred acknowledgement fired ~1.6s after an answer; cancelled on undo.
     private Timer pendingAck;
+    private Timer botPreviewTimer;
+    private Timer botSubmitTimer;
 
     // Invasion battle state
     private String invasionAttackerAnswer = null;
@@ -255,10 +257,15 @@ public class GameBoardView extends JPanel {
                 : model.getCurrentPlayer();
 
         int activeIndex = players.indexOf(activePlayer);
+        boolean isBotTurn = !invasionMode && activePlayer != null && activePlayer.isBot();
 
         boolean isMyTurn = (localPlayerIndex < 0) || (localPlayerIndex == activeIndex);
+        boolean canInteract = isMyTurn && !isBotTurn;
 
-        if (isMyTurn) {
+        if (isBotTurn) {
+            playerLabel.setText("BOT TURN — " + activePlayer.getName() + " is thinking...");
+            playerLabel.setForeground(MindWarsTheme.GRAY_LIGHT);
+        } else if (isMyTurn) {
             playerLabel.setText("YOUR TURN — " + (invasionMode ? "Battle!" : "Press Ready"));
             playerLabel.setForeground(MindWarsTheme.PINK);
         } else {
@@ -298,29 +305,14 @@ public class GameBoardView extends JPanel {
 
         feedbackLabel.setVisible(false);
 
-        submitButton.setEnabled(isMyTurn);
-        undoButton.setEnabled(isMyTurn);
+        submitButton.setEnabled(canInteract);
+        undoButton.setEnabled(canInteract);
+        setAnswerInputEnabled(canInteract);
 
         // force swing to redraw
         this.revalidate();
         this.repaint();
 
-        // If current player is a bot, schedule an automatic answer.
-        if (!invasionMode && activePlayer.isBot()) {
-            submitButton.setEnabled(false);
-            Timer botTimer = new Timer((int) activePlayer.getStrategy().getResponseTime(), e -> {
-                if (swingTimer != null) swingTimer.stop();
-                long elapsed = activePlayer.getStrategy().getResponseTime();
-                String botAnswer = activePlayer.getStrategy().getAnswer(q);
-                AnswerResult result = controller.onAnswerSubmitted(botAnswer, elapsed);
-                showFeedback(result);
-                Timer done = new Timer(1200, ev -> controller.onAnswerAcknowledged());
-                done.setRepeats(false);
-                done.start();
-            });
-            botTimer.setRepeats(false);
-            botTimer.start();
-        }
     }
 
     public void setLocalPlayerIndex(int index) {
@@ -346,9 +338,13 @@ public class GameBoardView extends JPanel {
         long delay = Math.min(strat.getResponseTime(), GameModel.TIME_LIMIT_MS - 500);
         String botAnswer = resolveBotAnswer(strat, q);
 
+        stopBotAnswerTimers();
         submitButton.setEnabled(false);
+        undoButton.setEnabled(false);
+        setAnswerInputEnabled(false);
+        previewBotAnswer(q, botAnswer, delay);
 
-        Timer t = new Timer((int) delay, ev -> {
+        botSubmitTimer = new Timer((int) delay, ev -> {
             if (swingTimer != null) {
                 swingTimer.stop();
             }
@@ -363,8 +359,97 @@ public class GameBoardView extends JPanel {
             schedulePendingAck();
         });
 
-        t.setRepeats(false);
-        t.start();
+        botSubmitTimer.setRepeats(false);
+        botSubmitTimer.start();
+    }
+
+    private void previewBotAnswer(Question q, String botAnswer, long totalDelayMs) {
+        if (q == null) {
+            return;
+        }
+
+        if ((q.getType() == QuestionType.MULTIPLE_CHOICE || q.getType() == QuestionType.TRUE_FALSE)
+                && !choiceButtons.isEmpty()) {
+            int index = previewChoiceIndex(q, botAnswer);
+            if (index < 0 || index >= choiceButtons.size()) {
+                return;
+            }
+
+            int waitMs = (int) Math.max(220, totalDelayMs / 3);
+            botPreviewTimer = new Timer(waitMs, e -> {
+                choiceGroup.clearSelection();
+                choiceButtons.get(index).setSelected(true);
+            });
+            botPreviewTimer.setRepeats(false);
+            botPreviewTimer.start();
+            return;
+        }
+
+        JTextField target = (q.getType() == QuestionType.ORDERING) ? orderingInput : textInput;
+        String text = (botAnswer == null) ? "" : botAnswer;
+        target.setText("");
+        if (text.isEmpty()) {
+            return;
+        }
+
+        int totalChars = text.length();
+        int typingBudget = (int) Math.max(250, Math.min(totalDelayMs - 180, totalDelayMs * 3 / 4));
+        int stepMs = Math.max(35, typingBudget / totalChars);
+
+        final int[] idx = { 0 };
+        botPreviewTimer = new Timer(stepMs, e -> {
+            if (idx[0] >= totalChars) {
+                ((Timer) e.getSource()).stop();
+                return;
+            }
+            idx[0]++;
+            target.setText(text.substring(0, idx[0]));
+            target.setCaretPosition(target.getText().length());
+        });
+        botPreviewTimer.setInitialDelay(Math.max(120, stepMs));
+        botPreviewTimer.start();
+    }
+
+    private int previewChoiceIndex(Question q, String botAnswer) {
+        if (q.getType() == QuestionType.MULTIPLE_CHOICE) {
+            if (botAnswer == null || botAnswer.isBlank()) {
+                return -1;
+            }
+            char letter = Character.toUpperCase(botAnswer.trim().charAt(0));
+            int idx = letter - 'A';
+            return (idx >= 0 && idx < choiceButtons.size()) ? idx : -1;
+        }
+
+        if (q.getType() == QuestionType.TRUE_FALSE) {
+            if (botAnswer == null || botAnswer.isBlank()) {
+                return -1;
+            }
+            return Character.toUpperCase(botAnswer.trim().charAt(0)) == 'T' ? 0 : 1;
+        }
+
+        return -1;
+    }
+
+    private void stopBotAnswerTimers() {
+        if (botPreviewTimer != null) {
+            botPreviewTimer.stop();
+            botPreviewTimer = null;
+        }
+        if (botSubmitTimer != null) {
+            botSubmitTimer.stop();
+            botSubmitTimer = null;
+        }
+    }
+
+    private void setAnswerInputEnabled(boolean enabled) {
+        textInput.setEnabled(enabled);
+        textInput.setEditable(enabled);
+        orderingInput.setEnabled(enabled);
+        orderingInput.setEditable(enabled);
+
+        for (JToggleButton tb : choiceButtons) {
+            tb.setEnabled(enabled);
+        }
     }
 
     private String resolveBotAnswer(BotStrategy strat, Question q) {
@@ -695,6 +780,7 @@ public class GameBoardView extends JPanel {
 
     private void schedulePendingAck() {
         if (pendingAck != null) pendingAck.stop();
+        stopBotAnswerTimers();
         pendingAck = new Timer(1600, ev -> {
             pendingAck = null;
             controller.onAnswerAcknowledged();
@@ -827,6 +913,8 @@ public class GameBoardView extends JPanel {
         if(swingTimer != null){
             swingTimer.stop();
         }
+
+        stopBotAnswerTimers();
 
         if(pendingAck != null){
             pendingAck.stop();
