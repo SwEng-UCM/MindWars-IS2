@@ -6,8 +6,10 @@ import model.GameModel;
 import player.Player;
 
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicButtonUI;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.util.List;
 
 public class TerritoryClaimView extends JPanel {
@@ -166,8 +168,12 @@ public class TerritoryClaimView extends JPanel {
 
     private JButton buildCellButton(char owner, int row, int col, GameModel model) {
         JButton btn = new JButton();
+        btn.setUI(new BasicButtonUI());
         btn.setFont(MindWarsTheme.BODY_BOLD);
         btn.setFocusPainted(false);
+        btn.setRolloverEnabled(false);
+        btn.setOpaque(true);
+        btn.setContentAreaFilled(true);
         btn.setBorderPainted(true);
         btn.setBorder(BorderFactory.createLineBorder(MindWarsTheme.DARK_BORDER, 2));
         btn.setPreferredSize(new Dimension(72, 72));
@@ -177,8 +183,6 @@ public class TerritoryClaimView extends JPanel {
         if (owner == '.') {
             final int fr = row, fc = col;
             btn.addActionListener(e -> onCellClicked(fr, fc));
-        } else {
-            btn.setEnabled(false);
         }
 
         return btn;
@@ -190,16 +194,19 @@ public class TerritoryClaimView extends JPanel {
             btn.setForeground(MindWarsTheme.GRAY_LIGHT);
             btn.setText("");
             btn.setEnabled(true);
+            btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             return;
         }
 
         int playerIdx = playerIndexForSymbol(owner, model);
         Color color = playerColor(playerIdx);
+        Color opaqueColor = new Color(color.getRed(), color.getGreen(), color.getBlue(), 255);
 
-        btn.setBackground(color);
+        btn.setBackground(opaqueColor);
         btn.setForeground(MindWarsTheme.WHITE);
         btn.setText(String.valueOf(owner));
-        btn.setEnabled(false);
+        btn.setEnabled(true);
+        btn.setCursor(Cursor.getDefaultCursor());
     }
 
     private void onCellClicked(int row, int col) {
@@ -217,7 +224,7 @@ public class TerritoryClaimView extends JPanel {
         char newOwner = model.getMap().getOwner(row, col);
         JButton btn = cellButtons[row][col];
         applyOwnerStyle(btn, newOwner, model);
-        btn.setEnabled(false);
+        removeClickHandlers(btn);
 
         Color flash = playerColor(playerIndex);
         AnimationHelper.flashBackground(btn, flash.brighter(), flash, 6, 60);
@@ -270,8 +277,17 @@ public class TerritoryClaimView extends JPanel {
             return;
         for (JButton[] row : cellButtons)
             for (JButton btn : row)
-                if (btn != null && btn.isEnabled())
+                if (btn != null && btn.getActionListeners().length > 0) {
                     btn.setEnabled(false);
+                    btn.setCursor(Cursor.getDefaultCursor());
+                }
+    }
+
+    private void removeClickHandlers(JButton btn) {
+        for (ActionListener listener : btn.getActionListeners()) {
+            btn.removeActionListener(listener);
+        }
+        btn.setCursor(Cursor.getDefaultCursor());
     }
 
     private void updateInstruction(List<Player> players) {
