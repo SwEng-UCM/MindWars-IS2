@@ -24,6 +24,11 @@ public class CommandHistory {
         return !stack.isEmpty();
     }
 
+    /** Returns the top command without removing it, or null if empty. */
+    public Command peek() {
+        return stack.peek();
+    }
+
     /**
      * Undoes and removes the most recently executed command. Returns
      * {@code true} if a command was undone, {@code false} if the stack

@@ -1,9 +1,9 @@
 [
   {
     "name": "Player 1",
-    "wins": 11,
-    "totalScore": 574,
-    "gamesPlayed": 24
+    "wins": 12,
+    "totalScore": 594,
+    "gamesPlayed": 26
   },
   {
     "name": "Player 2",
@@ -13,9 +13,9 @@
   },
   {
     "name": "Bot",
-    "wins": 2,
-    "totalScore": 50,
-    "gamesPlayed": 5
+    "wins": 3,
+    "totalScore": 80,
+    "gamesPlayed": 7
   },
   {
     "name": "ana",

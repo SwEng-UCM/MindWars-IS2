@@ -61,6 +61,7 @@ public class GameBoardView extends JPanel {
     private final SoundManager soundManager;
     private final ButtonGroup choiceGroup = new ButtonGroup();
     private java.util.List<JToggleButton> choiceButtons = new java.util.ArrayList<>();
+    private boolean isTextQuestion = false;
 
     // Buttons row
     private final JButton submitButton;
@@ -164,6 +165,7 @@ public class GameBoardView extends JPanel {
         answerPanel = new JPanel(new CardLayout());
         answerPanel.setOpaque(false);
         answerPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        answerPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
 
         choicesPanel = new JPanel();
         choicesPanel.setOpaque(false);
@@ -282,7 +284,7 @@ public class GameBoardView extends JPanel {
         feedbackLabel.setVisible(false);
 
         submitButton.setEnabled(isMyTurn);
-        undoButton.setEnabled(isMyTurn && controller.canUndo());
+        undoButton.setEnabled(isMyTurn);
 
         // force swing to redraw
         this.revalidate();
@@ -490,8 +492,11 @@ public class GameBoardView extends JPanel {
         for (java.util.Enumeration<AbstractButton> en = choiceGroup.getElements(); en.hasMoreElements();) {
             choiceGroup.remove(en.nextElement());
         }
+        choiceGroup.clearSelection();
 
         QuestionType type = q.getType();
+        isTextQuestion = (type == QuestionType.NUMERIC || type == QuestionType.OPEN_ENDED || type == QuestionType.ORDERING);
+        undoButton.setText(isTextQuestion ? "Clear" : "Undo");
 
         if (type == QuestionType.MULTIPLE_CHOICE && q.getChoices() != null) {
             char label = 'A';
@@ -567,20 +572,20 @@ public class GameBoardView extends JPanel {
         tb.setOpaque(true);
         tb.setContentAreaFilled(true);
         tb.setBorderPainted(true);
+        tb.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         tb.setBackground(MindWarsTheme.DARK_CARD);
-        tb.setForeground(Color.BLACK);   // προσωρινά για έλεγχο
+        tb.setForeground(Color.BLACK);
         tb.setAlignmentX(Component.LEFT_ALIGNMENT);
         tb.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
         tb.addItemListener(e -> {
             if (tb.isSelected()) {
                 tb.setBackground(MindWarsTheme.PINK);
-                tb.setForeground(Color.BLACK);
             } else {
                 tb.setBackground(MindWarsTheme.DARK_CARD);
-                tb.setForeground(Color.WHITE);
             }
+            tb.setForeground(Color.BLACK);
             tb.repaint();
         });
     }
@@ -640,7 +645,7 @@ public class GameBoardView extends JPanel {
         AnswerResult result = controller.onAnswerSubmitted(answer, elapsed);
         showFeedback(result);
         submitButton.setEnabled(false);
-        undoButton.setEnabled(controller.canUndo());
+        undoButton.setEnabled(false);
 
         schedulePendingAck();
     }
@@ -659,6 +664,7 @@ public class GameBoardView extends JPanel {
         AnswerResult result = controller.onAnswerSubmitted(null, elapsed);
         showFeedback(result);
         submitButton.setEnabled(false);
+        undoButton.setEnabled(false);
 
         schedulePendingAck();
     }
@@ -691,18 +697,16 @@ public class GameBoardView extends JPanel {
     }
 
     private void onUndo() {
-        // Cancel any pending auto-acknowledge so the phase doesn't advance
-        // past the answer we're about to roll back.
-        if (pendingAck != null) {
-            pendingAck.stop();
-            pendingAck = null;
+        if (isTextQuestion) {
+            textInput.setText("");
+            textInput.requestFocusInWindow();
+            return;
         }
-        if (controller.undoLast()) {
-            feedbackLabel.setVisible(false);
-            submitButton.setEnabled(true);
-            startTimer();
-            refresh();
+        choiceGroup.clearSelection();
+        for (JToggleButton tb : choiceButtons) {
+            tb.setSelected(false);
         }
+        choicesPanel.repaint();
     }
 
     private void showFeedback(AnswerResult result) {

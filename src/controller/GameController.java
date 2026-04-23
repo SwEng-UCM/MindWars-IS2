@@ -153,6 +153,7 @@ public class GameController {
     }
 
     public void onAnswerAcknowledged() {
+        history.clear();
         model.advanceAfterAnswer();
     }
 
@@ -201,13 +202,14 @@ public class GameController {
 
     // ── Undo (#82) ──
 
-    /** Whether there is an action on the history stack that can be undone. */
+    /** Whether the top of the history stack is an answer that can be undone. */
     public boolean canUndo() {
-        return history.canUndo();
+        return history.canUndo() && history.peek() instanceof AnswerCommand;
     }
 
-    /** Undoes the most recent action. Returns true if something was undone. */
+    /** Undoes the most recent action only if it is an AnswerCommand. Returns true if something was undone. */
     public boolean undoLast() {
+        if (!canUndo()) return false;
         return history.undo();
     }
 
