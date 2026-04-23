@@ -32,6 +32,9 @@ import util.SoundManager;
  */
 public class GameBoardView extends JPanel {
 
+    private static final int ANSWER_PANEL_CHOICES_HEIGHT = 200;
+    private static final int ANSWER_PANEL_TEXT_HEIGHT = 52;
+
     private final GameController controller;
     private final boolean invasionMode;
 
@@ -57,7 +60,9 @@ public class GameBoardView extends JPanel {
     private final JLabel promptLabel;
     private final JPanel answerPanel;
     private final JPanel choicesPanel;
+    private final JPanel textWrap;
     private final JTextField textInput;
+    private final JTextField orderingInput;
     private final SoundManager soundManager;
     private final ButtonGroup choiceGroup = new ButtonGroup();
     private java.util.List<JToggleButton> choiceButtons = new java.util.ArrayList<>();
@@ -165,7 +170,9 @@ public class GameBoardView extends JPanel {
         answerPanel = new JPanel(new CardLayout());
         answerPanel.setOpaque(false);
         answerPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        answerPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
+        answerPanel.setMinimumSize(new Dimension(0, ANSWER_PANEL_TEXT_HEIGHT));
+        answerPanel.setPreferredSize(new Dimension(300, ANSWER_PANEL_TEXT_HEIGHT));
+        answerPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, ANSWER_PANEL_TEXT_HEIGHT));
 
         choicesPanel = new JPanel();
         choicesPanel.setOpaque(false);
@@ -177,9 +184,17 @@ public class GameBoardView extends JPanel {
         textInput.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
         textInput.setPreferredSize(new Dimension(300, 42));
 
-        JPanel textWrap = new JPanel(new BorderLayout());
+        orderingInput = MindWarsTheme.createTextField("Example: 2 1 3");
+        orderingInput.addActionListener(this::onSubmit);
+        orderingInput.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        orderingInput.setPreferredSize(new Dimension(300, 40));
+
+        textWrap = new JPanel(new BorderLayout());
         textWrap.setOpaque(false);
-        textWrap.add(textInput, BorderLayout.CENTER);
+        textWrap.add(textInput, BorderLayout.NORTH);
+        textWrap.setMinimumSize(new Dimension(0, ANSWER_PANEL_TEXT_HEIGHT));
+        textWrap.setPreferredSize(new Dimension(300, ANSWER_PANEL_TEXT_HEIGHT));
+        textWrap.setMaximumSize(new Dimension(Integer.MAX_VALUE, ANSWER_PANEL_TEXT_HEIGHT));
 
         answerPanel.add(textWrap, "text");
 
@@ -499,6 +514,7 @@ public class GameBoardView extends JPanel {
         undoButton.setText(isTextQuestion ? "Clear" : "Undo");
 
         if (type == QuestionType.MULTIPLE_CHOICE && q.getChoices() != null) {
+            answerPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, ANSWER_PANEL_CHOICES_HEIGHT));
             char label = 'A';
             for (String choice : q.getChoices()) {
                 JToggleButton tb = new JToggleButton(label + ") " + choice);
@@ -512,6 +528,7 @@ public class GameBoardView extends JPanel {
             cl.show(answerPanel, "choices");
 
         } else if (type == QuestionType.TRUE_FALSE) {
+            answerPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, ANSWER_PANEL_CHOICES_HEIGHT));
             for (String s : new String[] { "True", "False" }) {
                 JToggleButton tb = new JToggleButton(s);
                 styleToggleButton(tb);
@@ -523,6 +540,7 @@ public class GameBoardView extends JPanel {
             cl.show(answerPanel, "choices");
 
         } else if (type == QuestionType.ORDERING) {
+            answerPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, ANSWER_PANEL_CHOICES_HEIGHT));
             choicesPanel.setLayout(new BoxLayout(choicesPanel, BoxLayout.Y_AXIS));
             // show ordering options
             List<String> items = q.getChoices();
@@ -538,12 +556,13 @@ public class GameBoardView extends JPanel {
                 }
             }
             choicesPanel.add(Box.createVerticalStrut(10));
-            textInput.setText("");
-            textInput.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-            choicesPanel.add(textInput);
+            orderingInput.setText("");
+            orderingInput.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+            choicesPanel.add(orderingInput);
             cl.show(answerPanel, "choices");
 
         } else if (type == QuestionType.NUMERIC) {
+            answerPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, ANSWER_PANEL_TEXT_HEIGHT));
             textInput.setText("");
             textInput.setToolTipText("Enter a numeric estimation...");
             textInput.setEnabled(true);
@@ -553,6 +572,7 @@ public class GameBoardView extends JPanel {
 
         } else {
             // OPEN_ENDED
+            answerPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, ANSWER_PANEL_TEXT_HEIGHT));
             textInput.setText("");
             textInput.setEnabled(true);
             textInput.setEditable(true);
@@ -608,7 +628,11 @@ public class GameBoardView extends JPanel {
             }
             return null;
         }
-        String t = textInput.getText();
+        Question q = controller.getModel().getCurrentQuestion();
+        JTextField activeField = (q != null && q.getType() == QuestionType.ORDERING)
+            ? orderingInput
+            : textInput;
+        String t = activeField.getText();
         return t == null || t.isBlank() ? null : t.trim();
     }
 
@@ -698,8 +722,12 @@ public class GameBoardView extends JPanel {
 
     private void onUndo() {
         if (isTextQuestion) {
-            textInput.setText("");
-            textInput.requestFocusInWindow();
+            Question q = controller.getModel().getCurrentQuestion();
+            JTextField activeField = (q != null && q.getType() == QuestionType.ORDERING)
+                    ? orderingInput
+                    : textInput;
+            activeField.setText("");
+            activeField.requestFocusInWindow();
             return;
         }
         choiceGroup.clearSelection();

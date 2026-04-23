@@ -2,8 +2,8 @@
   {
     "name": "Player 1",
     "wins": 12,
-    "totalScore": 594,
-    "gamesPlayed": 26
+    "totalScore": 644,
+    "gamesPlayed": 29
   },
   {
     "name": "Player 2",
@@ -13,9 +13,9 @@
   },
   {
     "name": "Bot",
-    "wins": 3,
-    "totalScore": 80,
-    "gamesPlayed": 7
+    "wins": 6,
+    "totalScore": 190,
+    "gamesPlayed": 10
   },
   {
     "name": "ana",
