@@ -431,6 +431,43 @@ public class GameServer {
         }
     }
 
+    private void broadcastMapUpdate() {
+        game.MapGrid map = model.getMap();
+        if (map == null)
+            return;
+
+        int size = map.getSize();
+        StringBuilder sb = new StringBuilder(size * size);
+        for (int r = 0; r < size; r++)
+            for (int c = 0; c < size; c++)
+                sb.append(map.getOwner(r, c));
+
+        NetworkMessage m = new NetworkMessage(NetworkMessage.Type.MAP_UPDATE);
+        m.gridSnapshot = sb.toString();
+        m.mapSize = size;
+
+        if (pickIndex >= pickOrder.length || map.isMapFull()) {
+            m.claimInstruction = "All territories claimed!";
+            m.claimingPlayer = -1;
+            m.claimsLeft = 0;
+        } else {
+            int nextPlayer = pickOrder[pickIndex];
+            // Count consecutive picks for nextPlayer
+            int left = 0;
+            for (int i = pickIndex; i < pickOrder.length && pickOrder[i] == nextPlayer; i++)
+                left++;
+
+            List<Player> players = model.getPlayers();
+            String pName = (nextPlayer < players.size()) ? players.get(nextPlayer).getName()
+                    : ("Player " + (nextPlayer + 1));
+            m.claimInstruction = pName + " — choose " + left + (left == 1 ? " territory" : " territories");
+            m.claimingPlayer = nextPlayer;
+            m.claimsLeft = left;
+        }
+
+        broadcast(m);
+    }
+
     private static GameSettings withJoinedNames(GameSettings base, List<ClientHandler> clients) {
         int count = clients.size();
         String p1 = clients.get(0).displayName;

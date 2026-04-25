@@ -47,6 +47,14 @@ public class NetworkGameView extends JPanel {
     private Integer currentPlayer;
     private String[] playerNames = new String[] { "Player 1", "Player 2", "Player 3", "Player 4" };
 
+    // for territory claim
+    private final JPanel claimPanel;
+    private final JLabel claimInstructionLabel;
+    private final JPanel claimGridPanel;
+    private String cachedGridSnapshot = null;
+    private int cachedMapSize = 0;
+    /** Index of the player who should be claiming right now (-1 = done). */
+    private int claimingPlayer = -1;
     // for chat box
     private JTextArea chatArea;
     private JTextField chatInputField;
@@ -128,9 +136,29 @@ public class NetworkGameView extends JPanel {
         bottom.add(qCard, BorderLayout.CENTER);
         bottom.add(buttons, BorderLayout.SOUTH);
 
+        // ── Territory claim panel (NEW) ──────────────────────────────────
+        claimPanel = new JPanel(new BorderLayout(0, 10));
+        claimPanel.setOpaque(false);
+        claimPanel.setBorder(new EmptyBorder(8, 0, 8, 0));
+
+        claimInstructionLabel = new JLabel("", SwingConstants.CENTER);
+        claimInstructionLabel.setFont(MindWarsTheme.BODY_BOLD);
+        claimInstructionLabel.setForeground(MindWarsTheme.GRAY_LIGHT);
+        claimPanel.add(claimInstructionLabel, BorderLayout.NORTH);
+
+        claimGridPanel = new JPanel();
+        claimGridPanel.setOpaque(false);
+        claimPanel.add(claimGridPanel, BorderLayout.CENTER);
+
+        // ── Center card layout: question vs claim ──
+        JPanel centerCard = new JPanel(new CardLayout());
+        centerCard.setOpaque(false);
+        centerCard.add(bottom, "question");
+        centerCard.add(claimPanel, "claim");
+
         JPanel center = new JPanel(new BorderLayout(0, 8));
         center.setOpaque(false);
-        center.add(bottom, BorderLayout.CENTER);
+        center.add(centerCard, BorderLayout.CENTER);
         center.add(feedbackLabel, BorderLayout.SOUTH);
 
         add(top, BorderLayout.NORTH);
@@ -213,6 +241,7 @@ public class NetworkGameView extends JPanel {
             case RESULT -> onResult(msg);
             case SCORES -> onScores(msg);
             case GAME_OVER -> onGameOver(msg);
+            case MAP_UPDATE -> onMapUpdate(msg);
             case ERROR -> feedback("Server: " + msg.errorMessage, MindWarsTheme.WRONG_RED);
             default -> {
                 // LOBBY/TURN/WELCOME already handled elsewhere.
@@ -249,7 +278,16 @@ public class NetworkGameView extends JPanel {
                         ? "Your turn — answer now"
                         : nameOf(currentPlayer) + " is answering...");
             }
-            case "TERRITORY_CLAIM", "INVASION_PASS", "INVASION_SELECT" -> {
+            case "TERRITORY_CLAIM" -> {
+                // Switch to claim panel; MAP_UPDATE will fill in the grid
+                showClaimPanel();
+                readyButton.setEnabled(false);
+                submitButton.setEnabled(false);
+                turnLabel.setText("Territory Claim");
+                claimInstructionLabel.setText("Waiting for map…");
+            }
+            case "INVASION_PASS", "INVASION_SELECT" -> {
+                showQuestionPanel();
                 readyButton.setEnabled(false);
                 submitButton.setEnabled(false);
                 promptLabel.setText("<html>Phase: " + humanPhase(currentPhase) + "</html>");
@@ -348,7 +386,8 @@ public class NetworkGameView extends JPanel {
         }
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < msg.scores.size(); i++) {
-            if (i > 0) sb.append("   ");
+            if (i > 0)
+                sb.append("   ");
             sb.append(nameOf(i)).append(": ").append(msg.scores.get(i));
         }
         scoreLabel.setText(sb.toString());
