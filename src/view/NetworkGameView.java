@@ -13,11 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Client-side gameplay screen for networked games (#85). Does not own a
- * {@link GameModel} — every update arrives as a {@link NetworkMessage}
- * from the {@link NetworkSession}. Turns are driven by the server, so the
- * "Ready" and "Submit" controls are only enabled when the server says
- * it's this client's turn.
+ * Client-side gameplay screen for networked games (#85).
+ *
+ * Territory claim additions:
+ * - Handles MAP_UPDATE messages: renders the grid and enables cell buttons
+ * only for the player whose turn it is to claim.
+ * - Sends CLAIM_CELL to the server when a cell button is clicked.
+ * - Shows an instruction label and a "done" notice when all picks are done.
  */
 public class NetworkGameView extends JPanel {
 
@@ -36,7 +38,6 @@ public class NetworkGameView extends JPanel {
     private final JButton submitButton;
     private final JLabel feedbackLabel;
 
-    // Timer for the 15-second countdown, started on every QUESTION broadcast.
     private final JProgressBar timerBar;
     private Timer swingTimer;
     private long questionStartMs;
@@ -45,17 +46,20 @@ public class NetworkGameView extends JPanel {
     private String currentQuestionType = "";
     private List<String> lastChoices = new ArrayList<>();
     private Integer currentPlayer;
-    private String[] playerNames = new String[] { "Player 1", "Player 2", "Player 3", "Player 4" };
+    private String[] playerNames = new String[] { "Player 1", "Player 2" };
 
-    // for territory claim
+    // ── Territory claim UI (NEW) ──────────────────────────────────────────
+    /** Panel that holds the claim grid — swapped in/out of CENTER. */
     private final JPanel claimPanel;
     private final JLabel claimInstructionLabel;
     private final JPanel claimGridPanel;
+    /** Cached grid state for building buttons. */
     private String cachedGridSnapshot = null;
     private int cachedMapSize = 0;
     /** Index of the player who should be claiming right now (-1 = done). */
     private int claimingPlayer = -1;
-    // for chat box
+
+    // ── Chat ─────────────────────────────────────────────────────────────
     private JTextArea chatArea;
     private JTextField chatInputField;
 
@@ -169,7 +173,7 @@ public class NetworkGameView extends JPanel {
         session.addMessageListener(this::onServerMessage);
     }
 
-    // chat box
+    // ── Chat ─────────────────────────────────────────────────────────────
 
     private void setupChatPanel() {
         JPanel chatPanel = new JPanel(new BorderLayout(5, 5));
@@ -202,13 +206,10 @@ public class NetworkGameView extends JPanel {
     private void sendChatMessage() {
         String text = chatInputField.getText().trim();
         if (!text.isEmpty() && session.isConnected()) {
-            // send through sevrer
             NetworkMessage msg = new NetworkMessage();
             msg.type = NetworkMessage.Type.CHAT;
             msg.text = text;
-
             session.getClient().send(msg);
-
             chatInputField.setText("");
         }
     }
@@ -218,7 +219,7 @@ public class NetworkGameView extends JPanel {
         chatArea.setCaretPosition(chatArea.getDocument().getLength());
     }
 
-    // ── Server → view dispatch ──
+    // ── Server → view dispatch ────────────────────────────────────────────
 
     private void onServerMessage(NetworkMessage msg) {
         SwingUtilities.invokeLater(() -> handleMessage(msg));
@@ -241,10 +242,9 @@ public class NetworkGameView extends JPanel {
             case RESULT -> onResult(msg);
             case SCORES -> onScores(msg);
             case GAME_OVER -> onGameOver(msg);
-            case MAP_UPDATE -> onMapUpdate(msg);
+            case MAP_UPDATE -> onMapUpdate(msg); // NEW
             case ERROR -> feedback("Server: " + msg.errorMessage, MindWarsTheme.WRONG_RED);
             default -> {
-                // LOBBY/TURN/WELCOME already handled elsewhere.
             }
         }
     }
@@ -262,6 +262,7 @@ public class NetworkGameView extends JPanel {
 
         switch (currentPhase) {
             case "HOT_SEAT_PASS" -> {
+                showQuestionPanel();
                 promptLabel.setText("<html>Your turn — press Ready.</html>");
                 choicesPanel.removeAll();
                 textInput.setVisible(false);
@@ -272,6 +273,7 @@ public class NetworkGameView extends JPanel {
                         : "Waiting for " + nameOf(currentPlayer) + "...");
             }
             case "QUESTION", "INVASION_BATTLE" -> {
+                showQuestionPanel();
                 readyButton.setEnabled(false);
                 submitButton.setEnabled(myTurn);
                 turnLabel.setText(myTurn
@@ -296,17 +298,172 @@ public class NetworkGameView extends JPanel {
                 turnLabel.setText(humanPhase(currentPhase));
             }
             case "GAME_OVER" -> {
+                showQuestionPanel();
                 readyButton.setEnabled(false);
                 submitButton.setEnabled(false);
                 turnLabel.setText("Game over");
             }
             default -> {
-                // Unknown phases are no-ops.
             }
         }
         revalidate();
         repaint();
     }
+
+    // ── Territory claim (NEW) ─────────────────────────────────────────────
+
+    /**
+     * Receives the authoritative map state from the server and rebuilds the
+     * claim grid. Enables cell buttons only for the player whose turn it is.
+     */
+    private void onMapUpdate(NetworkMessage msg) {
+        if (msg.gridSnapshot == null || msg.mapSize == null)
+            return;
+
+        cachedGridSnapshot = msg.gridSnapshot;
+        cachedMapSize = msg.mapSize;
+        claimingPlayer = msg.claimingPlayer != null ? msg.claimingPlayer : -1;
+
+        // Update instruction label
+        String instruction = msg.claimInstruction != null ? msg.claimInstruction : "";
+        claimInstructionLabel.setText(instruction);
+
+        Integer me = session.getMyPlayerIndex();
+        boolean isMyClaimTurn = (me != null && me == claimingPlayer);
+
+        // Color the instruction to show whose turn it is
+        if (claimingPlayer == -1) {
+            claimInstructionLabel.setForeground(MindWarsTheme.PINK);
+        } else if (isMyClaimTurn) {
+            claimInstructionLabel.setForeground(
+                    me == 0 ? MindWarsTheme.PLAYER_X : MindWarsTheme.PLAYER_O);
+        } else {
+            claimInstructionLabel.setForeground(MindWarsTheme.GRAY_LIGHT);
+        }
+
+        rebuildClaimGrid(isMyClaimTurn);
+
+        // Make sure the claim panel is visible
+        showClaimPanel();
+        revalidate();
+        repaint();
+    }
+
+    private void rebuildClaimGrid(boolean enableEmpty) {
+        claimGridPanel.removeAll();
+        if (cachedGridSnapshot == null || cachedMapSize <= 0)
+            return;
+
+        int size = cachedMapSize;
+        claimGridPanel.setLayout(new GridLayout(size, size, 6, 6));
+
+        for (int r = 0; r < size; r++) {
+            for (int c = 0; c < size; c++) {
+                char owner = cachedGridSnapshot.charAt(r * size + c);
+                JButton btn = buildClaimButton(owner, r, c, enableEmpty);
+                claimGridPanel.add(btn);
+            }
+        }
+        claimGridPanel.revalidate();
+        claimGridPanel.repaint();
+    }
+
+    private JButton buildClaimButton(char owner, int row, int col, boolean enableEmpty) {
+        JButton btn = new JButton();
+        btn.setOpaque(true);
+        btn.setContentAreaFilled(true);
+        btn.setBorderPainted(true);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        btn.setFocusPainted(false);
+        btn.setOpaque(true);
+        btn.setContentAreaFilled(true);
+        btn.setPreferredSize(new Dimension(80, 80));
+
+        btn.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 70), 2));
+
+        switch (owner) {
+            case 'X' -> {
+
+                btn.setBackground(new Color(255, 20, 147));
+                btn.setForeground(Color.WHITE);
+                btn.setText("X");
+                btn.setEnabled(false);
+            }
+            case 'O' -> {
+
+                btn.setBackground(new Color(255, 140, 0));
+                btn.setForeground(Color.WHITE);
+                btn.setText("O");
+                btn.setEnabled(false);
+            }
+            default -> {
+
+                btn.setBackground(new Color(35, 35, 40));
+                btn.setForeground(new Color(80, 80, 90));
+                btn.setText("");
+                btn.setEnabled(enableEmpty);
+
+                if (enableEmpty) {
+                    btn.addMouseListener(new java.awt.event.MouseAdapter() {
+                        @Override
+                        public void mouseEntered(java.awt.event.MouseEvent e) {
+                            btn.setBackground(new Color(45, 45, 50));
+                        }
+
+                        @Override
+                        public void mouseExited(java.awt.event.MouseEvent e) {
+                            btn.setBackground(new Color(35, 35, 40));
+                        }
+                    });
+
+                    final int fr = row, fc = col;
+                    btn.addActionListener(e -> onClaimButtonClicked(fr, fc, btn));
+                }
+            }
+        }
+        return btn;
+    }
+
+    private void onClaimButtonClicked(int row, int col, JButton btn) {
+        if (!session.isConnected())
+            return;
+        // Optimistic: disable button immediately to prevent double-click
+        btn.setEnabled(false);
+        session.getClient().sendClaimCell(row, col);
+        // The server will reply with MAP_UPDATE which will rebuild the grid
+    }
+
+    // ── Card panel switching ──────────────────────────────────────────────
+
+    private void showQuestionPanel() {
+        JPanel centerCard = getCenterCard();
+        if (centerCard != null) {
+            ((CardLayout) centerCard.getLayout()).show(centerCard, "question");
+        }
+    }
+
+    private void showClaimPanel() {
+        JPanel centerCard = getCenterCard();
+        if (centerCard != null) {
+            ((CardLayout) centerCard.getLayout()).show(centerCard, "claim");
+        }
+    }
+
+    /** Walk the component tree to find the CardLayout panel. */
+    private JPanel getCenterCard() {
+        // center is BorderLayout.CENTER of this; it holds the CardLayout panel
+        Component center = ((BorderLayout) getLayout()).getLayoutComponent(BorderLayout.CENTER);
+        if (center instanceof JPanel cp) {
+            for (Component child : cp.getComponents()) {
+                if (child instanceof JPanel p && p.getLayout() instanceof CardLayout) {
+                    return p;
+                }
+            }
+        }
+        return null;
+    }
+
+    // ── Q&A handlers (unchanged) ──────────────────────────────────────────
 
     private void onQuestion(NetworkMessage msg) {
         String prompt = msg.prompt == null ? "" : msg.prompt;
@@ -377,20 +534,14 @@ public class NetworkGameView extends JPanel {
     }
 
     private void onScores(NetworkMessage msg) {
-        if (msg.scores == null || msg.scores.isEmpty())
+        if (msg.scores == null || msg.scores.size() < 2)
             return;
-        if (msg.playerNames != null) {
-            for (int i = 0; i < msg.playerNames.size() && i < playerNames.length; i++) {
-                playerNames[i] = msg.playerNames.get(i);
-            }
+        if (msg.playerNames != null && msg.playerNames.size() >= 2) {
+            playerNames[0] = msg.playerNames.get(0);
+            playerNames[1] = msg.playerNames.get(1);
         }
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < msg.scores.size(); i++) {
-            if (i > 0)
-                sb.append("   ");
-            sb.append(nameOf(i)).append(": ").append(msg.scores.get(i));
-        }
-        scoreLabel.setText(sb.toString());
+        scoreLabel.setText(playerNames[0] + ": " + msg.scores.get(0)
+                + "   " + playerNames[1] + ": " + msg.scores.get(1));
     }
 
     private void onGameOver(NetworkMessage msg) {
@@ -408,7 +559,7 @@ public class NetworkGameView extends JPanel {
         });
     }
 
-    // ── View → server ──
+    // ── View → server ─────────────────────────────────────────────────────
 
     private void onReady() {
         if (!isMyTurn() || !session.isConnected())
@@ -429,7 +580,7 @@ public class NetworkGameView extends JPanel {
         stopTimer();
     }
 
-    // ── Helpers ──
+    // ── Helpers ───────────────────────────────────────────────────────────
 
     private boolean isMyTurn() {
         Integer me = session.getMyPlayerIndex();
@@ -439,18 +590,17 @@ public class NetworkGameView extends JPanel {
     private String nameOf(Integer index) {
         if (index == null)
             return "opponent";
-        if (index >= 0 && index < playerNames.length)
-            return playerNames[index];
-        return "Player " + (index + 1);
+        if (index < 0 || index >= playerNames.length)
+            return "Player " + (index + 1);
+        return playerNames[index];
     }
 
     private String readAnswer() {
         if (!choiceButtons.isEmpty()) {
             for (int i = 0; i < choiceButtons.size(); i++) {
                 if (choiceButtons.get(i).isSelected()) {
-                    if ("MULTIPLE_CHOICE".equals(currentQuestionType)) {
+                    if ("MULTIPLE_CHOICE".equals(currentQuestionType))
                         return String.valueOf((char) ('A' + i));
-                    }
                     return choiceButtons.get(i).getText();
                 }
             }
@@ -469,9 +619,8 @@ public class NetworkGameView extends JPanel {
             long remaining = Math.max(0, model.GameModel.TIME_LIMIT_MS - elapsed);
             int pct = (int) ((remaining * 100L) / model.GameModel.TIME_LIMIT_MS);
             timerBar.setValue(pct);
-            if (remaining <= 0) {
+            if (remaining <= 0)
                 swingTimer.stop();
-            }
         });
         swingTimer.start();
     }

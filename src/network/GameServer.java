@@ -294,36 +294,37 @@ public class GameServer {
                 }
             }, "MindWars-PostAnswer").start();
         }
-    }
 
-    private void onClaimCell(NetworkMessage msg) {
-        if (seatIndex < 0 || msg.row == null || msg.col == null)
-            return;
-        synchronized (GameServer.this) {
-            // Must be in TERRITORY_CLAIM phase
-            if (model.getPhase() != GamePhase.TERRITORY_CLAIM) {
-                send(NetworkMessage.error("not in territory claim phase"));
+        private void onClaimCell(NetworkMessage msg) {
+            if (seatIndex < 0 || msg.row == null || msg.col == null)
                 return;
-            }
-            // Must be this player's turn in the pick order
-            if (pickIndex >= pickOrder.length || pickOrder[pickIndex] != seatIndex) {
-                send(NetworkMessage.error("not your turn to claim"));
-                return;
-            }
-            // Try to claim the cell via the model
-            boolean ok = model.claimCell(seatIndex, msg.row, msg.col);
-            if (!ok) {
-                send(NetworkMessage.error("cell already taken"));
-                return;
-            }
-            pickIndex++;
+            synchronized (GameServer.this) {
+                // Must be in TERRITORY_CLAIM phase
+                if (model.getPhase() != GamePhase.TERRITORY_CLAIM) {
+                    send(NetworkMessage.error("not in territory claim phase"));
+                    return;
+                }
+                // pickOrder poate fi null daca buildPickOrder nu a fost inca apelat
+                if (pickOrder == null || pickIndex >= pickOrder.length
+                        || pickOrder[pickIndex] != seatIndex) {
+                    send(NetworkMessage.error("not your turn to claim"));
+                    return;
+                }
+                // Try to claim the cell via the model
+                boolean ok = model.claimCell(seatIndex, msg.row, msg.col);
+                if (!ok) {
+                    send(NetworkMessage.error("cell already taken"));
+                    return;
+                }
+                pickIndex++;
 
-            // Broadcast updated map to all clients
-            broadcastMapUpdate();
+                // Broadcast updated map to all clients
+                broadcastMapUpdate();
 
-            // If all picks exhausted (or map full), finish the round
-            if (pickIndex >= pickOrder.length || model.getMap().isMapFull()) {
-                model.finishRound();
+                // If all picks exhausted (or map full), finish the round
+                if (pickIndex >= pickOrder.length || model.getMap().isMapFull()) {
+                    model.finishRound();
+                }
             }
         }
     }
@@ -359,7 +360,10 @@ public class GameServer {
 
         switch (phase) {
             case QUESTION, INVASION_BATTLE -> broadcastQuestion();
-            case TERRITORY_CLAIM -> broadcastMapUpdate();
+            case TERRITORY_CLAIM -> {
+                buildPickOrder();
+                broadcastMapUpdate();
+            }
             case GAME_OVER -> broadcastGameOver();
             default -> {
                 // HOT_SEAT_PASS / TERRITORY_CLAIM etc. only need the PHASE ping.
