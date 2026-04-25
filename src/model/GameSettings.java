@@ -15,11 +15,13 @@ public final class GameSettings {
     public final String category; // null if random mode
     public final String difficulty; // null if random mode
     public final int numPlayers;
+    public final String botDifficulty; // easy medium hard (relevant when vsBot = true)
 
     public GameSettings(int mapSize, boolean vsBot,
             String player1Name, String player2Name,
             String player3Name, String player4Name,
-            boolean randomMode, String category, String difficulty, int numPlayers) {
+            boolean randomMode, String category, String difficulty,
+            int numPlayers, String botDifficulty) {
         this.mapSize = mapSize;
         this.vsBot = vsBot;
         this.player1Name = player1Name;
@@ -30,5 +32,16 @@ public final class GameSettings {
         this.category = category;
         this.difficulty = difficulty;
         this.numPlayers = numPlayers;
+        this.botDifficulty = (botDifficulty == null || botDifficulty.isBlank()) ? "Easy" : botDifficulty;
     }
+
+    // constructor
+    public GameSettings(int mapSize, boolean vsBot,
+            String player1Name, String player2Name,
+            String player3Name, String player4Name,
+            boolean randomMode, String category, String difficulty, int numPlayers) {
+        this(mapSize, vsBot, player1Name, player2Name, player3Name, player4Name,
+                randomMode, category, difficulty, numPlayers, "Easy");
+    }
+
 }

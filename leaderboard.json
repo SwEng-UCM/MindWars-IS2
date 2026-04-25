@@ -6,16 +6,22 @@
     "gamesPlayed": 31
   },
   {
+    "name": "Bot",
+    "wins": 7,
+    "totalScore": 330,
+    "gamesPlayed": 14
+  },
+  {
     "name": "Player 2",
     "wins": 6,
     "totalScore": 415,
     "gamesPlayed": 19
   },
   {
-    "name": "Bot",
-    "wins": 6,
-    "totalScore": 230,
-    "gamesPlayed": 12
+    "name": "raisa",
+    "wins": 1,
+    "totalScore": 90,
+    "gamesPlayed": 2
   },
   {
     "name": "ana",

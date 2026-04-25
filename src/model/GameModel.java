@@ -1,6 +1,8 @@
 package model;
 
 import bot.EasyBot;
+import bot.HardBot;
+import bot.MediumBot;
 import game.GameState;
 import game.MapGrid;
 import game.WinnerCalculator;
@@ -207,7 +209,13 @@ public class GameModel {
         }
 
         if (settings.vsBot && players.size() >= 2) {
-            players.get(1).setStrategy(new EasyBot());
+            String diff = settings.botDifficulty == null ? "Easy" : settings.botDifficulty;
+            bot.BotStrategy strategy = switch (diff) {
+                case "Medium" -> new MediumBot();
+                case "Hard" -> new HardBot();
+                default -> new EasyBot();
+            };
+            players.get(1).setStrategy(strategy);
         }
 
         this.map = new MapGrid(settings.mapSize);

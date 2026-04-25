@@ -12,21 +12,44 @@ import java.util.List;
 
 // Scrollable card: tells JScrollPane not to compress the panel vertically.
 class ScrollableCard extends JPanel implements Scrollable {
-    ScrollableCard() { setOpaque(false); }
-    @Override protected void paintComponent(Graphics g) {
+    ScrollableCard() {
+        setOpaque(false);
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setColor(Color.WHITE);
         g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
         g2.dispose();
     }
-    @Override public Dimension getPreferredScrollableViewportSize() { return getPreferredSize(); }
-    @Override public int getScrollableUnitIncrement(Rectangle r, int o, int d) { return 16; }
-    @Override public int getScrollableBlockIncrement(Rectangle r, int o, int d) { return 64; }
-    @Override public boolean getScrollableTracksViewportWidth() { return true; }
-    @Override public boolean getScrollableTracksViewportHeight() { return false; }
-}
 
+    @Override
+    public Dimension getPreferredScrollableViewportSize() {
+        return getPreferredSize();
+    }
+
+    @Override
+    public int getScrollableUnitIncrement(Rectangle r, int o, int d) {
+        return 16;
+    }
+
+    @Override
+    public int getScrollableBlockIncrement(Rectangle r, int o, int d) {
+        return 64;
+    }
+
+    @Override
+    public boolean getScrollableTracksViewportWidth() {
+        return true;
+    }
+
+    @Override
+    public boolean getScrollableTracksViewportHeight() {
+        return false;
+    }
+}
 
 public class GameSetupView extends JPanel {
 
@@ -50,6 +73,10 @@ public class GameSetupView extends JPanel {
     private final JComboBox<String> categoryCombo;
     private final JComboBox<String> difficultyCombo;
 
+    private final JPanel botDifficultyPanel;
+    private final List<JToggleButton> botDiffButtons = new ArrayList<>();
+    private String selectedBotDifficulty = "Easy";
+
     public GameSetupView(GameController controller) {
         this.controller = controller;
         setLayout(new BorderLayout());
@@ -71,8 +98,8 @@ public class GameSetupView extends JPanel {
         card.add(sectionLabel("Players"));
         card.add(Box.createVerticalStrut(6));
 
-        numPlayersCombo = new JComboBox<>(new String[]{
-                "1 Player (vs Bot)", "2 Players", "3 Players", "4 Players"});
+        numPlayersCombo = new JComboBox<>(new String[] {
+                "1 Player (vs Bot)", "2 Players", "3 Players", "4 Players" });
         numPlayersCombo.setSelectedIndex(0);
         numPlayersCombo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
         numPlayersCombo.setFont(MindWarsTheme.BODY_FONT);
@@ -100,6 +127,32 @@ public class GameSetupView extends JPanel {
         playerFieldsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         card.add(playerFieldsPanel);
         card.add(Box.createVerticalStrut(16));
+
+        // bot difficulty (visible for 1 player vs bot)
+        botDifficultyPanel = new JPanel();
+        botDifficultyPanel.setLayout(new BoxLayout(botDifficultyPanel, BoxLayout.Y_AXIS));
+        botDifficultyPanel.setOpaque(false);
+        botDifficultyPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        botDifficultyPanel.add(sectionLabel("Bot Difficulty"));
+        botDifficultyPanel.add(Box.createVerticalStrut(6));
+
+        JPanel botBtnRow = new JPanel(new GridLayout(1, 3, 10, 0));
+        botBtnRow.setOpaque(false);
+        botBtnRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
+        botBtnRow.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        for (String diff : new String[] { "Easy", "Medium", "Hard" }) {
+            boolean sel = diff.equals(selectedBotDifficulty);
+            JToggleButton tb = botDiffToggle(diff, sel);
+            tb.addActionListener(e -> selectBotDifficulty(diff));
+            botDiffButtons.add(tb);
+            botBtnRow.add(tb);
+        }
+        botDifficultyPanel.add(botBtnRow);
+        botDifficultyPanel.add(Box.createVerticalStrut(16));
+
+        card.add(botDifficultyPanel);
 
         // ── Map size ──
         card.add(sectionLabel("Map size"));
@@ -197,7 +250,8 @@ public class GameSetupView extends JPanel {
 
     private boolean viewportSized = false;
 
-    public void reset() {}
+    public void reset() {
+    }
 
     // ── Helpers ──
 
@@ -221,6 +275,35 @@ public class GameSetupView extends JPanel {
         return tb;
     }
 
+    private JToggleButton botDiffToggle(String diff, boolean selected) {
+        Color accentColor = switch (diff) {
+            case "Medium" -> new Color(230, 140, 0);
+            case "Hard" -> new Color(210, 40, 40);
+            default -> new Color(30, 160, 80); // easy
+        };
+        Color bgColor = selected
+                ? accentColor.brighter()
+                : new Color(245, 245, 245);
+
+        JToggleButton tb = new JToggleButton(diff, selected);
+        tb.setFont(MindWarsTheme.BODY_BOLD);
+        tb.setFocusPainted(false);
+        tb.setBackground(bgColor);
+        tb.setForeground(selected ? Color.WHITE : accentColor.darker());
+        tb.setBorder(BorderFactory.createLineBorder(accentColor, 2, true));
+        tb.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        tb.setOpaque(true);
+
+        // redraw state when it changes
+        tb.addItemListener(e -> {
+            boolean sel = tb.isSelected();
+            tb.setBackground(sel ? accentColor.brighter() : new Color(245, 245, 245));
+            tb.setForeground(sel ? Color.WHITE : accentColor.darker());
+            tb.repaint();
+        });
+        return tb;
+    }
+
     private void restyleToggle(JToggleButton tb, boolean selected) {
         tb.setSelected(selected);
         tb.setBackground(selected ? MindWarsTheme.PINK_BG : MindWarsTheme.WHITE);
@@ -229,15 +312,27 @@ public class GameSetupView extends JPanel {
                 selected ? MindWarsTheme.PINK : MindWarsTheme.GRAY_LIGHT, 2, true));
     }
 
+    private void selectBotDifficulty(String diff) {
+        selectedBotDifficulty = diff;
+        String[] diffs = { "Easy", "Medium", "Hard" };
+        for (int i = 0; i < botDiffButtons.size(); i++) {
+            botDiffButtons.get(i).setSelected(diffs[i].equals(diff));
+        }
+    }
+
     private void onNumPlayersChanged() {
         numPlayers = numPlayersCombo.getSelectedIndex() + 1;
 
+        boolean vsBot = (numPlayers == 1);
+        botDifficultyPanel.setVisible(vsBot);
+
         playerFieldsPanel.removeAll();
-        JTextField[] fields = {player1Field, player2Field, player3Field, player4Field};
+        JTextField[] fields = { player1Field, player2Field, player3Field, player4Field };
         // 1 player → show only player 1 field (bot opponent is automatic)
         // 2-4 players → show that many human name fields
         for (int i = 0; i < numPlayers; i++) {
-            if (i > 0) playerFieldsPanel.add(Box.createVerticalStrut(8));
+            if (i > 0)
+                playerFieldsPanel.add(Box.createVerticalStrut(8));
             playerFieldsPanel.add(fields[i]);
         }
 
@@ -268,7 +363,8 @@ public class GameSetupView extends JPanel {
 
     private void loadCategoriesFromBank() {
         QuestionBank bank = controller.getModel().getQuestionBank();
-        if (bank == null) return;
+        if (bank == null)
+            return;
         for (String cat : bank.getCategories()) {
             categoryCombo.addItem(cat);
         }
@@ -278,9 +374,11 @@ public class GameSetupView extends JPanel {
     private void rebuildDifficulties() {
         difficultyCombo.removeAllItems();
         QuestionBank bank = controller.getModel().getQuestionBank();
-        if (bank == null) return;
+        if (bank == null)
+            return;
         Object sel = categoryCombo.getSelectedItem();
-        if (sel == null) return;
+        if (sel == null)
+            return;
         for (String diff : bank.getDifficulties(sel.toString())) {
             difficultyCombo.addItem(diff);
         }
@@ -294,9 +392,11 @@ public class GameSetupView extends JPanel {
         String p2 = vsBot ? "Bot"
                 : (player2Field.getText().isBlank() ? "Player 2" : player2Field.getText().trim());
         String p3 = numPlayers >= 3
-                ? (player3Field.getText().isBlank() ? "Player 3" : player3Field.getText().trim()) : "";
+                ? (player3Field.getText().isBlank() ? "Player 3" : player3Field.getText().trim())
+                : "";
         String p4 = numPlayers >= 4
-                ? (player4Field.getText().isBlank() ? "Player 4" : player4Field.getText().trim()) : "";
+                ? (player4Field.getText().isBlank() ? "Player 4" : player4Field.getText().trim())
+                : "";
 
         int totalPlayers = vsBot ? 2 : numPlayers;
 
@@ -312,7 +412,7 @@ public class GameSetupView extends JPanel {
         GameSettings settings = new GameSettings(
                 mapSize, vsBot,
                 p1, p2, p3, p4,
-                randomMode, category, difficulty, totalPlayers);
+                randomMode, category, difficulty, totalPlayers, vsBot ? selectedBotDifficulty : "Easy");
 
         controller.startNewGame(settings);
     }
