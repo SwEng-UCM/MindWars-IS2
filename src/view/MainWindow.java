@@ -35,15 +35,13 @@ public class MainWindow extends JFrame {
         registerPanel = new RegisterPanel(this);
 
         RegisterController registerController = new RegisterController(
-            registerPanel,
-            new UserRepository()
-        );
+                registerPanel,
+                new UserRepository());
         registerPanel.setController(registerController);
 
         LoginController loginController = new LoginController(
-            menuPanel,
-            new UserRepository()
-        );
+                menuPanel,
+                new UserRepository());
         menuPanel.setController(loginController);
 
         mainContainer.add(menuPanel, "MENU");
@@ -80,7 +78,8 @@ public class MainWindow extends JFrame {
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         DatabaseInitializer.initialize();
         SwingUtilities.invokeLater(() -> {

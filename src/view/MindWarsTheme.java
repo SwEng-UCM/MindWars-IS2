@@ -228,6 +228,7 @@ public final class MindWarsTheme {
         // Clear default text on focus, restore placeholder behaviour on blur
         field.addFocusListener(new java.awt.event.FocusAdapter() {
             private String defaultText = "";
+
             @Override
             public void focusGained(java.awt.event.FocusEvent e) {
                 defaultText = field.getText();
@@ -235,6 +236,7 @@ public final class MindWarsTheme {
                     field.setText("");
                 }
             }
+
             @Override
             public void focusLost(java.awt.event.FocusEvent e) {
                 if (field.getText().isBlank()) {

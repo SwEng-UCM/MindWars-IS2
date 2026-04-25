@@ -149,16 +149,17 @@ public class RegisterPanel extends JPanel {
 
         regBtn.addActionListener(e -> {
             System.out.println("Create Account pressed");
-            if (controller != null){
+            if (controller != null) {
                 controller.register();
 
-            }        });
+            }
+        });
         content.add(regBtn, gbc);
 
         cardScroll = new JScrollPane(
-            content,
-            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+                content,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         cardScroll.setBorder(BorderFactory.createEmptyBorder());
         cardScroll.setOpaque(false);
         cardScroll.getViewport().setOpaque(false);
@@ -191,19 +192,20 @@ public class RegisterPanel extends JPanel {
         return parent;
     }
 
-    public String getUsernameInput(){
+    public String getUsernameInput() {
         return userField.getText().trim();
     }
 
-    public String getEmailInput(){
+    public String getEmailInput() {
         return emailField.getText().trim();
     }
 
-    public String getPasswordInput(){
+    public String getPasswordInput() {
         String value = new String(passField.getPassword());
         return value.equals(PASSWORD_PLACEHOLDER) ? "" : value;
     }
-    public String getConfirmPasswordInput(){
+
+    public String getConfirmPasswordInput() {
         String value = new String(confirmPassField.getPassword());
         return value.equals(CONFIRM_PASSWORD_PLACEHOLDER) ? "" : value;
     }
@@ -222,7 +224,6 @@ public class RegisterPanel extends JPanel {
         resetPasswordPlaceholder(passField, PASSWORD_PLACEHOLDER);
         resetPasswordPlaceholder(confirmPassField, CONFIRM_PASSWORD_PLACEHOLDER);
     }
-
 
     @Override
     protected void paintComponent(Graphics g) {

@@ -24,11 +24,9 @@ public class LoginController {
 
         User user = repo.login(email, hash);
 
-        if (
-            email.isEmpty() ||
-            password.isEmpty() ||
-            email.equals("your.email@example.com")
-        ) {
+        if (email.isEmpty() ||
+                password.isEmpty() ||
+                email.equals("your.email@example.com")) {
             ui.showError("Please enter valid credentials");
             return;
         }

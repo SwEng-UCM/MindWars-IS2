@@ -22,6 +22,7 @@ public class NetworkMessage {
         READY,
         ANSWER,
         START_GAME,
+        CLAIM_CELL,
         // Server -> Client
         WELCOME,
         LOBBY,
@@ -32,6 +33,7 @@ public class NetworkMessage {
         TURN,
         GAME_OVER,
         ERROR,
+        MAP_UPDATE,
         // chat box
         CHAT
     }
@@ -78,6 +80,30 @@ public class NetworkMessage {
     // Error
     public String errorMessage;
 
+    /** Row of the cell the client wants to claim (CLAIM_CELL). */
+    public Integer row;
+
+    /** Column of the cell the client wants to claim (CLAIM_CELL). */
+    public Integer col;
+
+    public String gridSnapshot;
+
+    /** Side of the grid (MAP_UPDATE). */
+    public Integer mapSize;
+
+    public String claimInstruction;
+
+    /**
+     * Index of the player whose turn it is to claim next (MAP_UPDATE).
+     * -1 means all picks are exhausted.
+     */
+    public Integer claimingPlayer;
+
+    /**
+     * How many picks are left for the currently claiming player (MAP_UPDATE).
+     */
+    public Integer claimsLeft;
+
     public NetworkMessage() {
     }
 
@@ -99,6 +125,13 @@ public class NetworkMessage {
         NetworkMessage m = new NetworkMessage(Type.ANSWER);
         m.answer = answer;
         m.elapsedMs = elapsedMs;
+        return m;
+    }
+
+    public static NetworkMessage claimCell(int row, int col) {
+        NetworkMessage m = new NetworkMessage(Type.CLAIM_CELL);
+        m.row = row;
+        m.col = col;
         return m;
     }
 

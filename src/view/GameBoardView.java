@@ -323,16 +323,19 @@ public class GameBoardView extends JPanel {
      * If the current player is a bot, schedules an auto-answer after the
      * bot's "thinking" delay. No-op in invasion mode (bots do not invade).
      */
-   public void triggerBotAnswerIfNeeded() {
-    
-        if (invasionMode) return;
+    public void triggerBotAnswerIfNeeded() {
+
+        if (invasionMode)
+            return;
 
         GameModel model = controller.getModel();
         Player cur = model.getCurrentPlayer();
-        if (cur == null || !cur.isBot() || cur.getStrategy() == null) return;
+        if (cur == null || !cur.isBot() || cur.getStrategy() == null)
+            return;
 
         Question q = model.getCurrentQuestion();
-        if (q == null) return;
+        if (q == null)
+            return;
 
         BotStrategy strat = cur.getStrategy();
         long delay = Math.min(strat.getResponseTime(), GameModel.TIME_LIMIT_MS - 500);
@@ -460,11 +463,13 @@ public class GameBoardView extends JPanel {
                 return raw.toUpperCase();
             }
             int idx = (raw == null) ? -1 : q.getChoices().indexOf(raw);
-            if (idx < 0) idx = 0;
+            if (idx < 0)
+                idx = 0;
             return String.valueOf((char) ('A' + idx));
         }
         if (q.getType() == QuestionType.TRUE_FALSE) {
-            if (raw == null) return "T";
+            if (raw == null)
+                return "T";
             return raw.trim().toUpperCase().startsWith("T") ? "T" : "F";
         }
         return raw == null ? "" : raw;
@@ -595,7 +600,8 @@ public class GameBoardView extends JPanel {
         choiceGroup.clearSelection();
 
         QuestionType type = q.getType();
-        isTextQuestion = (type == QuestionType.NUMERIC || type == QuestionType.OPEN_ENDED || type == QuestionType.ORDERING);
+        isTextQuestion = (type == QuestionType.NUMERIC || type == QuestionType.OPEN_ENDED
+                || type == QuestionType.ORDERING);
         undoButton.setText(isTextQuestion ? "Clear" : "Undo");
 
         if (type == QuestionType.MULTIPLE_CHOICE && q.getChoices() != null) {
@@ -715,8 +721,8 @@ public class GameBoardView extends JPanel {
         }
         Question q = controller.getModel().getCurrentQuestion();
         JTextField activeField = (q != null && q.getType() == QuestionType.ORDERING)
-            ? orderingInput
-            : textInput;
+                ? orderingInput
+                : textInput;
         String t = activeField.getText();
         return t == null || t.isBlank() ? null : t.trim();
     }
@@ -779,7 +785,8 @@ public class GameBoardView extends JPanel {
     }
 
     private void schedulePendingAck() {
-        if (pendingAck != null) pendingAck.stop();
+        if (pendingAck != null)
+            pendingAck.stop();
         stopBotAnswerTimers();
         pendingAck = new Timer(1600, ev -> {
             pendingAck = null;
@@ -906,23 +913,20 @@ public class GameBoardView extends JPanel {
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
+    public void stopAllRoundAudio() {
 
-
-    public void stopAllRoundAudio(){
-
-        if(swingTimer != null){
+        if (swingTimer != null) {
             swingTimer.stop();
         }
 
         stopBotAnswerTimers();
 
-        if(pendingAck != null){
+        if (pendingAck != null) {
             pendingAck.stop();
             pendingAck = null;
         }
 
         soundManager.stopTimer();
-
 
     }
 

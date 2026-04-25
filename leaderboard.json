@@ -20,7 +20,13 @@
   {
     "name": "ana",
     "wins": 1,
-    "totalScore": 10,
+    "totalScore": 40,
+    "gamesPlayed": 2
+  },
+  {
+    "name": "tudor",
+    "wins": 0,
+    "totalScore": 30,
     "gamesPlayed": 1
   },
   {

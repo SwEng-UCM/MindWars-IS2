@@ -43,8 +43,7 @@ public class MenuPanel extends JPanel {
             logoImage = ImageIO.read(new File("assets/logo.png"));
         } catch (Exception e) {
             System.err.println(
-                "Could not load logo.png. Ensure it is in the assets/ folder."
-            );
+                    "Could not load logo.png. Ensure it is in the assets/ folder.");
         }
 
         JPanel card = new JPanel() {
@@ -52,31 +51,26 @@ public class MenuPanel extends JPanel {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(
-                    RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON
-                );
+                        RenderingHints.KEY_ANTIALIASING,
+                        RenderingHints.VALUE_ANTIALIAS_ON);
                 g2d.setColor(new Color(0, 0, 0, 28));
                 g2d.fill(
-                    new RoundRectangle2D.Double(
-                        4,
-                        6,
-                        getWidth() - 8,
-                        getHeight() - 8,
-                        42,
-                        42
-                    )
-                );
+                        new RoundRectangle2D.Double(
+                                4,
+                                6,
+                                getWidth() - 8,
+                                getHeight() - 8,
+                                42,
+                                42));
                 g2d.setColor(Color.WHITE);
                 g2d.fill(
-                    new RoundRectangle2D.Double(
-                        0,
-                        0,
-                        getWidth(),
-                        getHeight(),
-                        40,
-                        40
-                    )
-                );
+                        new RoundRectangle2D.Double(
+                                0,
+                                0,
+                                getWidth(),
+                                getHeight(),
+                                40,
+                                40));
                 g2d.dispose();
             }
 
@@ -84,9 +78,8 @@ public class MenuPanel extends JPanel {
             protected void paintChildren(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(
-                    RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON
-                );
+                        RenderingHints.KEY_ANTIALIASING,
+                        RenderingHints.VALUE_ANTIALIAS_ON);
                 g2d.setClip(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 40, 40));
                 super.paintChildren(g2d);
                 g2d.dispose();
@@ -112,12 +105,11 @@ public class MenuPanel extends JPanel {
         if (logoImage != null) {
             int targetHeight = 150;
             int targetWidth = (int) (logoImage.getWidth() *
-                ((double) targetHeight / logoImage.getHeight()));
+                    ((double) targetHeight / logoImage.getHeight()));
             Image scaledLogo = logoImage.getScaledInstance(
-                targetWidth,
-                targetHeight,
-                Image.SCALE_SMOOTH
-            );
+                    targetWidth,
+                    targetHeight,
+                    Image.SCALE_SMOOTH);
             logoLabel.setIcon(new ImageIcon(scaledLogo));
         }
         logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -126,9 +118,8 @@ public class MenuPanel extends JPanel {
         gbc.gridy = 1;
         gbc.insets = new Insets(0, 22, 12, 22);
         JLabel sub = new JLabel(
-            "Welcome back! Login to continue",
-            SwingConstants.CENTER
-        );
+                "Welcome back! Login to continue",
+                SwingConstants.CENTER);
         sub.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         sub.setForeground(Color.GRAY);
         content.add(sub, gbc);
@@ -187,10 +178,9 @@ public class MenuPanel extends JPanel {
         content.add(skipBtn, gbc);
 
         cardScroll = new JScrollPane(
-            content,
-            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER
-        );
+                content,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         cardScroll.setBorder(BorderFactory.createEmptyBorder());
         cardScroll.setOpaque(false);
         cardScroll.getViewport().setOpaque(false);
@@ -218,13 +208,12 @@ public class MenuPanel extends JPanel {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         GradientPaint gp = new GradientPaint(
-            0,
-            0,
-            BRAND_PINK,
-            getWidth(),
-            getHeight(),
-            BRAND_ORANGE
-        );
+                0,
+                0,
+                BRAND_PINK,
+                getWidth(),
+                getHeight(),
+                BRAND_ORANGE);
         g2d.setPaint(gp);
         g2d.fillRect(0, 0, getWidth(), getHeight());
     }
@@ -257,12 +246,10 @@ public class MenuPanel extends JPanel {
             btn.setBackground(Color.WHITE);
             btn.setForeground(BRAND_PINK);
             btn.setBorder(
-                BorderFactory.createLineBorder(
-                    new Color(BRAND_PINK.getRed(), BRAND_PINK.getGreen(), BRAND_PINK.getBlue(), 190),
-                    2,
-                    true
-                )
-            );
+                    BorderFactory.createLineBorder(
+                            new Color(BRAND_PINK.getRed(), BRAND_PINK.getGreen(), BRAND_PINK.getBlue(), 190),
+                            2,
+                            true));
         } else {
             btn.setBackground(new Color(248, 248, 248));
             btn.setForeground(new Color(120, 120, 120));
@@ -353,28 +340,24 @@ public class MenuPanel extends JPanel {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(
-                    RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON
-                );
+                        RenderingHints.KEY_ANTIALIASING,
+                        RenderingHints.VALUE_ANTIALIAS_ON);
                 GradientPaint gp = new GradientPaint(
-                    0,
-                    0,
-                    BRAND_PINK,
-                    getWidth(),
-                    0,
-                    new Color(180, 80, 0)
-                );
+                        0,
+                        0,
+                        BRAND_PINK,
+                        getWidth(),
+                        0,
+                        new Color(180, 80, 0));
                 g2d.setPaint(gp);
                 g2d.fill(
-                    new RoundRectangle2D.Double(
-                        0,
-                        0,
-                        getWidth(),
-                        getHeight(),
-                        25,
-                        25
-                    )
-                );
+                        new RoundRectangle2D.Double(
+                                0,
+                                0,
+                                getWidth(),
+                                getHeight(),
+                                25,
+                                25));
                 super.paintComponent(g);
                 g2d.dispose();
             }
@@ -415,20 +398,18 @@ public class MenuPanel extends JPanel {
 
     public void showError(String msg) {
         JOptionPane.showMessageDialog(
-            this,
-            msg,
-            "Login Error",
-            JOptionPane.ERROR_MESSAGE
-        );
+                this,
+                msg,
+                "Login Error",
+                JOptionPane.ERROR_MESSAGE);
     }
 
     public void showSuccess(String msg) {
         JOptionPane.showMessageDialog(
-            this,
-            msg,
-            "Success",
-            JOptionPane.INFORMATION_MESSAGE
-        );
+                this,
+                msg,
+                "Success",
+                JOptionPane.INFORMATION_MESSAGE);
     }
 
     private static class RoundedTextField extends JTextField {

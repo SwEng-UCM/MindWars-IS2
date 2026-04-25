@@ -11,7 +11,8 @@ import java.util.Enumeration;
  */
 public final class NetworkAddress {
 
-    private NetworkAddress() {}
+    private NetworkAddress() {
+    }
 
     /**
      * Returns a non-loopback IPv4 address bound to an active network
@@ -23,13 +24,18 @@ public final class NetworkAddress {
         try {
             Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces();
             for (NetworkInterface ni : Collections.list(ifaces)) {
-                if (!ni.isUp() || ni.isLoopback() || ni.isVirtual()) continue;
+                if (!ni.isUp() || ni.isLoopback() || ni.isVirtual())
+                    continue;
                 for (InetAddress addr : Collections.list(ni.getInetAddresses())) {
-                    if (addr.isLoopbackAddress() || addr.isLinkLocalAddress()) continue;
+                    if (addr.isLoopbackAddress() || addr.isLinkLocalAddress())
+                        continue;
                     String host = addr.getHostAddress();
-                    if (host == null || host.contains(":")) continue; // IPv6
-                    if (isPrivate(host)) return host;
-                    if (fallback == null) fallback = host;
+                    if (host == null || host.contains(":"))
+                        continue; // IPv6
+                    if (isPrivate(host))
+                        return host;
+                    if (fallback == null)
+                        fallback = host;
                 }
             }
         } catch (Exception ignored) {

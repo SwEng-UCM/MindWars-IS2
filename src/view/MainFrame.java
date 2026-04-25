@@ -10,6 +10,7 @@ import util.SoundManager;
 import javax.swing.*;
 import java.awt.*;
 import util.SoundManager;
+
 /**
  * The application window. Owns a {@link CardLayout} and hosts every screen.
  * Acts as the {@link NavigationController} so views can request a screen
