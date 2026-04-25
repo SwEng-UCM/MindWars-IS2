@@ -61,6 +61,9 @@ public class GameServer {
      * The in-flight answer submitted by each player index for the current question.
      */
     private final NetworkMessage[] pendingAnswers;
+    private int[] pickOrder;
+
+    private int pickIndex;
 
     public GameServer(int port, GameSettings settings, GameModel model) {
         this.port = port;
@@ -188,6 +191,7 @@ public class GameServer {
                 case JOIN -> onJoin(msg);
                 case READY -> onReady();
                 case ANSWER -> onAnswer(msg);
+                case CLAIM_CELL -> onClaimCell(msg);
                 case START_GAME -> {
                     if (seatIndex == 0) {
                         synchronized (GameServer.this) {
@@ -292,6 +296,53 @@ public class GameServer {
         }
     }
 
+    private void onClaimCell(NetworkMessage msg) {
+        if (seatIndex < 0 || msg.row == null || msg.col == null)
+            return;
+        synchronized (GameServer.this) {
+            // Must be in TERRITORY_CLAIM phase
+            if (model.getPhase() != GamePhase.TERRITORY_CLAIM) {
+                send(NetworkMessage.error("not in territory claim phase"));
+                return;
+            }
+            // Must be this player's turn in the pick order
+            if (pickIndex >= pickOrder.length || pickOrder[pickIndex] != seatIndex) {
+                send(NetworkMessage.error("not your turn to claim"));
+                return;
+            }
+            // Try to claim the cell via the model
+            boolean ok = model.claimCell(seatIndex, msg.row, msg.col);
+            if (!ok) {
+                send(NetworkMessage.error("cell already taken"));
+                return;
+            }
+            pickIndex++;
+
+            // Broadcast updated map to all clients
+            broadcastMapUpdate();
+
+            // If all picks exhausted (or map full), finish the round
+            if (pickIndex >= pickOrder.length || model.getMap().isMapFull()) {
+                model.finishRound();
+            }
+        }
+    }
+
+    private void buildPickOrder() {
+        int[] claimCounts = model.roundClaimCounts();
+        int winner = model.determineRoundWinnerIndex();
+        int loser = 1 - winner;
+
+        int total = claimCounts[winner] + claimCounts[loser];
+        pickOrder = new int[total];
+        int idx = 0;
+        for (int i = 0; i < claimCounts[winner]; i++)
+            pickOrder[idx++] = winner;
+        for (int i = 0; i < claimCounts[loser]; i++)
+            pickOrder[idx++] = loser;
+        pickIndex = 0;
+    }
+
     // ── Broadcasts ──
 
     private synchronized void onPhaseChanged(GamePhase phase) {
@@ -308,6 +359,7 @@ public class GameServer {
 
         switch (phase) {
             case QUESTION, INVASION_BATTLE -> broadcastQuestion();
+            case TERRITORY_CLAIM -> broadcastMapUpdate();
             case GAME_OVER -> broadcastGameOver();
             default -> {
                 // HOT_SEAT_PASS / TERRITORY_CLAIM etc. only need the PHASE ping.
