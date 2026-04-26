@@ -383,21 +383,30 @@ public class NetworkGameView extends JPanel {
 
         switch (owner) {
             case 'X' -> {
-
                 btn.setBackground(new Color(255, 20, 147));
                 btn.setForeground(Color.WHITE);
                 btn.setText("X");
                 btn.setEnabled(false);
             }
             case 'O' -> {
-
                 btn.setBackground(new Color(255, 140, 0));
                 btn.setForeground(Color.WHITE);
                 btn.setText("O");
                 btn.setEnabled(false);
             }
+            case 'A' -> {
+                btn.setBackground(new Color(0, 200, 200));
+                btn.setForeground(Color.WHITE);
+                btn.setText("A");
+                btn.setEnabled(false);
+            }
+            case 'B' -> {
+                btn.setBackground(new Color(180, 0, 255));
+                btn.setForeground(Color.WHITE);
+                btn.setText("B");
+                btn.setEnabled(false);
+            }
             default -> {
-
                 btn.setBackground(new Color(35, 35, 40));
                 btn.setForeground(new Color(80, 80, 90));
                 btn.setText("");
