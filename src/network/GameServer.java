@@ -245,9 +245,7 @@ public class GameServer {
                 if (phase != GamePhase.HOT_SEAT_PASS && phase != GamePhase.INVASION_PASS) {
                     return;
                 }
-                // Only the current player's READY advances the phase.
-                if (seatIndex != model.getCurrentPlayerIndex()
-                        && phase == GamePhase.HOT_SEAT_PASS) {
+                if (seatIndex != model.getCurrentPlayerIndex()) {
                     return;
                 }
                 readyFlags[seatIndex] = true;
@@ -304,7 +302,6 @@ public class GameServer {
                     send(NetworkMessage.error("not in territory claim phase"));
                     return;
                 }
-                // pickOrder poate fi null daca buildPickOrder nu a fost inca apelat
                 if (pickOrder == null || pickIndex >= pickOrder.length
                         || pickOrder[pickIndex] != seatIndex) {
                     send(NetworkMessage.error("not your turn to claim"));
@@ -332,15 +329,22 @@ public class GameServer {
     private void buildPickOrder() {
         int[] claimCounts = model.roundClaimCounts();
         int winner = model.determineRoundWinnerIndex();
-        int loser = 1 - winner;
+        int numPlayers = claimCounts.length;
 
-        int total = claimCounts[winner] + claimCounts[loser];
+        int total = 0;
+        for (int c : claimCounts)
+            total += c;
+
         pickOrder = new int[total];
         int idx = 0;
         for (int i = 0; i < claimCounts[winner]; i++)
             pickOrder[idx++] = winner;
-        for (int i = 0; i < claimCounts[loser]; i++)
-            pickOrder[idx++] = loser;
+        for (int p = 0; p < numPlayers; p++) {
+            if (p == winner)
+                continue;
+            for (int i = 0; i < claimCounts[p]; i++)
+                pickOrder[idx++] = p;
+        }
         pickIndex = 0;
     }
 

@@ -330,6 +330,7 @@ public class GameModel {
             setPhase(GamePhase.HOT_SEAT_PASS);
             return;
         }
+        currentPlayerIndex = 0;
         setPhase(GamePhase.TERRITORY_CLAIM);
     }
 

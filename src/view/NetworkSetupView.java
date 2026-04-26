@@ -33,6 +33,7 @@ public class NetworkSetupView extends JPanel {
     private final JTextField nameField;
     private final JButton actionButton;
     private final JLabel statusLabel;
+    private JSpinner numPlayersSpinner;
 
     private boolean hostMode = true;
 
@@ -92,6 +93,19 @@ public class NetworkSetupView extends JPanel {
         card.add(portField);
         card.add(Box.createVerticalStrut(18));
 
+        // ── Number of players (host only) ──
+        card.add(sectionLabel("Number of players (host only)"));
+        card.add(Box.createVerticalStrut(6));
+        numPlayersSpinner = new JSpinner(new SpinnerNumberModel(2, 2, 4, 1));
+        numPlayersSpinner.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
+        numPlayersSpinner.setPreferredSize(new Dimension(364, 44));
+        numPlayersSpinner.setFont(MindWarsTheme.BODY_FONT);
+        ((JSpinner.DefaultEditor) numPlayersSpinner.getEditor()).getTextField().setFont(MindWarsTheme.BODY_FONT);
+        ((JSpinner.DefaultEditor) numPlayersSpinner.getEditor()).getTextField().setHorizontalAlignment(JTextField.LEFT);
+        numPlayersSpinner.setAlignmentX(Component.LEFT_ALIGNMENT);
+        card.add(numPlayersSpinner);
+        card.add(Box.createVerticalStrut(18));
+
         // ── Action button ──
         actionButton = MindWarsTheme.createGradientButton("Start Server");
         actionButton.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -119,6 +133,7 @@ public class NetworkSetupView extends JPanel {
         restyleToggle(hostToggle, host);
         restyleToggle(joinToggle, !host);
         hostField.setEnabled(!host);
+        numPlayersSpinner.setEnabled(host);
         actionButton.setText(host ? "Start Server" : "Connect");
         if (host) {
             String ip = NetworkAddress.getLanAddress();
@@ -154,7 +169,7 @@ public class NetworkSetupView extends JPanel {
             // proper pre-lobby screen exists (#88 territory). That keeps the
             // server wiring self-contained here for #85.
             GameSettings defaults = new GameSettings(
-                    3, false, name, "Player 2", "", "", true, null, null, 2);
+                    3, false, name, "Player 2", "", "", true, null, null, (int) numPlayersSpinner.getValue());
             GameModel hostedModel = new GameModel(model.getQuestionBank());
             GameServer server = new GameServer(port, defaults, hostedModel);
             server.start();
