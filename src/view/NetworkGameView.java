@@ -48,8 +48,6 @@ public class NetworkGameView extends JPanel {
     private Integer currentPlayer;
     private String[] playerNames = new String[] { "Player 1", "Player 2", "Player 3", "Player 4" };
 
-    // ── Territory claim UI (NEW) ──────────────────────────────────────────
-    /** Panel that holds the claim grid — swapped in/out of CENTER. */
     private final JPanel claimPanel;
     private final JLabel claimInstructionLabel;
     private final JPanel claimGridPanel;
@@ -331,8 +329,6 @@ public class NetworkGameView extends JPanel {
         repaint();
     }
 
-    // ── Territory claim (NEW) ─────────────────────────────────────────────
-
     /**
      * Receives the authoritative map state from the server and rebuilds the
      * claim grid. Enables cell buttons only for the player whose turn it is.
@@ -396,67 +392,89 @@ public class NetworkGameView extends JPanel {
     }
 
     private JButton buildClaimButton(char owner, int row, int col, boolean enableEmpty) {
-        JButton btn = new JButton();
-        btn.setOpaque(true);
-        btn.setContentAreaFilled(true);
-        btn.setBorderPainted(true);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        btn.setFocusPainted(false);
-        btn.setOpaque(true);
-        btn.setContentAreaFilled(true);
-        btn.setPreferredSize(new Dimension(80, 80));
+        final boolean isEmpty = (owner == '.');
 
-        btn.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 70), 2));
-
+        // Determine fill color and label
+        final Color fillColor;
+        final String labelText;
         switch (owner) {
             case 'X' -> {
-                btn.setBackground(new Color(255, 20, 147));
-                btn.setForeground(Color.WHITE);
-                btn.setText("X");
-                btn.setEnabled(false);
+                fillColor = new Color(233, 30, 140);
+                labelText = "X";
             }
             case 'O' -> {
-                btn.setBackground(new Color(255, 140, 0));
-                btn.setForeground(Color.WHITE);
-                btn.setText("O");
-                btn.setEnabled(false);
+                fillColor = new Color(200, 113, 55);
+                labelText = "O";
             }
             case 'A' -> {
-                btn.setBackground(new Color(0, 200, 200));
-                btn.setForeground(Color.WHITE);
-                btn.setText("A");
-                btn.setEnabled(false);
+                fillColor = new Color(0, 200, 100);
+                labelText = "A";
             }
             case 'B' -> {
-                btn.setBackground(new Color(180, 0, 255));
-                btn.setForeground(Color.WHITE);
-                btn.setText("B");
-                btn.setEnabled(false);
+                fillColor = new Color(255, 180, 0);
+                labelText = "B";
             }
             default -> {
-                btn.setBackground(new Color(35, 35, 40));
-                btn.setForeground(new Color(80, 80, 90));
-                btn.setText("");
-                btn.setEnabled(enableEmpty);
-
-                if (enableEmpty) {
-                    btn.addMouseListener(new java.awt.event.MouseAdapter() {
-                        @Override
-                        public void mouseEntered(java.awt.event.MouseEvent e) {
-                            btn.setBackground(new Color(45, 45, 50));
-                        }
-
-                        @Override
-                        public void mouseExited(java.awt.event.MouseEvent e) {
-                            btn.setBackground(new Color(35, 35, 40));
-                        }
-                    });
-
-                    final int fr = row, fc = col;
-                    btn.addActionListener(e -> onClaimButtonClicked(fr, fc, btn));
-                }
+                fillColor = new Color(42, 42, 52);
+                labelText = "";
             }
         }
+        final Color hoverColor = new Color(60, 60, 72);
+        final Color border = new Color(55, 55, 65);
+
+        JButton btn = new JButton() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                        RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                boolean hovered = Boolean.TRUE.equals(getClientProperty("hovered"));
+                g2.setColor((isEmpty && hovered && isEnabled()) ? hoverColor : fillColor);
+                g2.fillRect(0, 0, getWidth(), getHeight());
+                if (!labelText.isEmpty()) {
+                    g2.setColor(Color.WHITE);
+                    g2.setFont(getFont());
+                    FontMetrics fm = g2.getFontMetrics();
+                    int tx = (getWidth() - fm.stringWidth(labelText)) / 2;
+                    int ty = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
+                    g2.drawString(labelText, tx, ty);
+                }
+                g2.dispose();
+            }
+        };
+
+        btn.setFont(new Font("SansSerif", Font.BOLD, 22));
+        btn.setFocusPainted(false);
+        btn.setRolloverEnabled(false);
+        btn.setOpaque(false);
+        btn.setContentAreaFilled(false);
+        btn.setBorderPainted(true);
+        btn.setBorder(BorderFactory.createLineBorder(border, 2));
+        btn.setPreferredSize(new Dimension(110, 110));
+
+        if (isEmpty && enableEmpty) {
+            btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            btn.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseEntered(java.awt.event.MouseEvent e) {
+                    btn.putClientProperty("hovered", true);
+                    btn.repaint();
+                }
+
+                @Override
+                public void mouseExited(java.awt.event.MouseEvent e) {
+                    btn.putClientProperty("hovered", false);
+                    btn.repaint();
+                }
+            });
+            final int fr = row, fc = col;
+            btn.addActionListener(e -> onClaimButtonClicked(fr, fc, btn));
+        } else {
+            btn.setEnabled(false);
+        }
+
         return btn;
     }
 
@@ -691,10 +709,29 @@ public class NetworkGameView extends JPanel {
     private void styleToggle(JToggleButton tb) {
         tb.setFont(MindWarsTheme.BODY_FONT);
         tb.setFocusPainted(false);
-        tb.setBackground(MindWarsTheme.DARK_CARD);
-        tb.setForeground(MindWarsTheme.WHITE);
+        tb.setBackground(Color.WHITE);
+        tb.setForeground(Color.BLACK);
+        tb.setOpaque(true);
+        tb.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(MindWarsTheme.DARK_BORDER, 1, true),
+                BorderFactory.createEmptyBorder(8, 12, 8, 12)));
         tb.setAlignmentX(Component.LEFT_ALIGNMENT);
-        tb.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        tb.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
+        tb.addItemListener(e -> {
+            if (tb.isSelected()) {
+                tb.setBackground(MindWarsTheme.PINK_LIGHT);
+                tb.setForeground(Color.BLACK);
+                tb.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(MindWarsTheme.PINK, 2, true),
+                        BorderFactory.createEmptyBorder(7, 11, 7, 11)));
+            } else {
+                tb.setBackground(Color.WHITE);
+                tb.setForeground(Color.BLACK);
+                tb.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(MindWarsTheme.DARK_BORDER, 1, true),
+                        BorderFactory.createEmptyBorder(8, 12, 8, 12)));
+            }
+        });
     }
 
     private static String humanPhase(String phase) {
