@@ -122,6 +122,12 @@ public class MainFrame extends JFrame implements NavigationController {
 
     /** Switches cards to match the current model phase. */
     private void syncPhase() {
+        // In network mode the server drives phase changes and NetworkGameView
+        // handles them via broadcast messages. Let syncPhase do nothing so the
+        // host is not incorrectly switched away from CARD_MP_GAME to a local screen.
+        if (networkSession.isConnected()) {
+            return;
+        }
         GamePhase phase = model.getPhase();
         switch (phase) {
             case SETUP -> cards.show(root, CARD_SETUP);

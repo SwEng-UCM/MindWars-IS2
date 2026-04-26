@@ -263,14 +263,19 @@ public class NetworkGameView extends JPanel {
         switch (currentPhase) {
             case "HOT_SEAT_PASS" -> {
                 showQuestionPanel();
-                promptLabel.setText("<html>Your turn — press Ready.</html>");
                 choicesPanel.removeAll();
                 textInput.setVisible(false);
                 readyButton.setEnabled(myTurn);
                 submitButton.setEnabled(false);
-                turnLabel.setText(myTurn
-                        ? "Your turn"
-                        : "Waiting for " + nameOf(currentPlayer) + "...");
+                if (myTurn) {
+                    promptLabel
+                            .setText("<html><b>It's your turn!</b><br>Press Ready when you're ready to answer.</html>");
+                    turnLabel.setText("Your turn — press Ready");
+                } else {
+                    promptLabel.setText(
+                            "<html>Waiting for <b>" + escape(nameOf(currentPlayer)) + "</b> to press Ready...</html>");
+                    turnLabel.setText("Waiting for " + nameOf(currentPlayer) + "...");
+                }
             }
             case "QUESTION", "INVASION_BATTLE" -> {
                 showQuestionPanel();
@@ -288,7 +293,23 @@ public class NetworkGameView extends JPanel {
                 turnLabel.setText("Territory Claim");
                 claimInstructionLabel.setText("Waiting for map…");
             }
-            case "INVASION_PASS", "INVASION_SELECT" -> {
+            case "INVASION_PASS" -> {
+                showQuestionPanel();
+                choicesPanel.removeAll();
+                textInput.setVisible(false);
+                readyButton.setEnabled(myTurn);
+                submitButton.setEnabled(false);
+                if (myTurn) {
+                    promptLabel.setText(
+                            "<html><b>Invasion phase — it's your turn to attack!</b><br>Press Ready when you're ready.</html>");
+                    turnLabel.setText("Your turn — press Ready");
+                } else {
+                    promptLabel.setText("<html>Invasion phase — waiting for <b>" + escape(nameOf(currentPlayer))
+                            + "</b>...</html>");
+                    turnLabel.setText("Waiting for " + nameOf(currentPlayer) + "...");
+                }
+            }
+            case "INVASION_SELECT" -> {
                 showQuestionPanel();
                 readyButton.setEnabled(false);
                 submitButton.setEnabled(false);
@@ -335,8 +356,14 @@ public class NetworkGameView extends JPanel {
         if (claimingPlayer == -1) {
             claimInstructionLabel.setForeground(MindWarsTheme.PINK);
         } else if (isMyClaimTurn) {
-            claimInstructionLabel.setForeground(
-                    me == 0 ? MindWarsTheme.PLAYER_X : MindWarsTheme.PLAYER_O);
+            Color myColor = switch (claimingPlayer) {
+                case 0 -> MindWarsTheme.PLAYER_X;
+                case 1 -> MindWarsTheme.PLAYER_O;
+                case 2 -> Color.CYAN;
+                case 3 -> Color.YELLOW;
+                default -> MindWarsTheme.WHITE;
+            };
+            claimInstructionLabel.setForeground(myColor);
         } else {
             claimInstructionLabel.setForeground(MindWarsTheme.GRAY_LIGHT);
         }
@@ -472,7 +499,7 @@ public class NetworkGameView extends JPanel {
         return null;
     }
 
-    // ── Q&A handlers (unchanged) ──────────────────────────────────────────
+    // ── Q&A handlers ──────────────────────────────────────────
 
     private void onQuestion(NetworkMessage msg) {
         String prompt = msg.prompt == null ? "" : msg.prompt;

@@ -245,7 +245,12 @@ public class GameServer {
                 if (phase != GamePhase.HOT_SEAT_PASS && phase != GamePhase.INVASION_PASS) {
                     return;
                 }
-                if (seatIndex != model.getCurrentPlayerIndex()) {
+                // For HOT_SEAT_PASS the active player is currentPlayerIndex.
+                // For INVASION_PASS the active player is invaderIndex.
+                int expectedSeat = (phase == GamePhase.INVASION_PASS)
+                        ? model.getInvaderIndex()
+                        : model.getCurrentPlayerIndex();
+                if (seatIndex != expectedSeat) {
                     return;
                 }
                 readyFlags[seatIndex] = true;
@@ -357,7 +362,13 @@ public class GameServer {
 
         NetworkMessage m = new NetworkMessage(NetworkMessage.Type.PHASE);
         m.phase = phase.name();
-        m.currentPlayer = model.getCurrentPlayerIndex();
+        // For invasion phases, currentPlayer must be the invader index, not
+        // getCurrentPlayerIndex() which is always 0 after a reset.
+        if (phase == GamePhase.INVASION_PASS || phase == GamePhase.INVASION_BATTLE) {
+            m.currentPlayer = model.getInvaderIndex();
+        } else {
+            m.currentPlayer = model.getCurrentPlayerIndex();
+        }
         m.round = model.getRoundNumber();
         m.totalRounds = model.getTotalRounds();
         broadcast(m);
