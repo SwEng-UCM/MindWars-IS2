@@ -76,7 +76,7 @@ public class MainFrame extends JFrame implements NavigationController {
 
         menuView = new MainMenuView(this);
         setupView = new GameSetupView(controller);
-        loadView = new LoadGameView(this);
+        loadView = new LoadGameView(controller, this);
         settingsView = new SettingsView(this, soundManager);
         leaderboardView = new LeaderboardView(this);
         rulesView = new RulesView(this);
@@ -181,6 +181,7 @@ public class MainFrame extends JFrame implements NavigationController {
 
     @Override
     public void showLoadGame() {
+        loadView.refresh();
         cards.show(root, CARD_LOAD);
     }
 

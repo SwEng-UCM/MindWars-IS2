@@ -52,8 +52,31 @@ public class HotSeatView extends JPanel {
                 ready.addActionListener(e -> controller.onHotSeatReady());
                 card.add(ready);
 
+                if (!invasionMode) {
+                        card.add(Box.createVerticalStrut(10));
+                        JButton save = MindWarsTheme.createPinkButton("Save Game");
+                        save.setAlignmentX(Component.CENTER_ALIGNMENT);
+                        save.addActionListener(e -> onSave());
+                        card.add(save);
+                }
+
                 bg.add(card);
                 add(bg, BorderLayout.CENTER);
+        }
+
+        private void onSave() {
+                try {
+                        controller.saveGame();
+                        JOptionPane.showMessageDialog(this,
+                                        "Game saved.",
+                                        "Save Game",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                } catch (java.io.IOException ex) {
+                        JOptionPane.showMessageDialog(this,
+                                        "Could not save: " + ex.getMessage(),
+                                        "Save Game",
+                                        JOptionPane.ERROR_MESSAGE);
+                }
         }
 
         /** Updates the display to reflect the current model state. */

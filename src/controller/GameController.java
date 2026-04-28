@@ -5,12 +5,15 @@ import command.ClaimCellCommand;
 import command.CommandHistory;
 import command.InvasionCommand;
 import model.AnswerResult;
+import model.GameMemento;
+import model.GameMementoStore;
 import model.GameModel;
 import model.GamePhase;
 import model.GameSettings;
 import model.LeaderboardStore;
 import player.Player;
 
+import java.io.IOException;
 import javax.swing.Timer;
 
 /**
@@ -29,6 +32,7 @@ public class GameController {
     private final NavigationController nav;
     private final CommandHistory history = new CommandHistory();
     private final LeaderboardStore leaderboard;
+    private final GameMementoStore mementoStore = new GameMementoStore();
     private boolean leaderboardRecorded;
     private GameSettings lastSettings;
     private network.GameClient networkClient;
@@ -228,6 +232,34 @@ public class GameController {
         leaderboardRecorded = false;
 
         model.startGame(lastSettings);
+        nav.showGame();
+    }
+
+    // ── Save / load (Memento) ──
+
+    public GameMementoStore getMementoStore() {
+        return mementoStore;
+    }
+
+    /**
+     * Captures the current game into the single save slot. Disallowed
+     * in network mode (the host owns authoritative state).
+     */
+    public void saveGame() throws IOException {
+        if (networkClient != null && networkClient.isConnected()) {
+            throw new IOException("Saving is disabled in network games.");
+        }
+        mementoStore.save(model.createMemento());
+    }
+
+    /** Loads the saved slot into the model and shows the game screen. */
+    public void loadGame() throws IOException {
+        GameMemento m = mementoStore.load();
+        if (m == null) throw new IOException("No save file found.");
+        history.clear();
+        leaderboardRecorded = false;
+        lastSettings = m.settings;
+        model.restoreFromMemento(m);
         nav.showGame();
     }
 }
