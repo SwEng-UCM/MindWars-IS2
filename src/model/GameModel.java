@@ -513,4 +513,123 @@ public class GameModel {
         return currentWager;
     }
 
+    // ── Memento (save/load) ──
+
+    /**
+     * Captures the current game state into a {@link GameMemento}. The
+     * caller (caretaker) is responsible for persisting it.
+     */
+    public GameMemento createMemento() {
+        GameMemento m = new GameMemento();
+        m.savedAt = java.time.LocalDateTime.now()
+                .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        m.settings = settings;
+        m.roundIndex = roundIndex;
+        m.currentPlayerIndex = currentPlayerIndex;
+        m.currentWager = currentWager;
+
+        m.mapSize = map.getSize();
+        StringBuilder owners = new StringBuilder(m.mapSize * m.mapSize);
+        m.mapBonus = new ArrayList<>(m.mapSize * m.mapSize);
+        for (int r = 0; r < m.mapSize; r++) {
+            for (int c = 0; c < m.mapSize; c++) {
+                owners.append(map.getOwner(r, c));
+                m.mapBonus.add(map.hasBonus(r, c));
+            }
+        }
+        m.mapOwners = owners.toString();
+
+        for (Player p : players) {
+            GameMemento.PlayerSnap s = new GameMemento.PlayerSnap();
+            s.name = p.getName();
+            s.symbol = p.getSymbol();
+            s.score = p.getScore();
+            s.streak = p.getStreak();
+            s.coins = p.getCoins();
+            s.bonusTokens = p.getBonusTokens();
+            s.correctAnswers = p.getCorrectAnswers();
+            s.wrongAnswers = p.getWrongAnswers();
+            s.isBot = p.isBot();
+            if (p.isBot() && p.getStrategy() != null) {
+                s.botDifficulty = p.getStrategy().getDifficultyName();
+            }
+            for (game.WeaponType w : p.getInventory()) {
+                s.weapons.add(w.name());
+            }
+            m.players.add(s);
+        }
+
+        m.roundQuestions = new ArrayList<>(roundQuestions);
+        return m;
+    }
+
+    /**
+     * Replaces the current game state with the contents of {@code m}.
+     * Resumes at {@link GamePhase#HOT_SEAT_PASS} for the saved current
+     * player, so the user re-presses Ready to continue.
+     */
+    public void restoreFromMemento(GameMemento m) {
+        this.settings = m.settings;
+        this.players.clear();
+        this.roundIndex = m.roundIndex;
+        this.currentPlayerIndex = m.currentPlayerIndex;
+        this.currentWager = m.currentWager;
+
+        char[] symbols = { 'X', 'O', 'A', 'B' };
+        for (int i = 0; i < m.players.size(); i++) {
+            GameMemento.PlayerSnap s = m.players.get(i);
+            Player p = new Player(s.name);
+            p.setSymbol(s.symbol == 0 ? symbols[i] : s.symbol);
+            p.setScore(s.score);
+            p.setStreakRaw(s.streak);
+            p.setCoins(s.coins);
+            for (int b = 0; b < s.bonusTokens; b++) p.addBonusToken();
+            p.setCorrectAnswers(s.correctAnswers);
+            p.setWrongAnswers(s.wrongAnswers);
+            if (s.isBot && s.botDifficulty != null) {
+                bot.BotStrategy strat = switch (s.botDifficulty) {
+                    case "Medium" -> new MediumBot();
+                    case "Hard" -> new HardBot();
+                    default -> new EasyBot();
+                };
+                p.setStrategy(strat);
+            }
+            if (s.weapons != null) {
+                for (String wName : s.weapons) {
+                    try {
+                        p.addWeapon(game.WeaponType.valueOf(wName));
+                    } catch (IllegalArgumentException ignored) {
+                    }
+                }
+            }
+            players.add(p);
+        }
+
+        this.map = new MapGrid(m.mapSize);
+        for (Player p : players) {
+            map.initVisibilityForPlayer(p.getSymbol());
+        }
+        for (int r = 0; r < m.mapSize; r++) {
+            for (int c = 0; c < m.mapSize; c++) {
+                int idx = r * m.mapSize + c;
+                if (idx < m.mapOwners.length()) {
+                    char owner = m.mapOwners.charAt(idx);
+                    if (owner != '.') {
+                        map.setOwner(r, c, owner);
+                        map.revealNeighbourForPlayer(owner, r, c);
+                    }
+                }
+            }
+        }
+
+        this.roundQuestions = new ArrayList<>(m.roundQuestions);
+        this.roundCorrect = new boolean[players.size()];
+        this.roundTimes = new long[players.size()];
+
+        pcs.firePropertyChange(PROP_ROUND, null, roundIndex);
+        pcs.firePropertyChange(PROP_SCORES, null, players);
+        pcs.firePropertyChange(PROP_MAP, null, map);
+        setPhase(GamePhase.HOT_SEAT_PASS);
+    }
+
 }
