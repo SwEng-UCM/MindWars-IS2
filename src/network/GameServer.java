@@ -127,6 +127,11 @@ public class GameServer {
         while (running) {
             try {
                 Socket sock = serverSocket.accept();
+                // if the game has already started, reject new clients by closing the socket
+                if (model.getPhase() != GamePhase.SETUP) {
+                    sock.close();
+                    continue;
+                }
                 ClientHandler handler = new ClientHandler(sock);
                 handler.start();
             } catch (IOException e) {
@@ -211,11 +216,18 @@ public class GameServer {
 
         private void onJoin(NetworkMessage msg) {
             synchronized (GameServer.this) {
-                if (clients.size() >= MAX_PLAYERS) {
-                    send(NetworkMessage.error("server full"));
-                    close();
+                if (clients.size() >= settings.numPlayers) {
+                    send(NetworkMessage.error("Server is full. Maximum " + settings.numPlayers + " players allowed."));
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException ignored) {
+                        }
+                        close();
+                    }).start();
                     return;
                 }
+
                 seatIndex = clients.size();
                 displayName = msg.name == null ? ("Player " + (seatIndex + 1)) : msg.name;
                 clients.add(this);

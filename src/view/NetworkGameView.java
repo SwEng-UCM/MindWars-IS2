@@ -241,8 +241,22 @@ public class NetworkGameView extends JPanel {
             case SCORES -> onScores(msg);
             case GAME_OVER -> onGameOver(msg);
             case MAP_UPDATE -> onMapUpdate(msg); // NEW
-            case ERROR -> feedback("Server: " + msg.errorMessage, MindWarsTheme.WRONG_RED);
-            default -> {
+            case ERROR -> {
+                String errorMsg = msg.errorMessage != null ? msg.errorMessage : "Unknown error";
+                if (errorMsg != null && errorMsg.toLowerCase().contains("full")) {
+                    SwingUtilities.invokeLater(() -> {
+                        JOptionPane.showMessageDialog(
+                                this,
+                                errorMsg + "\nMaximum number of players reached. Contact the host.",
+                                "Connection Denied",
+                                JOptionPane.ERROR_MESSAGE);
+
+                        session.disconnect();
+                        nav.showMainMenu();
+                    });
+                } else {
+                    feedback("Server Error: " + errorMsg, MindWarsTheme.WRONG_RED);
+                }
             }
         }
     }

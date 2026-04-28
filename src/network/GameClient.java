@@ -99,9 +99,13 @@ public class GameClient {
             String line;
             while (running && (line = in.readLine()) != null) {
                 NetworkMessage msg = MessageCodec.decode(line);
-                if (msg != null)
+                if (msg != null){
                     listener.accept(msg);
+                if (msg.type == NetworkMessage.Type.ERROR) {
+                    running = false;
+                }
             }
+        }
         } catch (IOException e) {
             if (running)
                 System.err.println("[client] read failed: " + e.getMessage());
