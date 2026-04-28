@@ -583,7 +583,8 @@ public class GameModel {
             p.setScore(s.score);
             p.setStreakRaw(s.streak);
             p.setCoins(s.coins);
-            for (int b = 0; b < s.bonusTokens; b++) p.addBonusToken();
+            for (int b = 0; b < s.bonusTokens; b++)
+                p.addBonusToken();
             p.setCorrectAnswers(s.correctAnswers);
             p.setWrongAnswers(s.wrongAnswers);
             if (s.isBot && s.botDifficulty != null) {
@@ -632,4 +633,14 @@ public class GameModel {
         setPhase(GamePhase.HOT_SEAT_PASS);
     }
 
+    public void updateBotStrategy(String difficulty) {
+        if (players.size() > 1 && players.get(1).isBot()) {
+            bot.BotStrategy strategy = switch (difficulty) {
+                case "Medium" -> new bot.MediumBot();
+                case "Hard" -> new bot.HardBot();
+                default -> new bot.EasyBot();
+            };
+            players.get(1).setStrategy(strategy);
+        }
+    }
 }

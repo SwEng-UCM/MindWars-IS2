@@ -274,6 +274,7 @@ public class NetworkGameView extends JPanel {
                             "<html>Waiting for <b>" + escape(nameOf(currentPlayer)) + "</b> to press Ready...</html>");
                     turnLabel.setText("Waiting for " + nameOf(currentPlayer) + "...");
                 }
+
             }
             case "QUESTION", "INVASION_BATTLE" -> {
                 showQuestionPanel();
@@ -325,8 +326,11 @@ public class NetworkGameView extends JPanel {
             default -> {
             }
         }
+
         revalidate();
+
         repaint();
+
     }
 
     /**
@@ -748,4 +752,5 @@ public class NetworkGameView extends JPanel {
             return "";
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
+
 }

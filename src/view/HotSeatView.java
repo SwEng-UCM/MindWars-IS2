@@ -17,6 +17,7 @@ public class HotSeatView extends JPanel {
     private final boolean invasionMode;
     private final JLabel nameLabel;
     private final JLabel subLabel;
+    private JButton diffBtn;
 
     public HotSeatView(GameController controller, boolean invasionMode) {
         this.controller = controller;
@@ -32,29 +33,32 @@ public class HotSeatView extends JPanel {
         card.setPreferredSize(new Dimension(380, 340));
 
         card.add(
-            MindWarsTheme.centeredLabel(
-                invasionMode ? "Invasion Time" : "Pass the Device",
-                MindWarsTheme.HEADING_FONT,
-                MindWarsTheme.PINK
-            )
-        );
+                MindWarsTheme.centeredLabel(
+                        invasionMode ? "Invasion Time" : "Pass the Device",
+                        MindWarsTheme.HEADING_FONT,
+                        MindWarsTheme.PINK));
         card.add(Box.createVerticalStrut(18));
 
         nameLabel = MindWarsTheme.centeredLabel(
-            "",
-            MindWarsTheme.TITLE_FONT,
-            Color.BLACK
-        );
+                "",
+                MindWarsTheme.TITLE_FONT,
+                Color.BLACK);
         card.add(nameLabel);
         card.add(Box.createVerticalStrut(8));
 
         subLabel = MindWarsTheme.centeredLabel(
-            "",
-            MindWarsTheme.BODY_FONT,
-            MindWarsTheme.GRAY_TEXT
-        );
+                "",
+                MindWarsTheme.BODY_FONT,
+                MindWarsTheme.GRAY_TEXT);
         card.add(subLabel);
         card.add(Box.createVerticalStrut(24));
+
+        this.diffBtn = MindWarsTheme.createPinkButton("Change Bot Difficulty");
+        this.diffBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        this.diffBtn.addActionListener(e -> showBotDifficultyDialog());
+        this.diffBtn.setVisible(false);
+        card.add(this.diffBtn);
+        card.add(Box.createVerticalStrut(10));
 
         JButton ready = MindWarsTheme.createGradientButton("I'm Ready");
         ready.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -79,22 +83,37 @@ public class HotSeatView extends JPanel {
         add(bg, BorderLayout.CENTER);
     }
 
+    private void showBotDifficultyDialog() {
+        String[] options = { "Easy", "Medium", "Hard" };
+        int choice = JOptionPane.showOptionDialog(
+                this,
+                "Select Bot Difficulty:",
+                "Bot Settings",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                options,
+                options[0]);
+
+        if (choice != JOptionPane.CLOSED_OPTION) {
+            controller.onBotDifficultyChanged(options[choice]);
+        }
+    }
+
     private void onSave() {
         try {
             controller.saveGame();
             JOptionPane.showMessageDialog(
-                this,
-                "Game saved.",
-                "Save Game",
-                JOptionPane.INFORMATION_MESSAGE
-            );
+                    this,
+                    "Game saved.",
+                    "Save Game",
+                    JOptionPane.INFORMATION_MESSAGE);
         } catch (java.io.IOException ex) {
             JOptionPane.showMessageDialog(
-                this,
-                "Could not save: " + ex.getMessage(),
-                "Save Game",
-                JOptionPane.ERROR_MESSAGE
-            );
+                    this,
+                    "Could not save: " + ex.getMessage(),
+                    "Save Game",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -104,14 +123,18 @@ public class HotSeatView extends JPanel {
         Player p = invasionMode ? model.getInvader() : model.getCurrentPlayer();
         nameLabel.setText(p.getName());
         subLabel.setText(
-            invasionMode
-                ? "Prepare to attack"
-                : "Round " +
-                  model.getRoundNumber() +
-                  " of " +
-                  model.getTotalRounds()
-        );
+                invasionMode
+                        ? "Prepare to attack"
+                        : "Round " +
+                                model.getRoundNumber() +
+                                " of " +
+                                model.getTotalRounds());
 
+        if (model.getSettings() != null) {
+            // button should only show in non-invasion vs bot mode, and for humans
+            boolean showButton = !invasionMode && model.getSettings().vsBot && !p.isBot();
+            this.diffBtn.setVisible(showButton);
+        }
         // Bot players don't need to press Ready — skip automatically.
         if (!invasionMode && p.isBot()) {
             Timer skip = new Timer(600, e -> controller.onHotSeatReady());
