@@ -226,14 +226,6 @@ public class GameServer {
                 send(welcome);
 
                 broadcastLobby();
-
-                /*
-                 * if (clients.size() == settings.numPlayers) {
-                 * // Swap in the names collected at JOIN time before starting.
-                 * settings = withJoinedNames(settings, clients);
-                 * model.startGame(settings);
-                 * }
-                 */
             }
         }
 

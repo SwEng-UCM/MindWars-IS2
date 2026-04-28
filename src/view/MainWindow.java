@@ -5,7 +5,6 @@ import controller.RegisterController;
 import java.awt.*;
 import javax.swing.*;
 import model.GameModel;
-import persistence.DatabaseInitializer;
 import persistence.UserRepository;
 import util.SoundManager;
 
@@ -72,17 +71,6 @@ public class MainWindow extends JFrame {
             } else if ("REGISTER".equals(screenName)) {
                 registerPanel.scrollToTop();
             }
-        });
-    }
-
-    public static void main(String[] args) {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignored) {
-        }
-
-        DatabaseInitializer.initialize();
-        SwingUtilities.invokeLater(() -> {
         });
     }
 }
