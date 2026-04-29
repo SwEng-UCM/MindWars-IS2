@@ -49,9 +49,12 @@ public class MainWindow extends JFrame {
     }
 
     public void startGameSession() {
+        setVisible(false);
         MainFrame gameFrame = new MainFrame(model, soundManager);
         gameFrame.setBounds(this.getBounds());
         gameFrame.setVisible(true);
+        gameFrame.toFront();
+        gameFrame.requestFocus();
         this.dispose();
     }
 
