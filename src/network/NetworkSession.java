@@ -22,6 +22,7 @@ public class NetworkSession {
 
     private final List<Consumer<List<String>>> lobbyListeners = new ArrayList<>();
     private final List<Consumer<NetworkMessage>> messageListeners = new ArrayList<>();
+    private final List<Consumer<NetworkMessage>> playerLeftListeners = new ArrayList<>();
 
     public void attachServer(GameServer server) {
         this.server = server;
@@ -60,6 +61,14 @@ public class NetworkSession {
         lobbyListeners.remove(listener);
     }
 
+    public void addPlayerLeftListener(Consumer<NetworkMessage> listener) {
+        playerLeftListeners.add(listener);
+    }
+
+    public void removePlayerLeftListener(Consumer<NetworkMessage> listener) {
+        playerLeftListeners.remove(listener);
+    }
+
     public void addMessageListener(Consumer<NetworkMessage> listener) {
         messageListeners.add(listener);
     }
@@ -90,6 +99,10 @@ public class NetworkSession {
             List<String> names = msg.playerNames == null ? new ArrayList<>() : msg.playerNames;
             for (Consumer<List<String>> l : lobbyListeners)
                 l.accept(names);
+        }
+        if (msg.type == NetworkMessage.Type.PLAYER_LEFT) {
+            for (Consumer<NetworkMessage> l : playerLeftListeners)
+                l.accept(msg);
         }
         for (Consumer<NetworkMessage> l : messageListeners)
             l.accept(msg);

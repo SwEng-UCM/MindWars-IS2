@@ -187,7 +187,11 @@ public class GameServer {
                 }
             } catch (IOException ignored) {
             } finally {
-                clients.remove(this);
+                boolean wasMember = clients.remove(this);
+                if (wasMember && seatIndex >= 0) {
+                    broadcastPlayerLeft(seatIndex, displayName);
+                    broadcastLobby();
+                }
             }
         }
 
@@ -216,8 +220,11 @@ public class GameServer {
 
         private void onJoin(NetworkMessage msg) {
             synchronized (GameServer.this) {
-                if (clients.size() >= settings.numPlayers) {
-                    send(NetworkMessage.error("Server is full. Maximum " + settings.numPlayers + " players allowed."));
+                int limit = (settings != null && settings.numPlayers > 0)
+                        ? settings.numPlayers
+                        : MAX_PLAYERS;
+                if (clients.size() >= limit) {
+                    send(NetworkMessage.error("Server is full. Maximum " + limit + " players allowed."));
                     new Thread(() -> {
                         try {
                             Thread.sleep(500);
@@ -435,6 +442,13 @@ public class GameServer {
         Player winner = model.computeWinner();
         NetworkMessage m = new NetworkMessage(NetworkMessage.Type.GAME_OVER);
         m.winnerIndex = winner == null ? null : model.getPlayers().indexOf(winner);
+        broadcast(m);
+    }
+
+    private void broadcastPlayerLeft(int seatIndex, String name) {
+        NetworkMessage m = new NetworkMessage(NetworkMessage.Type.PLAYER_LEFT);
+        m.disconnectedPlayerIndex = seatIndex;
+        m.disconnectedPlayerName = name == null || name.isBlank() ? "Player " + (seatIndex + 1) : name;
         broadcast(m);
     }
 
