@@ -66,7 +66,7 @@ public class TerritoryClaimView extends JPanel {
         gridPanel.setBorder(new EmptyBorder(12, 12, 12, 12));
         add(gridPanel, BorderLayout.CENTER);
 
-        finishButton = MindWarsTheme.createGradientButton("Finish Round");
+        finishButton = createFinishButton();
         finishButton.addActionListener(e -> controller.onTerritoryPhaseFinished());
         finishButton.setEnabled(false);
         JPanel south = new JPanel();
@@ -97,7 +97,7 @@ public class TerritoryClaimView extends JPanel {
 
         buildPickOrder(model);
         pickIndex = 0;
-        rebuildGrid(model);
+        rebuildGrid(model, shouldEnableClaiming(model));
         updateInstruction(players);
         finishButton.setEnabled(false);
         revalidate();
@@ -115,23 +115,40 @@ public class TerritoryClaimView extends JPanel {
         int[] remaining = new int[n];
         for (int i = 0; i < n; i++)
             remaining[i] = (i == winnerIdx) ? WINNER_CLAIMS : LOSER_CLAIMS;
-        int current = winnerIdx;
-        while (idx < total) {
-            if (remaining[current] > 0) {
-                pickOrder[idx++] = current;
-                remaining[current]--;
+        if (model.getSettings() != null && model.getSettings().vsBot) {
+            int humanIndex = -1;
+            int botIndex = -1;
+            for (int i = 0; i < n; i++) {
+                if (model.getPlayers().get(i).isBot()) {
+                    botIndex = i;
+                } else {
+                    humanIndex = i;
+                }
             }
-            int next = (current + 1) % n, checked = 0;
-            while (remaining[next] == 0 && checked < n) {
-                next = (next + 1) % n;
-                checked++;
+            if (humanIndex >= 0 && botIndex >= 0) {
+                while (remaining[humanIndex]-- > 0) {
+                    pickOrder[idx++] = humanIndex;
+                }
+                while (remaining[botIndex]-- > 0) {
+                    pickOrder[idx++] = botIndex;
+                }
+                return;
             }
-            current = next;
+        }
+        while (remaining[winnerIdx]-- > 0) {
+            pickOrder[idx++] = winnerIdx;
+        }
+        for (int i = 0; i < n; i++) {
+            if (i == winnerIdx)
+                continue;
+            while (remaining[i]-- > 0) {
+                pickOrder[idx++] = i;
+            }
         }
     }
 
     // ── Grid ─────────────────────────────────────────────────────────────
-    private void rebuildGrid(GameModel model) {
+    private void rebuildGrid(GameModel model, boolean enableEmpty) {
         gridPanel.removeAll();
         MapGrid map = model.getMap();
         if (map == null)
@@ -142,7 +159,7 @@ public class TerritoryClaimView extends JPanel {
         for (int r = 0; r < size; r++)
             for (int c = 0; c < size; c++) {
                 char owner = map.getOwner(r, c);
-                JButton btn = buildCellButton(owner, r, c, model);
+                JButton btn = buildCellButton(owner, r, c, model, enableEmpty);
                 cellButtons[r][c] = btn;
                 gridPanel.add(btn);
             }
@@ -154,7 +171,7 @@ public class TerritoryClaimView extends JPanel {
      * Returns a JButton whose paintComponent draws a solid fill so the color
      * is always correct regardless of OS Look-and-Feel.
      */
-    private JButton buildCellButton(char owner, int row, int col, GameModel model) {
+    private JButton buildCellButton(char owner, int row, int col, GameModel model, boolean enableEmpty) {
         final boolean isEmpty = (owner == '.');
 
         final Color fill;
@@ -205,7 +222,7 @@ public class TerritoryClaimView extends JPanel {
         btn.setBorder(BorderFactory.createLineBorder(CELL_BORDER, 2));
         btn.setPreferredSize(new Dimension(110, 110));
 
-        if (isEmpty) {
+        if (isEmpty && enableEmpty) {
             btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             btn.addMouseListener(new java.awt.event.MouseAdapter() {
                 @Override
@@ -224,6 +241,7 @@ public class TerritoryClaimView extends JPanel {
             btn.addActionListener(e -> onCellClicked(fr, fc));
         } else {
             btn.setEnabled(false);
+            btn.setCursor(Cursor.getDefaultCursor());
         }
 
         return btn;
@@ -242,7 +260,7 @@ public class TerritoryClaimView extends JPanel {
 
         // Rebuild so the clicked cell gets a fresh colored button
         GameModel model = controller.getModel();
-        rebuildGrid(model);
+        rebuildGrid(model, shouldEnableClaiming(model));
 
         // Flash the newly-colored cell
         Color flash = playerColor(playerIndex);
@@ -256,9 +274,21 @@ public class TerritoryClaimView extends JPanel {
             instructionLabel.setForeground(MindWarsTheme.PINK);
             finishButton.setEnabled(true);
         } else {
+            if (!shouldEnableClaiming(model)) {
+                disableAllEmptyCells();
+            }
             updateInstruction(players);
             triggerBotPickIfNeeded();
         }
+    }
+
+    private boolean shouldEnableClaiming(GameModel model) {
+        if (pickOrder == null || pickIndex >= pickOrder.length) {
+            return false;
+        }
+        int current = pickOrder[pickIndex];
+        Player p = model.getPlayers().get(current);
+        return !p.isBot();
     }
 
     // ── Bot ──────────────────────────────────────────────────────────────
@@ -302,6 +332,8 @@ public class TerritoryClaimView extends JPanel {
                 if (btn != null && btn.isEnabled()) {
                     btn.setEnabled(false);
                     btn.setCursor(Cursor.getDefaultCursor());
+                    btn.putClientProperty("hovered", false);
+                    btn.repaint();
                 }
     }
 
@@ -314,6 +346,57 @@ public class TerritoryClaimView extends JPanel {
         instructionLabel.setForeground(playerColor(cpi));
         instructionLabel.setText(current.getName() + " — choose " + left
                 + (left == 1 ? " territory" : " territories"));
+    }
+
+    private JButton createFinishButton() {
+        JButton btn = new JButton("Finish Round") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                        RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+                int w = getWidth();
+                int h = getHeight();
+                int arc = 12;
+
+                if (isEnabled()) {
+                    GradientPaint gp = new GradientPaint(0, 0, MindWarsTheme.PINK, w, 0, MindWarsTheme.ORANGE);
+                    g2.setPaint(gp);
+                    g2.fillRoundRect(0, 0, w, h, arc, arc);
+                    g2.setColor(MindWarsTheme.WHITE);
+                } else {
+                    GradientPaint gp = new GradientPaint(0, 0, new Color(240, 240, 240),
+                            w, 0, new Color(190, 190, 190));
+                    g2.setPaint(gp);
+                    g2.fillRoundRect(0, 0, w, h, arc, arc);
+                    g2.setColor(Color.BLACK);
+                }
+
+                FontMetrics fm = g2.getFontMetrics(getFont());
+                int x = (w - fm.stringWidth(getText())) / 2;
+                int y = (h + fm.getAscent() - fm.getDescent()) / 2;
+                g2.drawString(getText(), x, y);
+                g2.dispose();
+            }
+        };
+
+        btn.setFont(MindWarsTheme.BUTTON_FONT);
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setContentAreaFilled(false);
+        btn.setPreferredSize(new Dimension(360, 48));
+        btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 48));
+        btn.setCursor(Cursor.getDefaultCursor());
+        btn.addPropertyChangeListener("enabled", evt -> {
+            boolean enabled = Boolean.TRUE.equals(evt.getNewValue());
+            btn.setCursor(enabled
+                    ? Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+                    : Cursor.getDefaultCursor());
+        });
+        return btn;
     }
 
     private int countRemainingPicksFor(int playerIndex) {

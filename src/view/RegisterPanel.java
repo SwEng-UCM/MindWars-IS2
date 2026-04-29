@@ -369,6 +369,7 @@ public class RegisterPanel extends JPanel {
         btn.setFocusPainted(false);
         btn.setFocusable(false);
         btn.setOpaque(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btn.setPreferredSize(new Dimension(CONTROL_WIDTH, 56));
         return btn;
     }

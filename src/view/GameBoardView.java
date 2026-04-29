@@ -655,7 +655,6 @@ public class GameBoardView extends JPanel {
         } else if (type == QuestionType.NUMERIC) {
             answerPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, ANSWER_PANEL_TEXT_HEIGHT));
             textInput.setText("");
-            textInput.setToolTipText("Enter a numeric estimation...");
             textInput.setEnabled(true);
             textInput.setEditable(true);
             cl.show(answerPanel, "text");
@@ -847,11 +846,7 @@ public class GameBoardView extends JPanel {
             soundManager.play(SoundManager.INCORRECT);
         }
 
-        if (q.getType() == QuestionType.NUMERIC) {
-            // Special feedback for numeric estimation
-            text = "Estimation complete! Analyzing proximity...";
-            bg = MindWarsTheme.PLAYER_X; // Use a neutral or player color
-        } else if (result.timedOut) {
+        if (result.timedOut) {
             text = "Time's up! Answer: " + correctAnswerText;
             bg = MindWarsTheme.WRONG_RED;
         } else if (result.correct) {

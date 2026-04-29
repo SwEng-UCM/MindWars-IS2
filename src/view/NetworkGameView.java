@@ -1,7 +1,6 @@
 package view;
 
 import controller.NavigationController;
-import model.GameModel;
 import network.NetworkMessage;
 import network.NetworkSession;
 
@@ -241,6 +240,9 @@ public class NetworkGameView extends JPanel {
             case SCORES -> onScores(msg);
             case GAME_OVER -> onGameOver(msg);
             case MAP_UPDATE -> onMapUpdate(msg); // NEW
+            case ANSWER, CLAIM_CELL, JOIN, LOBBY, PLAYER_LEFT, READY, START_GAME, TURN, WELCOME -> {
+                // No UI action needed for these message types on the client screen.
+            }
             case ERROR -> {
                 String errorMsg = msg.errorMessage != null ? msg.errorMessage : "Unknown error";
                 if (errorMsg != null && errorMsg.toLowerCase().contains("full")) {

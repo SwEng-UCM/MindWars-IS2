@@ -174,7 +174,7 @@ public class MenuPanel extends JPanel {
         skipBtn.setBorderPainted(false);
         skipBtn.setFocusPainted(false);
         skipBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        skipBtn.addActionListener(e -> parent.startGameSession());
+        skipBtn.addActionListener(e -> SwingUtilities.invokeLater(parent::startGameSession));
         content.add(skipBtn, gbc);
 
         cardScroll = new JScrollPane(
@@ -367,6 +367,7 @@ public class MenuPanel extends JPanel {
         btn.setContentAreaFilled(false);
         btn.setBorderPainted(false);
         btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btn.setPreferredSize(new Dimension(CONTROL_WIDTH, 56));
         return btn;
     }
