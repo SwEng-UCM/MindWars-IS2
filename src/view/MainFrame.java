@@ -198,6 +198,7 @@ public class MainFrame extends JFrame implements NavigationController {
 
     @Override
     public void showRules() {
+        rulesView.scrollToTop();
         cards.show(root, CARD_RULES);
     }
 
