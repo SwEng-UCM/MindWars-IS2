@@ -53,15 +53,10 @@ public class HotSeatView extends JPanel {
         card.add(subLabel);
         card.add(Box.createVerticalStrut(24));
 
-        this.diffBtn = MindWarsTheme.createPinkButton("Change Bot Difficulty");
-        this.diffBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        this.diffBtn.addActionListener(e -> showBotDifficultyDialog());
-        this.diffBtn.setVisible(false);
-        card.add(this.diffBtn);
-        card.add(Box.createVerticalStrut(10));
-
-        JButton ready = MindWarsTheme.createGradientButton("I'm Ready");
+        JButton ready = MindWarsTheme.createSplitGradientButton("I'm Ready");
         ready.setAlignmentX(Component.CENTER_ALIGNMENT);
+        ready.setPreferredSize(new Dimension(380, 54));
+        ready.setMaximumSize(new Dimension(Integer.MAX_VALUE, 54));
         ready.addActionListener(e -> controller.onHotSeatReady());
         card.add(ready);
 
@@ -73,11 +68,18 @@ public class HotSeatView extends JPanel {
             card.add(save);
         }
 
-        JButton quit = MindWarsTheme.createPinkButton("Quit");
-        quit.setAlignmentX(Component.CENTER_ALIGNMENT);
-        quit.addActionListener(e -> System.exit(0));
         card.add(Box.createVerticalStrut(10));
-        card.add(quit);
+        this.diffBtn = MindWarsTheme.createPinkButton("Change Bot Difficulty");
+        this.diffBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        this.diffBtn.addActionListener(e -> showBotDifficultyDialog());
+        this.diffBtn.setVisible(false);
+        card.add(this.diffBtn);
+
+        JButton returnBtn = MindWarsTheme.createPinkButton("Return Home");
+        returnBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        returnBtn.addActionListener(e -> onReturnToMenu());
+        card.add(Box.createVerticalStrut(10));
+        card.add(returnBtn);
 
         bg.add(card);
         add(bg, BorderLayout.CENTER);
@@ -114,6 +116,18 @@ public class HotSeatView extends JPanel {
                     "Could not save: " + ex.getMessage(),
                     "Save Game",
                     JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void onReturnToMenu() {
+        int result = JOptionPane.showConfirmDialog(
+                this,
+                "Progress will be lost if you have not saved. Return to main menu?",
+            "Return home",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+        if (result == JOptionPane.YES_OPTION) {
+            controller.returnToMenu();
         }
     }
 

@@ -11,6 +11,9 @@ public class EasyBot implements BotStrategy {
 
     @Override
     public String getAnswer(Question question){
+        if (question.getType() == trivia.QuestionType.ORDERING) {
+            return BotAnswerUtil.buildOrderingAnswer(question, random, false);
+        }
 
         List <String> choices = question.getChoices();
 
@@ -19,8 +22,7 @@ public class EasyBot implements BotStrategy {
             return choices.get(random.nextInt(choices.size()));
         }
 
-        // Fallback for open-ended questions or missing choices
-        return "I'm not sure";
+        return BotAnswerUtil.buildFallbackAnswer(question, random, false);
     }
 
 

@@ -120,6 +120,8 @@ public final class MindWarsTheme {
                 g2.dispose();
 
                 // Draw text
+                ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
                 FontMetrics fm = g.getFontMetrics(getFont());
                 int x = (getWidth() - fm.stringWidth(getText())) / 2;
                 int y = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
@@ -143,9 +145,72 @@ public final class MindWarsTheme {
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), BUTTON_RADIUS, BUTTON_RADIUS);
                 g2.dispose();
 
+                ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
                 FontMetrics fm = g.getFontMetrics(getFont());
                 int x = (getWidth() - fm.stringWidth(getText())) / 2;
                 int y = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
+                g.setFont(getFont());
+                g.setColor(WHITE);
+                g.drawString(getText(), x, y);
+            }
+        };
+        styleButton(btn);
+        return btn;
+    }
+
+    // ── Orange solid button (primary highlight) ──
+    public static JButton createOrangeButton(String text) {
+        JButton btn = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(ORANGE);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), BUTTON_RADIUS, BUTTON_RADIUS);
+                g2.dispose();
+
+                ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                FontMetrics fm = g.getFontMetrics(getFont());
+                int x = (getWidth() - fm.stringWidth(getText())) / 2;
+                int y = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
+                g.setFont(getFont());
+                g.setColor(WHITE);
+                g.drawString(getText(), x, y);
+            }
+        };
+        styleButton(btn);
+        return btn;
+    }
+
+    // ── Split gradient button (two-tone highlight) ──
+    public static JButton createSplitGradientButton(String text) {
+        JButton btn = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                int w = getWidth();
+                int h = getHeight();
+                int arc = BUTTON_RADIUS + 4;
+                int mid = w / 2;
+
+                GradientPaint left = new GradientPaint(0, 0, PINK, mid, 0, ORANGE);
+                g2.setPaint(left);
+                g2.fillRoundRect(0, 0, w, h, arc, arc);
+
+                GradientPaint right = new GradientPaint(mid, 0, ORANGE, w, 0, PINK_LIGHT);
+                g2.setPaint(right);
+                g2.fillRoundRect(0, 0, w, h, arc, arc);
+                g2.dispose();
+
+                ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                FontMetrics fm = g.getFontMetrics(getFont());
+                int x = (w - fm.stringWidth(getText())) / 2;
+                int y = (h + fm.getAscent() - fm.getDescent()) / 2;
                 g.setFont(getFont());
                 g.setColor(WHITE);
                 g.drawString(getText(), x, y);
@@ -213,7 +278,10 @@ public final class MindWarsTheme {
                     g2.setColor(GRAY_LIGHT);
                     g2.setFont(BODY_FONT);
                     Insets insets = getInsets();
-                    g2.drawString(placeholder, insets.left + 2, getHeight() / 2 + 5);
+                    FontMetrics fm = g2.getFontMetrics();
+                    int x = insets.left + 4;
+                    int y = (getHeight() - fm.getHeight()) / 2 + fm.getAscent();
+                    g2.drawString(placeholder, x, y);
                     g2.dispose();
                 }
             }
@@ -221,6 +289,7 @@ public final class MindWarsTheme {
         field.setFont(BODY_FONT);
         field.setPreferredSize(new Dimension(300, 44));
         field.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
+        field.setMargin(new Insets(0, 10, 0, 10));
         field.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(GRAY_LIGHT, 1, true),
                 BorderFactory.createEmptyBorder(8, 12, 8, 12)));

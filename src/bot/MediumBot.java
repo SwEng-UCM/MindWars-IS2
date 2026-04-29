@@ -14,6 +14,15 @@ public class MediumBot implements BotStrategy {
     public String getAnswer(Question question) {
         int chance = random.nextInt(100);
 
+        if (question.getType() == trivia.QuestionType.ORDERING) {
+            return BotAnswerUtil.buildOrderingAnswer(question, random, chance < 50);
+        }
+
+        if (question.getType() == trivia.QuestionType.NUMERIC
+                || question.getType() == trivia.QuestionType.OPEN_ENDED) {
+            return BotAnswerUtil.buildFallbackAnswer(question, random, chance < 50);
+        }
+
         // 50% probability to return the correct answer
         if (chance < 50) {
             return question.getAnswer();
@@ -40,7 +49,7 @@ public class MediumBot implements BotStrategy {
         }
 
         // Fallback for open-ended questions or missing choices
-        return "I'm not sure";
+        return BotAnswerUtil.buildFallbackAnswer(question, random, false);
     }
 
     @Override
