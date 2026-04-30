@@ -111,7 +111,7 @@ public class GameBoardView extends JPanel {
         playerLabel.setForeground(MindWarsTheme.WHITE);
         playerLabel.setFont(MindWarsTheme.BODY_BOLD);
 
-        JPanel scores = new JPanel(new GridLayout(1, 4, 12, 0));
+        JPanel scores = new JPanel(new GridLayout(2, 2, 12, 2));
         scores.setOpaque(false);
         p1ScoreLabel = new JLabel("", SwingConstants.RIGHT);
         p1ScoreLabel.setForeground(MindWarsTheme.PLAYER_X);
@@ -274,15 +274,15 @@ public class GameBoardView extends JPanel {
         }
 
         if (players.size() >= 1)
-            p1ScoreLabel.setText(players.get(0).getName() + ": " + players.get(0).getScore());
+            p1ScoreLabel.setText(formatScoreLabel(players.get(0)));
         if (players.size() >= 2)
-            p2ScoreLabel.setText(players.get(1).getName() + ": " + players.get(1).getScore());
+            p2ScoreLabel.setText(formatScoreLabel(players.get(1)));
         if (players.size() >= 3)
-            p3ScoreLabel.setText(players.get(2).getName() + ": " + players.get(2).getScore());
+            p3ScoreLabel.setText(formatScoreLabel(players.get(2)));
         else
             p3ScoreLabel.setText("");
         if (players.size() >= 4)
-            p4ScoreLabel.setText(players.get(3).getName() + ": " + players.get(3).getScore());
+            p4ScoreLabel.setText(formatScoreLabel(players.get(3)));
         else
             p4ScoreLabel.setText("");
 
@@ -442,6 +442,18 @@ public class GameBoardView extends JPanel {
             botSubmitTimer.stop();
             botSubmitTimer = null;
         }
+    }
+
+    private String formatScoreLabel(Player player) {
+        if (player == null) {
+            return "";
+        }
+        String name = player.getName() == null ? "" : player.getName();
+        int maxNameLen = 12;
+        if (name.length() > maxNameLen) {
+            name = name.substring(0, maxNameLen - 3) + "...";
+        }
+        return name + ": " + player.getScore();
     }
 
     private void setAnswerInputEnabled(boolean enabled) {

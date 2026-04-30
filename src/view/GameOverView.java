@@ -128,9 +128,9 @@ public class GameOverView extends JPanel {
                     p.getCorrectAnswers() + " / " + p.getWrongAnswers()));
             row.add(statLine("Avg response",
                     String.format("%.1fs", p.getAverageResponseTime())));
-            double fastestMs = p.getFastestResponse();
-            row.add(statLine("Fastest response",
-                    fastestMs > 0 ? String.format("%.1fs", fastestMs / 1000.0) : "—"));
+                double fastestSeconds = p.getFastestResponse();
+                row.add(statLine("Fastest response",
+                    fastestSeconds > 0 ? String.format("%.1fs", fastestSeconds) : "—"));
 
             statsPanel.add(row);
             if (i < players.size() - 1)
