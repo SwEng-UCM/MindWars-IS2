@@ -419,7 +419,12 @@ public class GameServer {
         m.pointsDelta = result.pointsDelta;
         m.correctAnswer = result.correctAnswer;
         m.elapsedMs = result.elapsedMs;
-        broadcast(m);
+        for (ClientHandler h : clients) {
+            if (h.seatIndex == playerIndex) {
+                h.send(m);
+                break;
+            }
+        }
     }
 
     private void broadcastScores() {

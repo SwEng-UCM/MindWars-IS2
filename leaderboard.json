@@ -7,9 +7,9 @@
   },
   {
     "name": "Bot",
-    "wins": 10,
-    "totalScore": 400,
-    "gamesPlayed": 19
+    "wins": 12,
+    "totalScore": 500,
+    "gamesPlayed": 21
   },
   {
     "name": "Player 2",
@@ -33,6 +33,18 @@
     "name": "tudor",
     "wins": 0,
     "totalScore": 30,
+    "gamesPlayed": 1
+  },
+  {
+    "name": "elena",
+    "wins": 0,
+    "totalScore": 20,
+    "gamesPlayed": 1
+  },
+  {
+    "name": "e",
+    "wins": 0,
+    "totalScore": 20,
     "gamesPlayed": 1
   },
   {
