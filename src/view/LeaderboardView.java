@@ -52,23 +52,34 @@ public class LeaderboardView extends JPanel {
         };
         table = new JTable(tableModel);
         table.setFont(MindWarsTheme.BODY_FONT);
-        table.setRowHeight(28);
+        table.setRowHeight(30);
         table.setFillsViewportHeight(true);
         table.setShowGrid(false);
+        table.setBackground(Color.WHITE);
+        table.setForeground(Color.BLACK);
         table.setSelectionBackground(MindWarsTheme.PINK_BG);
+        table.setRowSelectionAllowed(false);
+        table.setCellSelectionEnabled(false);
+        table.setFocusable(false);
         table.getTableHeader().setFont(MindWarsTheme.BODY_BOLD);
-        table.getTableHeader().setBackground(MindWarsTheme.PINK);
-        table.getTableHeader().setForeground(Color.WHITE);
+        table.getTableHeader().setReorderingAllowed(false);
+        table.getTableHeader().setPreferredSize(new Dimension(0, 30));
+        table.getTableHeader().setDefaultRenderer(new HeaderRenderer());
 
-        DefaultTableCellRenderer right = new DefaultTableCellRenderer();
-        right.setHorizontalAlignment(SwingConstants.RIGHT);
-        for (int i : new int[] { 0, 2, 3, 4 }) {
-            table.getColumnModel().getColumn(i).setCellRenderer(right);
+        table.getColumnModel().getColumn(0).setCellRenderer(new CellRenderer(SwingConstants.CENTER));
+        for (int i : new int[] { 2, 3, 4 }) {
+            table.getColumnModel().getColumn(i).setCellRenderer(new CellRenderer(SwingConstants.RIGHT));
         }
+        table.getColumnModel().getColumn(1).setCellRenderer(new CellRenderer(SwingConstants.LEFT));
+
         table.getColumnModel().getColumn(0).setMaxWidth(40);
+        table.getColumnModel().getColumn(2).setPreferredWidth(60);
+        table.getColumnModel().getColumn(3).setPreferredWidth(90);
+        table.getColumnModel().getColumn(4).setPreferredWidth(70);
 
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createLineBorder(MindWarsTheme.GRAY_LIGHT));
+        scroll.getViewport().setBackground(Color.WHITE);
         card.add(scroll, BorderLayout.CENTER);
 
         JButton back = MindWarsTheme.createPinkButton("Back to Menu");
@@ -99,6 +110,49 @@ public class LeaderboardView extends JPanel {
         }
         if (entries.isEmpty()) {
             tableModel.addRow(new Object[] { "—", "(no games played yet)", "", "", "" });
+        }
+    }
+
+    private static final class HeaderRenderer extends DefaultTableCellRenderer {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int col) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+            setHorizontalAlignment(SwingConstants.CENTER);
+            setFont(MindWarsTheme.BODY_BOLD);
+            setBackground(MindWarsTheme.PINK);
+            setForeground(Color.WHITE);
+            setOpaque(true);
+            setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, MindWarsTheme.PINK));
+            return this;
+        }
+    }
+
+    private static final class CellRenderer extends DefaultTableCellRenderer {
+        private final int alignment;
+
+        private CellRenderer(int alignment) {
+            this.alignment = alignment;
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int col) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+            setHorizontalAlignment(alignment);
+            setFont(MindWarsTheme.BODY_FONT);
+            setForeground(Color.BLACK);
+            if (row == 0) {
+                setBackground(new Color(255, 236, 179)); // gold
+            } else if (row == 1) {
+                setBackground(new Color(232, 235, 239)); // silver
+            } else if (row == 2) {
+                setBackground(new Color(223, 194, 164)); // bronze
+            } else {
+                setBackground(Color.WHITE);
+            }
+            setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
+            return this;
         }
     }
 }
