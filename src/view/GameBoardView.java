@@ -750,7 +750,10 @@ public class GameBoardView extends JPanel {
 
         Question q = controller.getModel().getCurrentQuestion();
         if (q.getType() == QuestionType.NUMERIC) {
-            controller.onAnswerSubmitted(answer, elapsed);
+            AnswerResult result = controller.onAnswerSubmitted(answer, elapsed);
+            if (result != null) {
+                showFeedback(result);
+            }
             submitButton.setEnabled(false);
             controller.onAnswerAcknowledged();
             return;
@@ -800,6 +803,9 @@ public class GameBoardView extends JPanel {
             // Attacker just answered; switch to defender.
             invasionAttackerAnswer = answer;
             invasionDefenderTurn = true;
+            showNeutralFeedback(
+                    answer == null ? "Time's up! Pass to defender." : "Answer locked — pass to defender.",
+                    MindWarsTheme.PINK);
             refresh();
             startTimer();
         } else {
@@ -808,6 +814,9 @@ public class GameBoardView extends JPanel {
             invasionAttackerAnswer = null;
             invasionDefenderTurn = false;
             submitButton.setEnabled(false);
+            showNeutralFeedback(
+                    answer == null ? "Time's up! Resolving battle..." : "Resolving battle...",
+                    MindWarsTheme.PINK);
             controller.onInvasionResolved(attAnswer, defAnswer);
         }
     }
@@ -864,6 +873,20 @@ public class GameBoardView extends JPanel {
 
         // Flash the background from a brighter tone down to the final color
         // and pulse the font so the feedback has more presence (#90).
+        Color flashStart = bg.brighter();
+        AnimationHelper.flashBackground(feedbackLabel, flashStart, bg, 10, 50);
+        AnimationHelper.pulseFont(feedbackLabel, MindWarsTheme.HEADING_FONT, 8, 10, 50);
+
+        feedbackLabel.revalidate();
+        feedbackLabel.repaint();
+    }
+
+    private void showNeutralFeedback(String text, Color bg) {
+        feedbackLabel.setText(text == null ? "" : text);
+        feedbackLabel.setForeground(MindWarsTheme.WHITE);
+        feedbackLabel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        feedbackLabel.setVisible(true);
+
         Color flashStart = bg.brighter();
         AnimationHelper.flashBackground(feedbackLabel, flashStart, bg, 10, 50);
         AnimationHelper.pulseFont(feedbackLabel, MindWarsTheme.HEADING_FONT, 8, 10, 50);
