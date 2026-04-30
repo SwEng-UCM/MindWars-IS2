@@ -208,6 +208,12 @@ public class MainFrame extends JFrame implements NavigationController {
     }
 
     @Override
+    public void showNetworkGameOver(network.NetworkMessage msg) {
+        gameOverView.refreshFromNetwork(msg);
+        cards.show(root, CARD_GAME_OVER);
+    }
+
+    @Override
     public void showGameOver() {
         gameOverView.refresh();
         invasionBattleView.stopAllRoundAudio();

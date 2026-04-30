@@ -74,6 +74,8 @@ public class NetworkMessage {
     // Score payload
     public List<Integer> scores;
     public List<String> playerNames;
+    public List<Integer> correctAnswers;   
+    public List<Integer> wrongAnswers;
 
     // Game over
     public Integer winnerIndex;

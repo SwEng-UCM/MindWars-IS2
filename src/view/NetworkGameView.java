@@ -627,16 +627,8 @@ public class NetworkGameView extends JPanel {
     private void onGameOver(NetworkMessage msg) {
         stopTimer();
         submitButton.setEnabled(false);
-        String winner = (msg.winnerIndex == null) ? "It's a draw!" : nameOf(msg.winnerIndex) + " wins!";
-        feedback("Game over — " + winner, MindWarsTheme.PINK);
-        readyButton.setText("Back to Menu");
-        readyButton.setEnabled(true);
-        for (var al : readyButton.getActionListeners())
-            readyButton.removeActionListener(al);
-        readyButton.addActionListener(e -> {
-            session.disconnect();
-            nav.showMainMenu();
-        });
+        session.disconnect();
+        nav.showNetworkGameOver(msg);
     }
 
     // ── View → server ─────────────────────────────────────────────────────
