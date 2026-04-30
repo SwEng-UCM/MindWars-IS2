@@ -385,14 +385,16 @@ public class GameServer {
         broadcast(m);
 
         switch (phase) {
-            case QUESTION, INVASION_BATTLE -> broadcastQuestion();
+            case QUESTION -> broadcastQuestion();
             case TERRITORY_CLAIM -> {
                 buildPickOrder();
                 broadcastMapUpdate();
             }
+            case INVASION_PASS, INVASION_SELECT, INVASION_BATTLE -> {
+                model.forcePhase(GamePhase.GAME_OVER);
+            }
             case GAME_OVER -> broadcastGameOver();
             default -> {
-                // HOT_SEAT_PASS / TERRITORY_CLAIM etc. only need the PHASE ping.
             }
         }
     }
@@ -419,7 +421,12 @@ public class GameServer {
         m.pointsDelta = result.pointsDelta;
         m.correctAnswer = result.correctAnswer;
         m.elapsedMs = result.elapsedMs;
-        broadcast(m);
+        for (ClientHandler h : clients) {
+            if (h.seatIndex == playerIndex) {
+                h.send(m);
+                break;
+            }
+        }
     }
 
     private void broadcastScores() {
@@ -442,6 +449,33 @@ public class GameServer {
         Player winner = model.computeWinner();
         NetworkMessage m = new NetworkMessage(NetworkMessage.Type.GAME_OVER);
         m.winnerIndex = winner == null ? null : model.getPlayers().indexOf(winner);
+
+        List<String> names = new ArrayList<>();
+        List<Integer> scores = new ArrayList<>();
+        List<Integer> corrects = new ArrayList<>();
+        List<Integer> wrongs = new ArrayList<>();
+        for (Player p : model.getPlayers()) {
+            names.add(p.getName());
+            scores.add(p.getScore());
+            corrects.add(p.getCorrectAnswers());
+            wrongs.add(p.getWrongAnswers());
+        }
+        m.playerNames = names;
+        m.scores = scores;
+        m.correctAnswers = corrects;
+        m.wrongAnswers = wrongs;
+
+        game.MapGrid map = model.getMap();
+        if (map != null) {
+            int size = map.getSize();
+            StringBuilder sb = new StringBuilder(size * size);
+            for (int r = 0; r < size; r++)
+                for (int c = 0; c < size; c++)
+                    sb.append(map.getOwner(r, c));
+            m.gridSnapshot = sb.toString();
+            m.mapSize = size;
+        }
+
         broadcast(m);
     }
 

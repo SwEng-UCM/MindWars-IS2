@@ -10,7 +10,8 @@ import trivia.Question;
  * cycle. Built with public fields and a no-arg constructor so Gson can
  * serialise it without custom adapters.
  *
- * <p>The memento captures stable round-level state. Restoration always
+ * <p>
+ * The memento captures stable round-level state. Restoration always
  * resumes at {@link GamePhase#HOT_SEAT_PASS} for the saved current
  * player, so timer / question-in-flight state does not need to be
  * persisted.
