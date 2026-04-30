@@ -3,7 +3,7 @@
     "name": "Player 1",
     "wins": 17,
     "totalScore": 924,
-    "gamesPlayed": 38
+    "gamesPlayed": 39
   },
   {
     "name": "Bot",
@@ -13,9 +13,9 @@
   },
   {
     "name": "Player 2",
-    "wins": 6,
-    "totalScore": 415,
-    "gamesPlayed": 19
+    "wins": 7,
+    "totalScore": 425,
+    "gamesPlayed": 20
   },
   {
     "name": "raisa",
@@ -24,8 +24,20 @@
     "gamesPlayed": 2
   },
   {
+    "name": "t",
+    "wins": 1,
+    "totalScore": 50,
+    "gamesPlayed": 1
+  },
+  {
     "name": "ana",
     "wins": 1,
+    "totalScore": 40,
+    "gamesPlayed": 2
+  },
+  {
+    "name": "e",
+    "wins": 0,
     "totalScore": 40,
     "gamesPlayed": 2
   },
@@ -42,9 +54,9 @@
     "gamesPlayed": 1
   },
   {
-    "name": "e",
+    "name": "Player 3",
     "wins": 0,
-    "totalScore": 20,
+    "totalScore": 0,
     "gamesPlayed": 1
   },
   {

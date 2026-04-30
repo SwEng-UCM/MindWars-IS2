@@ -396,10 +396,10 @@ public class GameModel {
         roundTimes = new long[players.size()];
 
         if (map.isMapFull()) {
-            invaderIndex = 0;
-            setPhase(GamePhase.INVASION_PASS);
+            setPhase(GamePhase.GAME_OVER);
             return;
         }
+
         roundIndex++;
         if (roundIndex >= roundQuestions.size()) {
             setPhase(GamePhase.GAME_OVER);

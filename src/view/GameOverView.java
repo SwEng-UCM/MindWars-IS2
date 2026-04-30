@@ -18,6 +18,7 @@ public class GameOverView extends JPanel {
     private final JLabel winnerLabel;
     private final JPanel statsPanel;
     private final FinalMapCanvas mapCanvas;
+    private final JButton playAgain;
     private final JPanel legendPanel;
 
     public GameOverView(GameController controller) {
@@ -73,7 +74,7 @@ public class GameOverView extends JPanel {
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
         buttons.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton playAgain = MindWarsTheme.createGradientButton("Play Again");
+        playAgain = MindWarsTheme.createGradientButton("Play Again");
         playAgain.setAlignmentX(Component.CENTER_ALIGNMENT);
         playAgain.addActionListener(e -> controller.restartGame());
 
@@ -143,6 +144,10 @@ public class GameOverView extends JPanel {
         rebuildStats(players);
         rebuildLegend(players, map);
         mapCanvas.update(map, players);
+
+        for (var al : playAgain.getActionListeners())
+            playAgain.removeActionListener(al);
+        playAgain.addActionListener(e -> controller.onGameOverAcknowledged());
     }
 
     private void rebuildStats(List<Player> players) {
@@ -169,8 +174,8 @@ public class GameOverView extends JPanel {
                     p.getCorrectAnswers() + " / " + p.getWrongAnswers()));
             row.add(statLine("Avg response",
                     String.format("%.1fs", p.getAverageResponseTime())));
-                double fastestSeconds = p.getFastestResponse();
-                row.add(statLine("Fastest response",
+            double fastestSeconds = p.getFastestResponse();
+            row.add(statLine("Fastest response",
                     fastestSeconds > 0 ? String.format("%.1fs", fastestSeconds) : "—"));
 
             statsPanel.add(row);
