@@ -117,21 +117,25 @@ public class TerritoryClaimView extends JPanel {
         for (int i = 0; i < n && i < claims.length; i++)
             remaining[i] = claims[i];
         if (model.getSettings() != null && model.getSettings().vsBot) {
-            int humanIndex = -1;
-            int botIndex = -1;
+            java.util.List<Integer> humans = new java.util.ArrayList<>();
+            java.util.List<Integer> bots = new java.util.ArrayList<>();
             for (int i = 0; i < n; i++) {
                 if (model.getPlayers().get(i).isBot()) {
-                    botIndex = i;
+                    bots.add(i);
                 } else {
-                    humanIndex = i;
+                    humans.add(i);
                 }
             }
-            if (humanIndex >= 0 && botIndex >= 0) {
-                while (remaining[humanIndex]-- > 0) {
-                    pickOrder[idx++] = humanIndex;
+            if (!humans.isEmpty() && !bots.isEmpty()) {
+                for (int h : humans) {
+                    while (remaining[h]-- > 0) {
+                        pickOrder[idx++] = h;
+                    }
                 }
-                while (remaining[botIndex]-- > 0) {
-                    pickOrder[idx++] = botIndex;
+                for (int b : bots) {
+                    while (remaining[b]-- > 0) {
+                        pickOrder[idx++] = b;
+                    }
                 }
                 return;
             }
