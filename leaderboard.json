@@ -1,21 +1,21 @@
 [
   {
     "name": "Player 1",
-    "wins": 18,
-    "totalScore": 1014,
-    "gamesPlayed": 41
+    "wins": 19,
+    "totalScore": 1084,
+    "gamesPlayed": 43
   },
   {
     "name": "Bot",
     "wins": 12,
-    "totalScore": 500,
-    "gamesPlayed": 23
+    "totalScore": 560,
+    "gamesPlayed": 24
   },
   {
     "name": "Player 2",
-    "wins": 7,
-    "totalScore": 425,
-    "gamesPlayed": 20
+    "wins": 8,
+    "totalScore": 485,
+    "gamesPlayed": 21
   },
   {
     "name": "raisa",
@@ -42,6 +42,12 @@
     "gamesPlayed": 2
   },
   {
+    "name": "Player 4",
+    "wins": 0,
+    "totalScore": 30,
+    "gamesPlayed": 1
+  },
+  {
     "name": "tudor",
     "wins": 0,
     "totalScore": 30,
@@ -54,15 +60,15 @@
     "gamesPlayed": 1
   },
   {
-    "name": "Player 3",
+    "name": "teo",
     "wins": 0,
     "totalScore": 0,
     "gamesPlayed": 1
   },
   {
-    "name": "teo",
+    "name": "Player 3",
     "wins": 0,
     "totalScore": 0,
-    "gamesPlayed": 1
+    "gamesPlayed": 2
   }
 ]

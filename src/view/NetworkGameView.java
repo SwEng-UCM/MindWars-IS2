@@ -576,6 +576,19 @@ public class NetworkGameView extends JPanel {
                 choicesPanel.add(tb);
                 choicesPanel.add(Box.createVerticalStrut(6));
             }
+        } else if ("ORDERING".equals(currentQuestionType) && !lastChoices.isEmpty()) {
+            for (int i = 0; i < lastChoices.size(); i++) {
+                JLabel itemLabel = new JLabel((i + 1) + ". " + lastChoices.get(i));
+                itemLabel.setForeground(MindWarsTheme.WHITE);
+                itemLabel.setFont(MindWarsTheme.BODY_FONT);
+                itemLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+                choicesPanel.add(itemLabel);
+                choicesPanel.add(Box.createVerticalStrut(5));
+            }
+            choicesPanel.add(Box.createVerticalStrut(10));
+            textInput.setText("");
+            textInput.setVisible(true);
+            SwingUtilities.invokeLater(textInput::requestFocusInWindow);
         } else {
             textInput.setText("");
             textInput.setVisible(true);

@@ -121,7 +121,7 @@ public final class MindWarsTheme {
 
                 // Draw text
                 ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
                 FontMetrics fm = g.getFontMetrics(getFont());
                 int x = (getWidth() - fm.stringWidth(getText())) / 2;
                 int y = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
@@ -146,7 +146,7 @@ public final class MindWarsTheme {
                 g2.dispose();
 
                 ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
                 FontMetrics fm = g.getFontMetrics(getFont());
                 int x = (getWidth() - fm.stringWidth(getText())) / 2;
                 int y = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
@@ -171,7 +171,7 @@ public final class MindWarsTheme {
                 g2.dispose();
 
                 ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
                 FontMetrics fm = g.getFontMetrics(getFont());
                 int x = (getWidth() - fm.stringWidth(getText())) / 2;
                 int y = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
@@ -207,7 +207,7 @@ public final class MindWarsTheme {
                 g2.dispose();
 
                 ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
                 FontMetrics fm = g.getFontMetrics(getFont());
                 int x = (w - fm.stringWidth(getText())) / 2;
                 int y = (h + fm.getAscent() - fm.getDescent()) / 2;

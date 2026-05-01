@@ -27,11 +27,13 @@ public class RegisterController {
 
         // validation
         if (username.isEmpty() || username.equals("Choose a username") || email.isEmpty()
-                || email.equals("email@example.com")) {ui.showError("Please enter a valid email address");
+                || email.equals("email@example.com")) {
+            ui.showError("Please enter a valid email address");
             return;
         }
 
-        if (!password.equals(confirmPassword)) { ui.showError("Passwords do not match");
+        if (!password.equals(confirmPassword)) {
+            ui.showError("Passwords do not match");
             return;
         }
 
@@ -45,7 +47,7 @@ public class RegisterController {
             return;
         }
 
-        try{
+        try {
             String hash = PasswordUtil.hashPassword(password);
             User user = userRepo.registerUser(username, email, hash);
 
@@ -57,11 +59,10 @@ public class RegisterController {
             ui.showSuccess("Account created successfully! Welcome " + username);
             ui.clearFields();
             ui.getParentWindow().showScreen("MENU");
-        } catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             ui.showError("Could not create account" + e.getMessage());
         }
-
 
     }
 }
