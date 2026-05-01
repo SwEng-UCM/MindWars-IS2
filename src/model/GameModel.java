@@ -301,7 +301,12 @@ public class GameModel {
 
         pcs.firePropertyChange(PROP_SCORES, null, players);
 
-        String correctAnswer = q.getAnswer();
+        String correctAnswer;
+        if (q.getType() == trivia.QuestionType.ORDERING && q.getOrderingAnswer() != null) {
+            correctAnswer = String.join(" → ", q.getOrderingAnswer());
+        } else {
+            correctAnswer = q.getAnswer();
+        }
         AnswerResult result = new AnswerResult(correct, timedOut, delta,
                 correctAnswer == null ? "" : correctAnswer, elapsed);
 
