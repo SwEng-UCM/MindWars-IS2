@@ -66,6 +66,7 @@ public class GameModel {
     // decide who claims how many cells in the territory phase.
     private boolean[] roundCorrect;
     private long[] roundTimes;
+    private double[] numericGuesses;
 
     // Invasion phase state
     private int invaderIndex;
@@ -299,11 +300,26 @@ public class GameModel {
         roundCorrect[currentPlayerIndex] = correct;
         roundTimes[currentPlayerIndex] = timedOut ? Long.MAX_VALUE : elapsed;
 
+        // for NUMERIC questions also record the raw guess so that
+        // determineRoundWinnerIndex() can apply "closest wins" logic
+        if (q.getType() == trivia.QuestionType.NUMERIC && !timedOut) {
+            try {
+                numericGuesses[currentPlayerIndex] = Double.parseDouble(rawAnswer.trim());
+            } catch (NumberFormatException ignored) {
+                numericGuesses[currentPlayerIndex] = Double.NaN;
+            }
+        }
+
         pcs.firePropertyChange(PROP_SCORES, null, players);
 
         String correctAnswer;
         if (q.getType() == trivia.QuestionType.ORDERING && q.getOrderingAnswer() != null) {
             correctAnswer = String.join(" → ", q.getOrderingAnswer());
+        } else if (q.getType() == trivia.QuestionType.NUMERIC) {
+            double num = q.getNumericAnswer();
+            correctAnswer = (num == Math.floor(num))
+                    ? String.valueOf((long) num)
+                    : String.valueOf(num);
         } else {
             correctAnswer = q.getAnswer();
         }
@@ -347,6 +363,12 @@ public class GameModel {
     }
 
     public int determineRoundWinnerIndex() {
+        // for NUMERIC questions use "closest to target wins
+        Question q = getCurrentQuestion();
+        if (q != null && q.getType() == trivia.QuestionType.NUMERIC) {
+            return determineNumericWinnerIndex(q.getNumericAnswer());
+        }
+
         int bestIdx = 0;
         for (int i = 1; i < players.size(); i++) {
             boolean bestCorrect = roundCorrect[bestIdx];
@@ -360,6 +382,26 @@ public class GameModel {
             }
         }
         return bestIdx;
+    }
+
+    private int determineNumericWinnerIndex(double target) {
+        java.util.List<game.NumericWinnerCalculator.EstimationResponse> responses = new ArrayList<>();
+        for (int i = 0; i < players.size(); i++) {
+            double guess = numericGuesses[i];
+            if (!Double.isNaN(guess)) {
+                long time = roundTimes[i] == Long.MAX_VALUE ? Long.MAX_VALUE : roundTimes[i];
+                responses.add(new game.NumericWinnerCalculator.EstimationResponse(
+                        players.get(i), guess, time));
+            }
+        }
+        if (responses.isEmpty()) {
+            return 0; // everyone timed out — default to first player
+        }
+        player.Player winner = game.NumericWinnerCalculator.calculateWinner(target, responses);
+        if (winner == null)
+            return 0;
+        int idx = players.indexOf(winner);
+        return idx < 0 ? 0 : idx;
     }
 
     /**
