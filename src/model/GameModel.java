@@ -115,10 +115,14 @@ public class GameModel {
     }
 
     public int getTotalRounds() {
-        return roundQuestions.size();
+        if (settings == null) {
+            return roundQuestions.size();
+        }
+        return calculateRoundQuestionCount();
     }
 
     public Question getCurrentQuestion() {
+        ensureQuestionForRound(roundIndex);
         if (roundQuestions.isEmpty() || roundIndex >= roundQuestions.size())
             return null;
         return roundQuestions.get(roundIndex);
@@ -231,29 +235,11 @@ public class GameModel {
     }
 
     private void loadQuestions() {
-        int count = settings.mapSize; // same rule as console version
-        if (settings.randomMode) {
-            List<String> categories = new ArrayList<>(questionBank.getCategories());
-            for (int i = 0; i < count && !categories.isEmpty(); i++) {
-                String cat = categories.get(random.nextInt(categories.size()));
-                List<String> diffs = new ArrayList<>(questionBank.getDifficulties(cat));
-                if (diffs.isEmpty()) {
-                    i--;
-                    continue;
-                }
-                String diff = diffs.get(random.nextInt(diffs.size()));
-                Question q = questionBank.getQuestion(cat, diff);
-                if (q != null)
-                    roundQuestions.add(q);
-                else
-                    i--;
-            }
-        } else {
-            for (int i = 0; i < count; i++) {
-                Question q = questionBank.getQuestion(settings.category, settings.difficulty);
-                if (q != null)
-                    roundQuestions.add(q);
-            }
+        int count = calculateRoundQuestionCount();
+        for (int i = 0; i < count; i++) {
+            Question q = pickQuestion();
+            if (q != null)
+                roundQuestions.add(q);
         }
     }
 
@@ -401,14 +387,72 @@ public class GameModel {
         }
 
         roundIndex++;
-        if (roundIndex >= roundQuestions.size()) {
-            setPhase(GamePhase.GAME_OVER);
-            return;
-        }
         currentPlayerIndex = 0;
         pcs.firePropertyChange(PROP_CURRENT_PLAYER, null, getCurrentPlayer());
         pcs.firePropertyChange(PROP_ROUND, null, roundIndex);
         setPhase(GamePhase.HOT_SEAT_PASS);
+    }
+
+    private int calculateRoundQuestionCount() {
+        if (settings == null) {
+            return roundQuestions.size();
+        }
+        return estimateTotalRounds(settings.mapSize, players.size());
+    }
+
+    public static int estimateTotalRounds(int mapSize, int playerCount) {
+        int totalCells = Math.max(1, mapSize * mapSize);
+        int claimsPerRound = totalClaimsPerRound(mapSize, playerCount);
+        if (claimsPerRound <= 0) {
+            return totalCells;
+        }
+        return Math.max(1, (int) Math.ceil((double) totalCells / claimsPerRound));
+    }
+
+    private static int totalClaimsPerRound(int mapSize, int playerCount) {
+        int safePlayers = Math.max(1, playerCount);
+        int winnerClaims = mapSize / 2 + 1;
+        int loserClaims = mapSize / 2;
+        return winnerClaims + (safePlayers - 1) * loserClaims;
+    }
+
+    private Question pickQuestion() {
+        if (settings == null) {
+            return null;
+        }
+        if (settings.randomMode) {
+            List<String> categories = new ArrayList<>(questionBank.getCategories());
+            if (categories.isEmpty()) {
+                return null;
+            }
+            for (int attempt = 0; attempt < 8; attempt++) {
+                String cat = categories.get(random.nextInt(categories.size()));
+                List<String> diffs = new ArrayList<>(questionBank.getDifficulties(cat));
+                if (diffs.isEmpty()) {
+                    continue;
+                }
+                String diff = diffs.get(random.nextInt(diffs.size()));
+                Question q = questionBank.getQuestion(cat, diff);
+                if (q != null) {
+                    return q;
+                }
+            }
+            return null;
+        }
+        return questionBank.getQuestion(settings.category, settings.difficulty);
+    }
+
+    private void ensureQuestionForRound(int index) {
+        if (index < 0) {
+            return;
+        }
+        while (roundQuestions.size() <= index) {
+            Question q = pickQuestion();
+            if (q == null) {
+                return;
+            }
+            roundQuestions.add(q);
+        }
     }
 
     // ── Invasion phase ──

@@ -241,7 +241,9 @@ public class GameServer {
 
                 NetworkMessage welcome = new NetworkMessage(NetworkMessage.Type.WELCOME);
                 welcome.playerIndex = seatIndex;
-                welcome.totalRounds = settings.mapSize;
+                if (settings != null) {
+                    welcome.totalRounds = GameModel.estimateTotalRounds(settings.mapSize, settings.numPlayers);
+                }
                 send(welcome);
 
                 broadcastLobby();

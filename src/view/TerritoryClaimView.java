@@ -13,9 +13,6 @@ import java.util.List;
 
 public class TerritoryClaimView extends JPanel {
 
-    private static final int WINNER_CLAIMS = 2;
-    private static final int LOSER_CLAIMS = 1;
-
     private int[] pickOrder;
     private int pickIndex;
 
@@ -109,12 +106,16 @@ public class TerritoryClaimView extends JPanel {
     private void buildPickOrder(GameModel model) {
         int winnerIdx = model.determineRoundWinnerIndex();
         int n = model.getPlayers().size();
-        int total = WINNER_CLAIMS + LOSER_CLAIMS * (n - 1);
+        int[] claims = model.roundClaimCounts();
+        int total = 0;
+        for (int c : claims) {
+            total += c;
+        }
         pickOrder = new int[total];
         int idx = 0;
         int[] remaining = new int[n];
-        for (int i = 0; i < n; i++)
-            remaining[i] = (i == winnerIdx) ? WINNER_CLAIMS : LOSER_CLAIMS;
+        for (int i = 0; i < n && i < claims.length; i++)
+            remaining[i] = claims[i];
         if (model.getSettings() != null && model.getSettings().vsBot) {
             int humanIndex = -1;
             int botIndex = -1;
