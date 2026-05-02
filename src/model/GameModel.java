@@ -16,6 +16,7 @@ import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Arrays;
 
 /**
  * The Model in MVC.
@@ -230,6 +231,8 @@ public class GameModel {
 
         this.roundCorrect = new boolean[players.size()];
         this.roundTimes = new long[players.size()];
+        this.numericGuesses = new double[players.size()];
+        Arrays.fill(this.numericGuesses, Double.NaN);
 
         loadQuestions();
         setPhase(GamePhase.HOT_SEAT_PASS);
@@ -454,6 +457,8 @@ public class GameModel {
     public void finishRound() {
         roundCorrect = new boolean[players.size()];
         roundTimes = new long[players.size()];
+        numericGuesses = new double[players.size()];
+        Arrays.fill(numericGuesses, Double.NaN);
 
         if (map.isMapFull()) {
             setPhase(GamePhase.GAME_OVER);

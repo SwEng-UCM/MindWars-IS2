@@ -19,9 +19,9 @@
   },
   {
     "name": "ashley",
-    "wins": 3,
-    "totalScore": 180,
-    "gamesPlayed": 4
+    "wins": 4,
+    "totalScore": 210,
+    "gamesPlayed": 5
   },
   {
     "name": "raisa",
@@ -69,6 +69,12 @@
     "name": "elena",
     "wins": 0,
     "totalScore": 20,
+    "gamesPlayed": 1
+  },
+  {
+    "name": "bob",
+    "wins": 0,
+    "totalScore": 0,
     "gamesPlayed": 1
   },
   {

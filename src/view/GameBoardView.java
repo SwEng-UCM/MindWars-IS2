@@ -58,6 +58,7 @@ public class GameBoardView extends JPanel {
     // Question card
     private final JLabel categoryLabel;
     private final JLabel promptLabel;
+    private JScrollPane qScroll;
     private final JPanel answerPanel;
     private final JPanel choicesPanel;
     private final JPanel textWrap;
@@ -220,10 +221,28 @@ public class GameBoardView extends JPanel {
         buttons.add(undoButton);
         buttons.add(submitButton);
 
-        JPanel bottom = new JPanel(new BorderLayout());
+        qScroll = new JScrollPane(qCard);
+        qScroll.setBorder(null);
+        qScroll.setOpaque(false);
+        qScroll.getViewport().setOpaque(false);
+        qScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        qScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+        qScroll.setPreferredSize(new Dimension(900, 260));
+        qScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 260));
+        qScroll.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        buttons.setPreferredSize(new Dimension(900, 60));
+        buttons.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+        buttons.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JPanel bottom = new JPanel();
         bottom.setOpaque(false);
-        bottom.add(qCard, BorderLayout.CENTER);
-        bottom.add(buttons, BorderLayout.SOUTH);
+        bottom.setLayout(new BoxLayout(bottom, BoxLayout.Y_AXIS));
+
+        bottom.add(qScroll);
+        bottom.add(Box.createVerticalStrut(8));
+        bottom.add(buttons);
 
         // ── Feedback overlay label (stacked at bottom) ──
         feedbackLabel = new JLabel("", SwingConstants.CENTER);
@@ -302,6 +321,7 @@ public class GameBoardView extends JPanel {
                 + "  •  " + (q.getDifficulty() == null ? "" : q.getDifficulty()));
         promptLabel.setText("<html><body style='width: 380px'>" + escape(q.getPrompt()) + "</body></html>");
         populateAnswerInput(q);
+        SwingUtilities.invokeLater(() -> qScroll.getVerticalScrollBar().setValue(0));
 
         feedbackLabel.setVisible(false);
 
@@ -531,8 +551,8 @@ public class GameBoardView extends JPanel {
         };
         int gridHeight = switch (size) {
             case 7 -> 245;
-            case 5 -> 380;
-            default -> 300;
+            case 5 -> 300;
+            default -> 320;
         };
         gridPanel.setPreferredSize(new Dimension(900, gridHeight));
         gridPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, gridHeight));
@@ -656,7 +676,7 @@ public class GameBoardView extends JPanel {
             cl.show(answerPanel, "choices");
 
         } else if (type == QuestionType.ORDERING) {
-            answerPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, ANSWER_PANEL_CHOICES_HEIGHT));
+            setAnswerPanelHeight(190);
             choicesPanel.setLayout(new BoxLayout(choicesPanel, BoxLayout.Y_AXIS));
             // show ordering options
             List<String> items = q.getChoices();
@@ -673,7 +693,9 @@ public class GameBoardView extends JPanel {
             }
             choicesPanel.add(Box.createVerticalStrut(10));
             orderingInput.setText("");
-            orderingInput.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+            orderingInput.setPreferredSize(new Dimension(900, 42));
+            orderingInput.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
+            orderingInput.setAlignmentX(Component.LEFT_ALIGNMENT);
             choicesPanel.add(orderingInput);
             cl.show(answerPanel, "choices");
 
@@ -700,6 +722,11 @@ public class GameBoardView extends JPanel {
         answerPanel.repaint();
     }
 
+    private void setAnswerPanelHeight(int height) {
+        answerPanel.setMinimumSize(new Dimension(0, height));
+        answerPanel.setPreferredSize(new Dimension(900, height));
+        answerPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, height));
+    }
     // helper method for style
     private void styleToggleButton(JToggleButton tb) {
         tb.setFont(MindWarsTheme.BODY_FONT);
