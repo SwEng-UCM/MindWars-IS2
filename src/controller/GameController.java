@@ -242,14 +242,26 @@ public class GameController {
     }
 
     public void restartGame() {
-        if (lastSettings == null)
+        if (lastSettings == null){
+            nav.showMainMenu();
             return;
+        }
+        try {
 
-        history.clear();
-        leaderboardRecorded = false;
+            history.clear();
+            leaderboardRecorded = false;
 
-        model.startGame(lastSettings);
-        nav.showGame();
+            model.startGame(lastSettings);
+            nav.showGame();
+        } catch (GameModel.NotEnoughQuestionsException e){
+                JOptionPane.showMessageDialog(
+                null,
+                e.getMessage(),
+                "Not enough questions",
+                JOptionPane.WARNING_MESSAGE
+        );
+            nav.showMainMenu();
+        }
     }
 
     // ── Save / load (Memento) ──

@@ -248,7 +248,7 @@ public class GameModel {
                         "Not enough questions for this game setup.\n\n" +
                                 "Needed: " + count + " questions\n" +
                                 "Found: " + roundQuestions.size() + " questions\n\n" +
-                                "Try another category/difficulty, use Random mode, or add more questions."
+                                "Try another category/difficulty or use Random mode."
                 );
             }
             roundQuestions.add(q);
