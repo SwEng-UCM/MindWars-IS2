@@ -1,15 +1,15 @@
 [
   {
     "name": "Player 1",
-    "wins": 21,
-    "totalScore": 1254,
-    "gamesPlayed": 46
+    "wins": 22,
+    "totalScore": 1404,
+    "gamesPlayed": 47
   },
   {
     "name": "Bot",
     "wins": 13,
-    "totalScore": 740,
-    "gamesPlayed": 31
+    "totalScore": 830,
+    "gamesPlayed": 32
   },
   {
     "name": "Player 2",

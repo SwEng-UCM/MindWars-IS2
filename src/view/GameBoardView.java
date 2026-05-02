@@ -800,21 +800,13 @@ public class GameBoardView extends JPanel {
             return;
         }
 
-        Question q = controller.getModel().getCurrentQuestion();
-        if (q.getType() == QuestionType.NUMERIC) {
-            AnswerResult result = controller.onAnswerSubmitted(answer, elapsed);
-            if (result != null) {
-                showFeedback(result);
-            }
-            submitButton.setEnabled(false);
-            controller.onAnswerAcknowledged();
-            return;
-        }
-
         AnswerResult result = controller.onAnswerSubmitted(answer, elapsed);
-        showFeedback(result);
+        if (result != null) {
+            showFeedback(result);
+        }
         submitButton.setEnabled(false);
         undoButton.setEnabled(false);
+        setAnswerInputEnabled(false);
 
         schedulePendingAck();
     }
