@@ -3,6 +3,8 @@ package view;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class SettingOptionCard extends JPanel {
 
@@ -58,14 +60,27 @@ public class SettingOptionCard extends JPanel {
         add(textPanel, BorderLayout.CENTER);
 
         // Make the whole card clickable
-        addMouseListener(new java.awt.event.MouseAdapter() {
+        registerClick(this);
+
+    }
+    private void registerClick(Component component) {
+        component.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        component.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent e) {
+            public void mousePressed(MouseEvent e) {
                 selected = !selected;
                 repaint();
             }
         });
+
+        if (component instanceof Container container) {
+            for (Component child : container.getComponents()) {
+                registerClick(child);
+            }
+        }
     }
+
 
     // Allows the parent screen to read the current state
     public boolean isSelectedOption() {
