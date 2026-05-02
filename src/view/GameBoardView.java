@@ -32,8 +32,8 @@ import util.SoundManager;
  */
 public class GameBoardView extends JPanel {
 
-    private static final int ANSWER_PANEL_CHOICES_HEIGHT = 200;
-    private static final int ANSWER_PANEL_TEXT_HEIGHT = 52;
+    private static final int ANSWER_PANEL_CHOICES_HEIGHT = 260;
+    private static final int ANSWER_PANEL_TEXT_HEIGHT = 60;
 
     private final GameController controller;
     private final boolean invasionMode;
@@ -524,13 +524,25 @@ public class GameBoardView extends JPanel {
             return;
         int size = model.getMap().getSize();
         gridPanel.setLayout(new GridLayout(size, size, 4, 4));
+        int cellSize= switch (size){
+            case 7 -> 32;
+            case 5 -> 44;
+            default -> 64;
+        };
+        int gridHeight = switch (size) {
+            case 7 -> 245;
+            case 5 -> 380;
+            default -> 300;
+        };
+        gridPanel.setPreferredSize(new Dimension(900, gridHeight));
+        gridPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, gridHeight));
         JLabel[][] labels = new JLabel[size][size];
         char[][] owners = new char[size][size];
         for (int r = 0; r < size; r++) {
             for (int c = 0; c < size; c++) {
                 char owner = model.getMap().getOwner(r, c);
                 owners[r][c] = owner;
-                JLabel cell = buildCell(owner);
+                JLabel cell = buildCell(owner, cellSize);
                 labels[r][c] = cell;
                 gridPanel.add(cell);
 
@@ -555,11 +567,12 @@ public class GameBoardView extends JPanel {
         this.previousOwners = owners;
     }
 
-    private JLabel buildCell(char owner) {
+    private JLabel buildCell(char owner, int cellSize) {
         JLabel cell = new JLabel("", SwingConstants.CENTER);
         cell.setOpaque(true);
         cell.setFont(MindWarsTheme.BODY_BOLD);
-        cell.setPreferredSize(new Dimension(44, 44));
+        cell.setPreferredSize(new Dimension(cellSize, cellSize));
+        cell.setMinimumSize(new Dimension(24, 24));
         cell.setBorder(BorderFactory.createLineBorder(MindWarsTheme.DARK_BORDER));
         switch (owner) {
             case 'X' -> {

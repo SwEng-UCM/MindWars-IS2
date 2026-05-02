@@ -1,21 +1,27 @@
 [
   {
     "name": "Player 1",
-    "wins": 19,
-    "totalScore": 1084,
-    "gamesPlayed": 43
+    "wins": 21,
+    "totalScore": 1224,
+    "gamesPlayed": 45
   },
   {
     "name": "Bot",
-    "wins": 12,
-    "totalScore": 560,
-    "gamesPlayed": 24
+    "wins": 13,
+    "totalScore": 740,
+    "gamesPlayed": 31
   },
   {
     "name": "Player 2",
     "wins": 8,
     "totalScore": 485,
     "gamesPlayed": 21
+  },
+  {
+    "name": "ashley",
+    "wins": 3,
+    "totalScore": 180,
+    "gamesPlayed": 4
   },
   {
     "name": "raisa",
@@ -27,6 +33,12 @@
     "name": "t",
     "wins": 1,
     "totalScore": 50,
+    "gamesPlayed": 1
+  },
+  {
+    "name": "Ashley",
+    "wins": 1,
+    "totalScore": 40,
     "gamesPlayed": 1
   },
   {

@@ -344,22 +344,49 @@ public class GameModel {
     // ── Territory phase ──
 
     /**
-     * Returns the order in which players should claim cells for the current
-     * round: the round winner is first. Each entry is a player index and how
-     * many cells they claim.
+     * Calculates how many cells each player can claim this round.
+     * The best player gets the most claims, and the rest are shared
+     * among the other players based on their ranking.
      */
     public int[] roundClaimCounts() {
         int size = map.getSize();
-        int winnerClaims = size / 2 + 1;
-        int loserClaims = size / 2;
+        int playerCount = players.size();
 
-        int winnerIdx = determineRoundWinnerIndex();
-        int[] out = new int[players.size()];
+        int [] claims = new int[playerCount];
 
-        for (int i = 0; i < players.size(); i++) {
-            out[i] = (i == winnerIdx) ? winnerClaims : loserClaims;
+        List<Integer> ranking= new ArrayList<>();
+
+
+        for (int i = 0; i < playerCount; i++) {
+            ranking.add(i);
         }
-        return out;
+
+        ranking.sort((a,b) ->{
+            if (roundCorrect[a] != roundCorrect[b]) {
+                return roundCorrect[a] ? - 1 : 1;
+            }
+            return Long.compare(roundTimes[a], roundTimes[b]);
+
+        });
+
+        int remainingClaims = size;
+        int winnerClaims = size/ 2+1;
+        claims[ranking.getFirst()] = winnerClaims;
+        remainingClaims -= winnerClaims;
+
+
+        int rank = 1;
+        while (remainingClaims > 0 ) {
+            claims[ranking.get(rank)]++;
+            remainingClaims--;
+            rank++;
+
+            if (rank >= ranking.size()) {
+                rank = 1; //keeps distributing among winners
+            }
+        }
+        return claims;
+
     }
 
     public int determineRoundWinnerIndex() {
@@ -444,23 +471,20 @@ public class GameModel {
         if (settings == null) {
             return roundQuestions.size();
         }
-        return estimateTotalRounds(settings.mapSize, players.size());
+        return estimateTotalRounds(settings.mapSize);
     }
 
-    public static int estimateTotalRounds(int mapSize, int playerCount) {
+    public static int estimateTotalRounds(int mapSize) {
         int totalCells = Math.max(1, mapSize * mapSize);
-        int claimsPerRound = totalClaimsPerRound(mapSize, playerCount);
+        int claimsPerRound = totalClaimsPerRound(mapSize);
         if (claimsPerRound <= 0) {
             return totalCells;
         }
         return Math.max(1, (int) Math.ceil((double) totalCells / claimsPerRound));
     }
 
-    private static int totalClaimsPerRound(int mapSize, int playerCount) {
-        int safePlayers = Math.max(1, playerCount);
-        int winnerClaims = mapSize / 2 + 1;
-        int loserClaims = mapSize / 2;
-        return winnerClaims + (safePlayers - 1) * loserClaims;
+    private static int totalClaimsPerRound(int mapSize) {
+        return mapSize;
     }
 
     private Question pickQuestion() {
