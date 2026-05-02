@@ -240,10 +240,18 @@ public class GameModel {
 
     private void loadQuestions() {
         int count = calculateRoundQuestionCount();
+        roundQuestions.clear();
         for (int i = 0; i < count; i++) {
             Question q = pickQuestion();
-            if (q != null)
-                roundQuestions.add(q);
+            if (q == null){
+                throw new NotEnoughQuestionsException(
+                        "Not enough questions for this game setup.\n\n" +
+                                "Needed: " + count + " questions\n" +
+                                "Found: " + roundQuestions.size() + " questions\n\n" +
+                                "Try another category/difficulty, use Random mode, or add more questions."
+                );
+            }
+            roundQuestions.add(q);
         }
     }
 
@@ -761,6 +769,12 @@ public class GameModel {
                 default -> new bot.EasyBot();
             };
             players.get(1).setStrategy(strategy);
+        }
+    }
+
+    public static class NotEnoughQuestionsException extends RuntimeException {
+        public NotEnoughQuestionsException(String message) {
+            super(message);
         }
     }
 }

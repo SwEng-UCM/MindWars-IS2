@@ -14,7 +14,7 @@ import model.LeaderboardStore;
 import player.Player;
 
 import java.io.IOException;
-import javax.swing.Timer;
+import javax.swing.*;
 
 /**
  * The Controller in MVC. Receives view events (button clicks, cell clicks,
@@ -73,11 +73,22 @@ public class GameController {
     // ── Entry points from menu/setup ──
 
     public void startNewGame(GameSettings settings) {
-        lastSettings = settings;
-        history.clear();
-        leaderboardRecorded = false;
-        model.startGame(settings);
-        nav.showGame();
+        try {
+            lastSettings = settings;
+            history.clear();
+            leaderboardRecorded = false;
+            model.startGame(settings);
+            nav.showGame();
+        } catch (GameModel.NotEnoughQuestionsException e){
+            JOptionPane.showMessageDialog(
+                    null,
+                    e.getMessage(),
+                    "Not enough questions",
+                    JOptionPane.WARNING_MESSAGE
+            );
+                   nav.showMainMenu();
+        }
+
     }
 
     /**
