@@ -279,16 +279,17 @@ public class NetworkGameView extends JPanel {
                 showQuestionPanel();
                 choicesPanel.removeAll();
                 textInput.setVisible(false);
-                readyButton.setEnabled(myTurn);
+                readyButton.setEnabled(session.isConnected());
                 submitButton.setEnabled(false);
                 if (myTurn) {
                     promptLabel
-                            .setText("<html><b>It's your turn!</b><br>Press Ready when you're ready to answer.</html>");
-                    turnLabel.setText("Your turn — press Ready");
+                            .setText("<html><b>It's your turn!</b><br>Both players must press Ready before the question starts.</html>");
+                    turnLabel.setText("Your turn — waiting for all Ready");
                 } else {
                     promptLabel.setText(
-                            "<html>Waiting for <b>" + escape(nameOf(currentPlayer)) + "</b> to press Ready...</html>");
-                    turnLabel.setText("Waiting for " + nameOf(currentPlayer) + "...");
+                            "<html><b>" + escape(nameOf(currentPlayer))
+                                    + "</b> will answer next.<br>Press Ready to confirm you are also ready.</html>");
+                    turnLabel.setText("Waiting for all players to press Ready");
                 }
 
             }
@@ -647,10 +648,12 @@ public class NetworkGameView extends JPanel {
     // ── View → server ─────────────────────────────────────────────────────
 
     private void onReady() {
-        if (!isMyTurn() || !session.isConnected())
+        if (!session.isConnected())
             return;
+
         session.getClient().sendReady();
         readyButton.setEnabled(false);
+        turnLabel.setText("Ready sent — waiting for the other player");
     }
 
     private void onSubmit(ActionEvent e) {
