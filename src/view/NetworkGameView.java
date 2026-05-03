@@ -313,16 +313,16 @@ public class NetworkGameView extends JPanel {
                 showQuestionPanel();
                 choicesPanel.removeAll();
                 textInput.setVisible(false);
-                readyButton.setEnabled(myTurn);
+                readyButton.setEnabled(session.isConnected());
                 submitButton.setEnabled(false);
                 if (myTurn) {
                     promptLabel.setText(
-                            "<html><b>Invasion phase — it's your turn to attack!</b><br>Press Ready when you're ready.</html>");
-                    turnLabel.setText("Your turn — press Ready");
+                            "<html><b>Invasion phase — it's your turn to attack!</b><br>Both players must press Ready before invasion selection starts.</html>");
+                    turnLabel.setText("Your turn — waiting for all Ready");
                 } else {
-                    promptLabel.setText("<html>Invasion phase — waiting for <b>" + escape(nameOf(currentPlayer))
-                            + "</b>...</html>");
-                    turnLabel.setText("Waiting for " + nameOf(currentPlayer) + "...");
+                    promptLabel.setText("<html>Invasion phase — <b>" + escape(nameOf(currentPlayer))
+                            + "</b> will attack next.<br>Press Ready to confirm you are also ready.</html>");
+                    turnLabel.setText("Waiting for all players to press Ready");
                 }
             }
             case "INVASION_SELECT" -> {
