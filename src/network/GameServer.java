@@ -260,13 +260,12 @@ public class GameServer {
                 }
                 // For HOT_SEAT_PASS the active player is currentPlayerIndex.
                 // For INVASION_PASS the active player is invaderIndex.
-                int expectedSeat = (phase == GamePhase.INVASION_PASS)
-                        ? model.getInvaderIndex()
-                        : model.getCurrentPlayerIndex();
-                if (seatIndex != expectedSeat) {
+                readyFlags[seatIndex] = true;
+
+                if (!allConnectedPlayersReady()) {
                     return;
                 }
-                readyFlags[seatIndex] = true;
+
                 if (phase == GamePhase.HOT_SEAT_PASS) {
                     model.beginQuestion();
                 } else {
@@ -342,6 +341,24 @@ public class GameServer {
                 }
             }
         }
+    }
+
+    private boolean allConnectedPlayersReady() {
+        if (clients.isEmpty()) {
+            return false;
+        }
+
+        for (ClientHandler h : clients) {
+            if (h.seatIndex < 0 || h.seatIndex >= readyFlags.length) {
+                return false;
+            }
+
+            if (!readyFlags[h.seatIndex]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private void buildPickOrder() {
