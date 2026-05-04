@@ -3,6 +3,8 @@ package view;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class SettingOptionCard extends JPanel {
 
@@ -27,24 +29,24 @@ public class SettingOptionCard extends JPanel {
         setLayout(new BorderLayout());
 
         // Internal spacing so the text does not touch the edges
-        setBorder(new EmptyBorder(18, 22, 18, 22));
+        setBorder(new EmptyBorder(14, 18, 14, 18));
 
         // Fixed size for consistent card appearance
-        setPreferredSize(new Dimension(670, 110));
-        setMaximumSize(new Dimension(670, 110));
+        setPreferredSize(new Dimension(360, 96));
+        setMaximumSize(new Dimension(360, 96));
 
         // Hand cursor to show that the whole card is clickable
         setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         // Main title label
         JLabel titleLabel = new JLabel(title);
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
-        titleLabel.setForeground(new Color(20, 20, 20));
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
+        titleLabel.setForeground(Color.BLACK);
 
         // Description label
         JLabel descLabel = new JLabel(description);
-        descLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        descLabel.setForeground(new Color(95, 95, 95));
+        descLabel.setFont(MindWarsTheme.BODY_FONT);
+        descLabel.setForeground(MindWarsTheme.GRAY_TEXT);
 
         // Text container for vertical stacking
         JPanel textPanel = new JPanel();
@@ -58,14 +60,27 @@ public class SettingOptionCard extends JPanel {
         add(textPanel, BorderLayout.CENTER);
 
         // Make the whole card clickable
-        addMouseListener(new java.awt.event.MouseAdapter() {
+        registerClick(this);
+
+    }
+    private void registerClick(Component component) {
+        component.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        component.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent e) {
+            public void mousePressed(MouseEvent e) {
                 selected = !selected;
                 repaint();
             }
         });
+
+        if (component instanceof Container container) {
+            for (Component child : container.getComponents()) {
+                registerClick(child);
+            }
+        }
     }
+
 
     // Allows the parent screen to read the current state
     public boolean isSelectedOption() {
@@ -85,15 +100,13 @@ public class SettingOptionCard extends JPanel {
 
         int arc = 26;
 
-        Color fillColor = new Color(252, 248, 250);
-        Color borderColor = selected
-                ? new Color(255, 44, 156)
-                : new Color(210, 210, 210);
+        Color fillColor = Color.WHITE;
+        Color borderColor = selected ? MindWarsTheme.PINK : MindWarsTheme.GRAY_LIGHT;
 
         g2.setColor(fillColor);
         g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, arc, arc);
 
-        g2.setStroke(new BasicStroke(selected ? 2.4f : 1.8f));
+        g2.setStroke(new BasicStroke(selected ? 2.2f : 1.4f));
         g2.setColor(borderColor);
         g2.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 3, arc, arc);
 

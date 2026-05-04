@@ -18,6 +18,7 @@ public class GameOverView extends JPanel {
     private final JLabel winnerLabel;
     private final JPanel statsPanel;
     private final FinalMapCanvas mapCanvas;
+    private final JButton playAgain;
     private final JPanel legendPanel;
 
     public GameOverView(GameController controller) {
@@ -73,7 +74,7 @@ public class GameOverView extends JPanel {
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
         buttons.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton playAgain = MindWarsTheme.createGradientButton("Play Again");
+        playAgain = MindWarsTheme.createGradientButton("Play Again");
         playAgain.setAlignmentX(Component.CENTER_ALIGNMENT);
         playAgain.addActionListener(e -> controller.restartGame());
 
@@ -104,6 +105,51 @@ public class GameOverView extends JPanel {
         mapCanvas.update(map, players);
     }
 
+    public void refreshFromNetwork(network.NetworkMessage msg) {
+        List<String> names = msg.playerNames;
+        List<Integer> scores = msg.scores;
+        List<Integer> corrects = msg.correctAnswers;
+        List<Integer> wrongs = msg.wrongAnswers;
+
+        if (msg.winnerIndex == null || names == null || msg.winnerIndex >= names.size()) {
+            winnerLabel.setText("It's a draw!");
+        } else {
+            winnerLabel.setText(names.get(msg.winnerIndex) + " wins!");
+        }
+
+        char[] symbols = { 'X', 'O', 'A', 'B' };
+        java.util.List<player.Player> players = new java.util.ArrayList<>();
+        if (names != null) {
+            for (int i = 0; i < names.size(); i++) {
+                player.Player p = new player.Player(names.get(i));
+                p.setSymbol(i < symbols.length ? symbols[i] : (char) ('A' + i));
+                if (scores != null && i < scores.size())
+                    p.setScore(scores.get(i));
+                if (corrects != null && i < corrects.size())
+                    p.setCorrectAnswers(corrects.get(i));
+                if (wrongs != null && i < wrongs.size())
+                    p.setWrongAnswers(wrongs.get(i));
+                players.add(p);
+            }
+        }
+
+        game.MapGrid map = null;
+        if (msg.gridSnapshot != null && msg.mapSize != null) {
+            map = new game.MapGrid(msg.mapSize);
+            for (int r = 0; r < msg.mapSize; r++)
+                for (int c = 0; c < msg.mapSize; c++)
+                    map.setOwner(r, c, msg.gridSnapshot.charAt(r * msg.mapSize + c));
+        }
+
+        rebuildStats(players);
+        rebuildLegend(players, map);
+        mapCanvas.update(map, players);
+
+        for (var al : playAgain.getActionListeners())
+            playAgain.removeActionListener(al);
+        playAgain.addActionListener(e -> controller.onGameOverAcknowledged());
+    }
+
     private void rebuildStats(List<Player> players) {
         statsPanel.removeAll();
         if (players == null)
@@ -128,9 +174,9 @@ public class GameOverView extends JPanel {
                     p.getCorrectAnswers() + " / " + p.getWrongAnswers()));
             row.add(statLine("Avg response",
                     String.format("%.1fs", p.getAverageResponseTime())));
-            double fastestMs = p.getFastestResponse();
+            double fastestSeconds = p.getFastestResponse();
             row.add(statLine("Fastest response",
-                    fastestMs > 0 ? String.format("%.1fs", fastestMs / 1000.0) : "—"));
+                    fastestSeconds > 0 ? String.format("%.1fs", fastestSeconds) : "—"));
 
             statsPanel.add(row);
             if (i < players.size() - 1)

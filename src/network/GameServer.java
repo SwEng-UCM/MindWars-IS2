@@ -127,6 +127,11 @@ public class GameServer {
         while (running) {
             try {
                 Socket sock = serverSocket.accept();
+                // if the game has already started, reject new clients by closing the socket
+                if (model.getPhase() != GamePhase.SETUP) {
+                    sock.close();
+                    continue;
+                }
                 ClientHandler handler = new ClientHandler(sock);
                 handler.start();
             } catch (IOException e) {
@@ -182,7 +187,11 @@ public class GameServer {
                 }
             } catch (IOException ignored) {
             } finally {
-                clients.remove(this);
+                boolean wasMember = clients.remove(this);
+                if (wasMember && seatIndex >= 0) {
+                    broadcastPlayerLeft(seatIndex, displayName);
+                    broadcastLobby();
+                }
             }
         }
 
@@ -211,18 +220,30 @@ public class GameServer {
 
         private void onJoin(NetworkMessage msg) {
             synchronized (GameServer.this) {
-                if (clients.size() >= MAX_PLAYERS) {
-                    send(NetworkMessage.error("server full"));
-                    close();
+                int limit = (settings != null && settings.numPlayers > 0)
+                        ? settings.numPlayers
+                        : MAX_PLAYERS;
+                if (clients.size() >= limit) {
+                    send(NetworkMessage.error("Server is full. Maximum " + limit + " players allowed."));
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException ignored) {
+                        }
+                        close();
+                    }).start();
                     return;
                 }
+
                 seatIndex = clients.size();
                 displayName = msg.name == null ? ("Player " + (seatIndex + 1)) : msg.name;
                 clients.add(this);
 
                 NetworkMessage welcome = new NetworkMessage(NetworkMessage.Type.WELCOME);
                 welcome.playerIndex = seatIndex;
-                welcome.totalRounds = settings.mapSize;
+                if (settings != null) {
+                    welcome.totalRounds = GameModel.estimateTotalRounds(settings.mapSize);
+                }
                 send(welcome);
 
                 broadcastLobby();
@@ -239,13 +260,12 @@ public class GameServer {
                 }
                 // For HOT_SEAT_PASS the active player is currentPlayerIndex.
                 // For INVASION_PASS the active player is invaderIndex.
-                int expectedSeat = (phase == GamePhase.INVASION_PASS)
-                        ? model.getInvaderIndex()
-                        : model.getCurrentPlayerIndex();
-                if (seatIndex != expectedSeat) {
+                readyFlags[seatIndex] = true;
+
+                if (!allConnectedPlayersReady()) {
                     return;
                 }
-                readyFlags[seatIndex] = true;
+
                 if (phase == GamePhase.HOT_SEAT_PASS) {
                     model.beginQuestion();
                 } else {
@@ -323,6 +343,24 @@ public class GameServer {
         }
     }
 
+    private boolean allConnectedPlayersReady() {
+        if (clients.isEmpty()) {
+            return false;
+        }
+
+        for (ClientHandler h : clients) {
+            if (h.seatIndex < 0 || h.seatIndex >= readyFlags.length) {
+                return false;
+            }
+
+            if (!readyFlags[h.seatIndex]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private void buildPickOrder() {
         int[] claimCounts = model.roundClaimCounts();
         int winner = model.determineRoundWinnerIndex();
@@ -366,14 +404,16 @@ public class GameServer {
         broadcast(m);
 
         switch (phase) {
-            case QUESTION, INVASION_BATTLE -> broadcastQuestion();
+            case QUESTION -> broadcastQuestion();
             case TERRITORY_CLAIM -> {
                 buildPickOrder();
                 broadcastMapUpdate();
             }
+            case INVASION_PASS, INVASION_SELECT, INVASION_BATTLE -> {
+                model.forcePhase(GamePhase.GAME_OVER);
+            }
             case GAME_OVER -> broadcastGameOver();
             default -> {
-                // HOT_SEAT_PASS / TERRITORY_CLAIM etc. only need the PHASE ping.
             }
         }
     }
@@ -400,7 +440,12 @@ public class GameServer {
         m.pointsDelta = result.pointsDelta;
         m.correctAnswer = result.correctAnswer;
         m.elapsedMs = result.elapsedMs;
-        broadcast(m);
+        for (ClientHandler h : clients) {
+            if (h.seatIndex == playerIndex) {
+                h.send(m);
+                break;
+            }
+        }
     }
 
     private void broadcastScores() {
@@ -423,6 +468,40 @@ public class GameServer {
         Player winner = model.computeWinner();
         NetworkMessage m = new NetworkMessage(NetworkMessage.Type.GAME_OVER);
         m.winnerIndex = winner == null ? null : model.getPlayers().indexOf(winner);
+
+        List<String> names = new ArrayList<>();
+        List<Integer> scores = new ArrayList<>();
+        List<Integer> corrects = new ArrayList<>();
+        List<Integer> wrongs = new ArrayList<>();
+        for (Player p : model.getPlayers()) {
+            names.add(p.getName());
+            scores.add(p.getScore());
+            corrects.add(p.getCorrectAnswers());
+            wrongs.add(p.getWrongAnswers());
+        }
+        m.playerNames = names;
+        m.scores = scores;
+        m.correctAnswers = corrects;
+        m.wrongAnswers = wrongs;
+
+        game.MapGrid map = model.getMap();
+        if (map != null) {
+            int size = map.getSize();
+            StringBuilder sb = new StringBuilder(size * size);
+            for (int r = 0; r < size; r++)
+                for (int c = 0; c < size; c++)
+                    sb.append(map.getOwner(r, c));
+            m.gridSnapshot = sb.toString();
+            m.mapSize = size;
+        }
+
+        broadcast(m);
+    }
+
+    private void broadcastPlayerLeft(int seatIndex, String name) {
+        NetworkMessage m = new NetworkMessage(NetworkMessage.Type.PLAYER_LEFT);
+        m.disconnectedPlayerIndex = seatIndex;
+        m.disconnectedPlayerName = name == null || name.isBlank() ? "Player " + (seatIndex + 1) : name;
         broadcast(m);
     }
 

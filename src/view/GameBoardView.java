@@ -32,8 +32,8 @@ import util.SoundManager;
  */
 public class GameBoardView extends JPanel {
 
-    private static final int ANSWER_PANEL_CHOICES_HEIGHT = 200;
-    private static final int ANSWER_PANEL_TEXT_HEIGHT = 52;
+    private static final int ANSWER_PANEL_CHOICES_HEIGHT = 260;
+    private static final int ANSWER_PANEL_TEXT_HEIGHT = 60;
 
     private final GameController controller;
     private final boolean invasionMode;
@@ -58,6 +58,7 @@ public class GameBoardView extends JPanel {
     // Question card
     private final JLabel categoryLabel;
     private final JLabel promptLabel;
+    private JScrollPane qScroll;
     private final JPanel answerPanel;
     private final JPanel choicesPanel;
     private final JPanel textWrap;
@@ -111,7 +112,7 @@ public class GameBoardView extends JPanel {
         playerLabel.setForeground(MindWarsTheme.WHITE);
         playerLabel.setFont(MindWarsTheme.BODY_BOLD);
 
-        JPanel scores = new JPanel(new GridLayout(1, 4, 12, 0));
+        JPanel scores = new JPanel(new GridLayout(2, 2, 12, 2));
         scores.setOpaque(false);
         p1ScoreLabel = new JLabel("", SwingConstants.RIGHT);
         p1ScoreLabel.setForeground(MindWarsTheme.PLAYER_X);
@@ -220,10 +221,28 @@ public class GameBoardView extends JPanel {
         buttons.add(undoButton);
         buttons.add(submitButton);
 
-        JPanel bottom = new JPanel(new BorderLayout());
+        qScroll = new JScrollPane(qCard);
+        qScroll.setBorder(null);
+        qScroll.setOpaque(false);
+        qScroll.getViewport().setOpaque(false);
+        qScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        qScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+        qScroll.setPreferredSize(new Dimension(900, 260));
+        qScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 260));
+        qScroll.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        buttons.setPreferredSize(new Dimension(900, 60));
+        buttons.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+        buttons.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JPanel bottom = new JPanel();
         bottom.setOpaque(false);
-        bottom.add(qCard, BorderLayout.CENTER);
-        bottom.add(buttons, BorderLayout.SOUTH);
+        bottom.setLayout(new BoxLayout(bottom, BoxLayout.Y_AXIS));
+
+        bottom.add(qScroll);
+        bottom.add(Box.createVerticalStrut(8));
+        bottom.add(buttons);
 
         // ── Feedback overlay label (stacked at bottom) ──
         feedbackLabel = new JLabel("", SwingConstants.CENTER);
@@ -274,15 +293,15 @@ public class GameBoardView extends JPanel {
         }
 
         if (players.size() >= 1)
-            p1ScoreLabel.setText(players.get(0).getName() + ": " + players.get(0).getScore());
+            p1ScoreLabel.setText(formatScoreLabel(players.get(0)));
         if (players.size() >= 2)
-            p2ScoreLabel.setText(players.get(1).getName() + ": " + players.get(1).getScore());
+            p2ScoreLabel.setText(formatScoreLabel(players.get(1)));
         if (players.size() >= 3)
-            p3ScoreLabel.setText(players.get(2).getName() + ": " + players.get(2).getScore());
+            p3ScoreLabel.setText(formatScoreLabel(players.get(2)));
         else
             p3ScoreLabel.setText("");
         if (players.size() >= 4)
-            p4ScoreLabel.setText(players.get(3).getName() + ": " + players.get(3).getScore());
+            p4ScoreLabel.setText(formatScoreLabel(players.get(3)));
         else
             p4ScoreLabel.setText("");
 
@@ -302,6 +321,7 @@ public class GameBoardView extends JPanel {
                 + "  •  " + (q.getDifficulty() == null ? "" : q.getDifficulty()));
         promptLabel.setText("<html><body style='width: 380px'>" + escape(q.getPrompt()) + "</body></html>");
         populateAnswerInput(q);
+        SwingUtilities.invokeLater(() -> qScroll.getVerticalScrollBar().setValue(0));
 
         feedbackLabel.setVisible(false);
 
@@ -444,6 +464,18 @@ public class GameBoardView extends JPanel {
         }
     }
 
+    private String formatScoreLabel(Player player) {
+        if (player == null) {
+            return "";
+        }
+        String name = player.getName() == null ? "" : player.getName();
+        int maxNameLen = 12;
+        if (name.length() > maxNameLen) {
+            name = name.substring(0, maxNameLen - 3) + "...";
+        }
+        return name + ": " + player.getScore();
+    }
+
     private void setAnswerInputEnabled(boolean enabled) {
         textInput.setEnabled(enabled);
         textInput.setEditable(enabled);
@@ -512,13 +544,25 @@ public class GameBoardView extends JPanel {
             return;
         int size = model.getMap().getSize();
         gridPanel.setLayout(new GridLayout(size, size, 4, 4));
+        int cellSize= switch (size){
+            case 7 -> 32;
+            case 5 -> 44;
+            default -> 64;
+        };
+        int gridHeight = switch (size) {
+            case 7 -> 245;
+            case 5 -> 300;
+            default -> 320;
+        };
+        gridPanel.setPreferredSize(new Dimension(900, gridHeight));
+        gridPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, gridHeight));
         JLabel[][] labels = new JLabel[size][size];
         char[][] owners = new char[size][size];
         for (int r = 0; r < size; r++) {
             for (int c = 0; c < size; c++) {
                 char owner = model.getMap().getOwner(r, c);
                 owners[r][c] = owner;
-                JLabel cell = buildCell(owner);
+                JLabel cell = buildCell(owner, cellSize);
                 labels[r][c] = cell;
                 gridPanel.add(cell);
 
@@ -543,11 +587,12 @@ public class GameBoardView extends JPanel {
         this.previousOwners = owners;
     }
 
-    private JLabel buildCell(char owner) {
+    private JLabel buildCell(char owner, int cellSize) {
         JLabel cell = new JLabel("", SwingConstants.CENTER);
         cell.setOpaque(true);
         cell.setFont(MindWarsTheme.BODY_BOLD);
-        cell.setPreferredSize(new Dimension(44, 44));
+        cell.setPreferredSize(new Dimension(cellSize, cellSize));
+        cell.setMinimumSize(new Dimension(24, 24));
         cell.setBorder(BorderFactory.createLineBorder(MindWarsTheme.DARK_BORDER));
         switch (owner) {
             case 'X' -> {
@@ -631,7 +676,7 @@ public class GameBoardView extends JPanel {
             cl.show(answerPanel, "choices");
 
         } else if (type == QuestionType.ORDERING) {
-            answerPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, ANSWER_PANEL_CHOICES_HEIGHT));
+            setAnswerPanelHeight(190);
             choicesPanel.setLayout(new BoxLayout(choicesPanel, BoxLayout.Y_AXIS));
             // show ordering options
             List<String> items = q.getChoices();
@@ -648,14 +693,15 @@ public class GameBoardView extends JPanel {
             }
             choicesPanel.add(Box.createVerticalStrut(10));
             orderingInput.setText("");
-            orderingInput.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+            orderingInput.setPreferredSize(new Dimension(900, 42));
+            orderingInput.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
+            orderingInput.setAlignmentX(Component.LEFT_ALIGNMENT);
             choicesPanel.add(orderingInput);
             cl.show(answerPanel, "choices");
 
         } else if (type == QuestionType.NUMERIC) {
             answerPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, ANSWER_PANEL_TEXT_HEIGHT));
             textInput.setText("");
-            textInput.setToolTipText("Enter a numeric estimation...");
             textInput.setEnabled(true);
             textInput.setEditable(true);
             cl.show(answerPanel, "text");
@@ -676,6 +722,11 @@ public class GameBoardView extends JPanel {
         answerPanel.repaint();
     }
 
+    private void setAnswerPanelHeight(int height) {
+        answerPanel.setMinimumSize(new Dimension(0, height));
+        answerPanel.setPreferredSize(new Dimension(900, height));
+        answerPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, height));
+    }
     // helper method for style
     private void styleToggleButton(JToggleButton tb) {
         tb.setFont(MindWarsTheme.BODY_FONT);
@@ -749,18 +800,13 @@ public class GameBoardView extends JPanel {
             return;
         }
 
-        Question q = controller.getModel().getCurrentQuestion();
-        if (q.getType() == QuestionType.NUMERIC) {
-            controller.onAnswerSubmitted(answer, elapsed);
-            submitButton.setEnabled(false);
-            controller.onAnswerAcknowledged();
-            return;
-        }
-
         AnswerResult result = controller.onAnswerSubmitted(answer, elapsed);
-        showFeedback(result);
+        if (result != null) {
+            showFeedback(result);
+        }
         submitButton.setEnabled(false);
         undoButton.setEnabled(false);
+        setAnswerInputEnabled(false);
 
         schedulePendingAck();
     }
@@ -801,6 +847,9 @@ public class GameBoardView extends JPanel {
             // Attacker just answered; switch to defender.
             invasionAttackerAnswer = answer;
             invasionDefenderTurn = true;
+            showNeutralFeedback(
+                    answer == null ? "Time's up! Pass to defender." : "Answer locked — pass to defender.",
+                    MindWarsTheme.PINK);
             refresh();
             startTimer();
         } else {
@@ -809,6 +858,9 @@ public class GameBoardView extends JPanel {
             invasionAttackerAnswer = null;
             invasionDefenderTurn = false;
             submitButton.setEnabled(false);
+            showNeutralFeedback(
+                    answer == null ? "Time's up! Resolving battle..." : "Resolving battle...",
+                    MindWarsTheme.PINK);
             controller.onInvasionResolved(attAnswer, defAnswer);
         }
     }
@@ -847,11 +899,7 @@ public class GameBoardView extends JPanel {
             soundManager.play(SoundManager.INCORRECT);
         }
 
-        if (q.getType() == QuestionType.NUMERIC) {
-            // Special feedback for numeric estimation
-            text = "Estimation complete! Analyzing proximity...";
-            bg = MindWarsTheme.PLAYER_X; // Use a neutral or player color
-        } else if (result.timedOut) {
+        if (result.timedOut) {
             text = "Time's up! Answer: " + correctAnswerText;
             bg = MindWarsTheme.WRONG_RED;
         } else if (result.correct) {
@@ -869,6 +917,20 @@ public class GameBoardView extends JPanel {
 
         // Flash the background from a brighter tone down to the final color
         // and pulse the font so the feedback has more presence (#90).
+        Color flashStart = bg.brighter();
+        AnimationHelper.flashBackground(feedbackLabel, flashStart, bg, 10, 50);
+        AnimationHelper.pulseFont(feedbackLabel, MindWarsTheme.HEADING_FONT, 8, 10, 50);
+
+        feedbackLabel.revalidate();
+        feedbackLabel.repaint();
+    }
+
+    private void showNeutralFeedback(String text, Color bg) {
+        feedbackLabel.setText(text == null ? "" : text);
+        feedbackLabel.setForeground(MindWarsTheme.WHITE);
+        feedbackLabel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        feedbackLabel.setVisible(true);
+
         Color flashStart = bg.brighter();
         AnimationHelper.flashBackground(feedbackLabel, flashStart, bg, 10, 50);
         AnimationHelper.pulseFont(feedbackLabel, MindWarsTheme.HEADING_FONT, 8, 10, 50);

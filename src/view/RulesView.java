@@ -86,6 +86,8 @@ public class RulesView extends JPanel {
         scrollPane.setBorder(null);
         scrollPane.setOpaque(false);
         scrollPane.getViewport().setOpaque(false);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(18);
+        scrollPane.getVerticalScrollBar().setBlockIncrement(72);
 
         scrollPane.setVerticalScrollBarPolicy(
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -104,7 +106,16 @@ public class RulesView extends JPanel {
 
         bg.add(card);
         add(bg, BorderLayout.CENTER);
+
+                SwingUtilities.invokeLater(this::scrollToTop);
     }
+
+        public void scrollToTop() {
+                if (scrollPane == null) {
+                        return;
+                }
+                scrollPane.getVerticalScrollBar().setValue(0);
+        }
 
     private JPanel createSection(String heading, String body) {
         JPanel section = new JPanel();

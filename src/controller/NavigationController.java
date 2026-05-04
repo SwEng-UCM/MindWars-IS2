@@ -21,6 +21,8 @@ public interface NavigationController {
 
     void showGameOver();
 
+    void showNetworkGameOver(network.NetworkMessage msg);
+
     void showBetting();
 
     void showMultiplayer();

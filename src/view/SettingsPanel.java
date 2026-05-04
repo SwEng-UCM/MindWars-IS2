@@ -16,7 +16,7 @@ public class SettingsPanel extends JPanel {
 
     private SettingOptionCard musicCard;
 
-    private GradientButton saveButton;
+    private JButton saveButton;
 
     private JButton backButton;
 
@@ -25,8 +25,7 @@ public class SettingsPanel extends JPanel {
         this.soundManager = soundManager;
 
         setLayout(new BorderLayout());
-
-        setBackground(new Color(245, 221, 230));
+        setOpaque(false);
 
         initializeComponents();
 
@@ -50,11 +49,8 @@ public class SettingsPanel extends JPanel {
                 "Enable or disable background music",
                 settings.isMusicEnabled());
 
-        saveButton = new GradientButton("Save  →");
-
-        backButton = new JButton("Back");
-        backButton.setFocusPainted(false);
-        backButton.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        saveButton = null;
+        backButton = null;
     }
 
     private void layoutComponents() {
@@ -63,19 +59,10 @@ public class SettingsPanel extends JPanel {
         centerWrapper.setOpaque(false);
 
         JPanel contentPanel = new JPanel();
-
-        // This panel should paint its own background normally
-        contentPanel.setOpaque(true);
-
-        // Very light background for the main card/screen area
-        contentPanel.setBackground(new Color(250, 250, 250));
-
-        // Fixed size for consistent appearance
-        contentPanel.setPreferredSize(new Dimension(720, 760));
-
+        contentPanel.setOpaque(false);
+        contentPanel.setPreferredSize(new Dimension(380, 520));
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-
-        contentPanel.setBorder(new EmptyBorder(35, 40, 35, 40));
+        contentPanel.setBorder(new EmptyBorder(8, 8, 8, 8));
 
         JPanel iconCircle = new JPanel() {
             @Override
@@ -85,8 +72,7 @@ public class SettingsPanel extends JPanel {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                // Pink circle matching the design accent
-                g2.setColor(new Color(255, 18, 145));
+                g2.setColor(MindWarsTheme.PINK);
                 g2.fillOval(0, 0, getWidth(), getHeight());
 
                 g2.dispose();
@@ -95,50 +81,54 @@ public class SettingsPanel extends JPanel {
 
         iconCircle.setOpaque(false);
 
-        iconCircle.setPreferredSize(new Dimension(92, 92));
-        iconCircle.setMaximumSize(new Dimension(92, 92));
-        iconCircle.setMinimumSize(new Dimension(92, 92));
+        iconCircle.setPreferredSize(new Dimension(72, 72));
+        iconCircle.setMaximumSize(new Dimension(72, 72));
+        iconCircle.setMinimumSize(new Dimension(72, 72));
 
         iconCircle.setLayout(new GridBagLayout());
 
         JLabel iconLabel = new JLabel("⚙");
-        iconLabel.setFont(new Font("SansSerif", Font.BOLD, 34));
+        iconLabel.setFont(new Font("SansSerif", Font.BOLD, 30));
         iconLabel.setForeground(Color.WHITE);
         iconCircle.add(iconLabel);
 
         iconCircle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel titleLabel = new JLabel("Settings");
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 28));
-        titleLabel.setForeground(new Color(20, 20, 20));
+        titleLabel.setFont(MindWarsTheme.HEADING_FONT);
+        titleLabel.setForeground(MindWarsTheme.PINK);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel subtitleLabel = new JLabel("Choose your game audio preferences");
-        subtitleLabel.setFont(new Font("SansSerif", Font.PLAIN, 15));
-        subtitleLabel.setForeground(new Color(110, 110, 110));
+        subtitleLabel.setFont(MindWarsTheme.SUBTITLE_FONT);
+        subtitleLabel.setForeground(MindWarsTheme.GRAY_TEXT);
         subtitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         soundEffectsCard.setAlignmentX(Component.CENTER_ALIGNMENT);
         musicCard.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JButton save = MindWarsTheme.createGradientButton("Save Settings");
+        saveButton = save;
         saveButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JPanel backPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        JButton back = MindWarsTheme.createPinkButton("Back to Menu");
+        backButton = back;
+        JPanel backPanel = new JPanel();
         backPanel.setOpaque(false);
         backPanel.add(backButton);
 
         contentPanel.add(iconCircle);
-        contentPanel.add(Box.createVerticalStrut(22));
+        contentPanel.add(Box.createVerticalStrut(14));
         contentPanel.add(titleLabel);
-        contentPanel.add(Box.createVerticalStrut(10));
+        contentPanel.add(Box.createVerticalStrut(6));
         contentPanel.add(subtitleLabel);
-        contentPanel.add(Box.createVerticalStrut(34));
+        contentPanel.add(Box.createVerticalStrut(22));
         contentPanel.add(soundEffectsCard);
-        contentPanel.add(Box.createVerticalStrut(18));
+        contentPanel.add(Box.createVerticalStrut(12));
         contentPanel.add(musicCard);
         contentPanel.add(Box.createVerticalGlue());
-        contentPanel.add(Box.createVerticalStrut(30));
+        contentPanel.add(Box.createVerticalStrut(16));
         contentPanel.add(saveButton);
-        contentPanel.add(Box.createVerticalStrut(18));
+        contentPanel.add(Box.createVerticalStrut(12));
         contentPanel.add(backPanel);
 
         centerWrapper.add(contentPanel);

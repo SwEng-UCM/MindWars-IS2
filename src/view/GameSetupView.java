@@ -56,7 +56,7 @@ public class GameSetupView extends JPanel {
     private final GameController controller;
 
     // Form state
-    private int mapSize = 4;
+    private int mapSize = 3;
     private boolean randomMode = true;
 
     // Widgets
@@ -161,7 +161,7 @@ public class GameSetupView extends JPanel {
         sizeRow.setOpaque(false);
         sizeRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
         sizeRow.setAlignmentX(Component.LEFT_ALIGNMENT);
-        for (int s : new int[] { 3, 4, 5 }) {
+        for (int s : new int[] { 3, 5, 7 }) {
             JToggleButton tb = optionToggle(s + " × " + s, s == mapSize);
             tb.addActionListener(e -> selectSize(s));
             sizeButtons.add(tb);
@@ -350,7 +350,7 @@ public class GameSetupView extends JPanel {
     private void selectSize(int s) {
         this.mapSize = s;
         for (int i = 0; i < sizeButtons.size(); i++) {
-            int val = new int[] { 3, 4, 5 }[i];
+            int val = new int[] { 3, 5, 7 }[i];
             restyleToggle(sizeButtons.get(i), val == s);
         }
     }

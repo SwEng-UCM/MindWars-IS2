@@ -49,10 +49,26 @@ public class MainWindow extends JFrame {
     }
 
     public void startGameSession() {
-        MainFrame gameFrame = new MainFrame(model, soundManager);
-        gameFrame.setBounds(this.getBounds());
-        gameFrame.setVisible(true);
-        this.dispose();
+        try {
+            MainFrame gameFrame = new MainFrame(model, soundManager);
+            gameFrame.setBounds(this.getBounds());
+            gameFrame.setVisible(true);
+            gameFrame.toFront();
+            gameFrame.requestFocus();
+
+            this.dispose();
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Could not open the main menu:\n" + e.getMessage(),
+                    "Startup error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+
+            setVisible(true);
+        }
     }
 
     public void setSessionPlayer(player.Player p) {

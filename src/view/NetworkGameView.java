@@ -1,7 +1,6 @@
 package view;
 
 import controller.NavigationController;
-import model.GameModel;
 import network.NetworkMessage;
 import network.NetworkSession;
 
@@ -241,8 +240,25 @@ public class NetworkGameView extends JPanel {
             case SCORES -> onScores(msg);
             case GAME_OVER -> onGameOver(msg);
             case MAP_UPDATE -> onMapUpdate(msg); // NEW
-            case ERROR -> feedback("Server: " + msg.errorMessage, MindWarsTheme.WRONG_RED);
-            default -> {
+            case ANSWER, CLAIM_CELL, JOIN, LOBBY, PLAYER_LEFT, READY, START_GAME, TURN, WELCOME -> {
+                // No UI action needed for these message types on the client screen.
+            }
+            case ERROR -> {
+                String errorMsg = msg.errorMessage != null ? msg.errorMessage : "Unknown error";
+                if (errorMsg != null && errorMsg.toLowerCase().contains("full")) {
+                    SwingUtilities.invokeLater(() -> {
+                        JOptionPane.showMessageDialog(
+                                this,
+                                errorMsg + "\nMaximum number of players reached. Contact the host.",
+                                "Connection Denied",
+                                JOptionPane.ERROR_MESSAGE);
+
+                        session.disconnect();
+                        nav.showMainMenu();
+                    });
+                } else {
+                    feedback("Server Error: " + errorMsg, MindWarsTheme.WRONG_RED);
+                }
             }
         }
     }
@@ -263,17 +279,19 @@ public class NetworkGameView extends JPanel {
                 showQuestionPanel();
                 choicesPanel.removeAll();
                 textInput.setVisible(false);
-                readyButton.setEnabled(myTurn);
+                readyButton.setEnabled(session.isConnected());
                 submitButton.setEnabled(false);
                 if (myTurn) {
                     promptLabel
-                            .setText("<html><b>It's your turn!</b><br>Press Ready when you're ready to answer.</html>");
-                    turnLabel.setText("Your turn — press Ready");
+                            .setText("<html><b>It's your turn!</b><br>Both players must press Ready before the question starts.</html>");
+                    turnLabel.setText("Your turn — waiting for all Ready");
                 } else {
                     promptLabel.setText(
-                            "<html>Waiting for <b>" + escape(nameOf(currentPlayer)) + "</b> to press Ready...</html>");
-                    turnLabel.setText("Waiting for " + nameOf(currentPlayer) + "...");
+                            "<html><b>" + escape(nameOf(currentPlayer))
+                                    + "</b> will answer next.<br>Press Ready to confirm you are also ready.</html>");
+                    turnLabel.setText("Waiting for all players to press Ready");
                 }
+
             }
             case "QUESTION", "INVASION_BATTLE" -> {
                 showQuestionPanel();
@@ -295,16 +313,16 @@ public class NetworkGameView extends JPanel {
                 showQuestionPanel();
                 choicesPanel.removeAll();
                 textInput.setVisible(false);
-                readyButton.setEnabled(myTurn);
+                readyButton.setEnabled(session.isConnected());
                 submitButton.setEnabled(false);
                 if (myTurn) {
                     promptLabel.setText(
-                            "<html><b>Invasion phase — it's your turn to attack!</b><br>Press Ready when you're ready.</html>");
-                    turnLabel.setText("Your turn — press Ready");
+                            "<html><b>Invasion phase — it's your turn to attack!</b><br>Both players must press Ready before invasion selection starts.</html>");
+                    turnLabel.setText("Your turn — waiting for all Ready");
                 } else {
-                    promptLabel.setText("<html>Invasion phase — waiting for <b>" + escape(nameOf(currentPlayer))
-                            + "</b>...</html>");
-                    turnLabel.setText("Waiting for " + nameOf(currentPlayer) + "...");
+                    promptLabel.setText("<html>Invasion phase — <b>" + escape(nameOf(currentPlayer))
+                            + "</b> will attack next.<br>Press Ready to confirm you are also ready.</html>");
+                    turnLabel.setText("Waiting for all players to press Ready");
                 }
             }
             case "INVASION_SELECT" -> {
@@ -325,8 +343,11 @@ public class NetworkGameView extends JPanel {
             default -> {
             }
         }
+
         revalidate();
+
         repaint();
+
     }
 
     /**
@@ -556,6 +577,19 @@ public class NetworkGameView extends JPanel {
                 choicesPanel.add(tb);
                 choicesPanel.add(Box.createVerticalStrut(6));
             }
+        } else if ("ORDERING".equals(currentQuestionType) && !lastChoices.isEmpty()) {
+            for (int i = 0; i < lastChoices.size(); i++) {
+                JLabel itemLabel = new JLabel((i + 1) + ". " + lastChoices.get(i));
+                itemLabel.setForeground(MindWarsTheme.WHITE);
+                itemLabel.setFont(MindWarsTheme.BODY_FONT);
+                itemLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+                choicesPanel.add(itemLabel);
+                choicesPanel.add(Box.createVerticalStrut(5));
+            }
+            choicesPanel.add(Box.createVerticalStrut(10));
+            textInput.setText("");
+            textInput.setVisible(true);
+            SwingUtilities.invokeLater(textInput::requestFocusInWindow);
         } else {
             textInput.setText("");
             textInput.setVisible(true);
@@ -607,25 +641,19 @@ public class NetworkGameView extends JPanel {
     private void onGameOver(NetworkMessage msg) {
         stopTimer();
         submitButton.setEnabled(false);
-        String winner = (msg.winnerIndex == null) ? "It's a draw!" : nameOf(msg.winnerIndex) + " wins!";
-        feedback("Game over — " + winner, MindWarsTheme.PINK);
-        readyButton.setText("Back to Menu");
-        readyButton.setEnabled(true);
-        for (var al : readyButton.getActionListeners())
-            readyButton.removeActionListener(al);
-        readyButton.addActionListener(e -> {
-            session.disconnect();
-            nav.showMainMenu();
-        });
+        session.disconnect();
+        nav.showNetworkGameOver(msg);
     }
 
     // ── View → server ─────────────────────────────────────────────────────
 
     private void onReady() {
-        if (!isMyTurn() || !session.isConnected())
+        if (!session.isConnected())
             return;
+
         session.getClient().sendReady();
         readyButton.setEnabled(false);
+        turnLabel.setText("Ready sent — waiting for the other player");
     }
 
     private void onSubmit(ActionEvent e) {
@@ -748,4 +776,5 @@ public class NetworkGameView extends JPanel {
             return "";
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
+
 }

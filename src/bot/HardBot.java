@@ -12,6 +12,15 @@ public class HardBot implements BotStrategy {
     public String getAnswer(Question question) {
         int chance = random.nextInt(100);
 
+        if (question.getType() == trivia.QuestionType.ORDERING) {
+            return BotAnswerUtil.buildOrderingAnswer(question, random, chance < 80);
+        }
+
+        if (question.getType() == trivia.QuestionType.NUMERIC
+                || question.getType() == trivia.QuestionType.OPEN_ENDED) {
+            return BotAnswerUtil.buildFallbackAnswer(question, random, chance < 80);
+        }
+
         if (chance < 80) {
             return question.getAnswer();
         } else {
@@ -36,7 +45,7 @@ public class HardBot implements BotStrategy {
 
         // if it s an open-ended question or we do not have an option list (to be
         // implemented)
-        return "I'm not sure";
+        return BotAnswerUtil.buildFallbackAnswer(question, random, false);
     }
 
     @Override

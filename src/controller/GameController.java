@@ -14,7 +14,7 @@ import model.LeaderboardStore;
 import player.Player;
 
 import java.io.IOException;
-import javax.swing.Timer;
+import javax.swing.*;
 
 /**
  * The Controller in MVC. Receives view events (button clicks, cell clicks,
@@ -73,11 +73,22 @@ public class GameController {
     // ── Entry points from menu/setup ──
 
     public void startNewGame(GameSettings settings) {
-        lastSettings = settings;
-        history.clear();
-        leaderboardRecorded = false;
-        model.startGame(settings);
-        nav.showGame();
+        try {
+            lastSettings = settings;
+            history.clear();
+            leaderboardRecorded = false;
+            model.startGame(settings);
+            nav.showGame();
+        } catch (GameModel.NotEnoughQuestionsException e){
+            JOptionPane.showMessageDialog(
+                    null,
+                    e.getMessage(),
+                    "Not enough questions",
+                    JOptionPane.WARNING_MESSAGE
+            );
+                   nav.showMainMenu();
+        }
+
     }
 
     /**
@@ -108,9 +119,11 @@ public class GameController {
      */
     public void processBotReadyIfNeeded() {
         Player cur = model.getCurrentPlayer();
-        if (cur == null || !cur.isBot()) return;
+        if (cur == null || !cur.isBot())
+            return;
         GamePhase phase = model.getPhase();
-        if (phase != GamePhase.HOT_SEAT_PASS && phase != GamePhase.INVASION_PASS) return;
+        if (phase != GamePhase.HOT_SEAT_PASS && phase != GamePhase.INVASION_PASS)
+            return;
         Timer t = new Timer(700, e -> onHotSeatReady());
         t.setRepeats(false);
         t.start();
@@ -211,9 +224,13 @@ public class GameController {
         return history.canUndo() && history.peek() instanceof AnswerCommand;
     }
 
-    /** Undoes the most recent action only if it is an AnswerCommand. Returns true if something was undone. */
+    /**
+     * Undoes the most recent action only if it is an AnswerCommand. Returns true if
+     * something was undone.
+     */
     public boolean undoLast() {
-        if (!canUndo()) return false;
+        if (!canUndo())
+            return false;
         return history.undo();
     }
 
@@ -225,14 +242,26 @@ public class GameController {
     }
 
     public void restartGame() {
-        if (lastSettings == null)
+        if (lastSettings == null){
+            nav.showMainMenu();
             return;
+        }
+        try {
 
-        history.clear();
-        leaderboardRecorded = false;
+            history.clear();
+            leaderboardRecorded = false;
 
-        model.startGame(lastSettings);
-        nav.showGame();
+            model.startGame(lastSettings);
+            nav.showGame();
+        } catch (GameModel.NotEnoughQuestionsException e){
+                JOptionPane.showMessageDialog(
+                null,
+                e.getMessage(),
+                "Not enough questions",
+                JOptionPane.WARNING_MESSAGE
+        );
+            nav.showMainMenu();
+        }
     }
 
     // ── Save / load (Memento) ──
@@ -255,11 +284,17 @@ public class GameController {
     /** Loads the saved slot into the model and shows the game screen. */
     public void loadGame() throws IOException {
         GameMemento m = mementoStore.load();
-        if (m == null) throw new IOException("No save file found.");
+        if (m == null)
+            throw new IOException("No save file found.");
         history.clear();
         leaderboardRecorded = false;
         lastSettings = m.settings;
         model.restoreFromMemento(m);
         nav.showGame();
+    }
+
+    public void onBotDifficultyChanged(String difficulty) {
+        model.updateBotStrategy(difficulty);
+        System.out.println("Difficulty changed to: " + difficulty);
     }
 }

@@ -16,8 +16,7 @@ import java.nio.file.Paths;
  */
 public final class GameMementoStore {
 
-    private static final Path SAVE_DIR =
-            Paths.get(System.getProperty("user.home"), "MindWars", "saves");
+    private static final Path SAVE_DIR = Paths.get(System.getProperty("user.home"), "MindWars", "saves");
     private static final Path SLOT_PATH = SAVE_DIR.resolve("slot.mwsave");
 
     private static final Gson GSON = new GsonBuilder()
@@ -35,7 +34,8 @@ public final class GameMementoStore {
 
     /** Returns the saved memento, or {@code null} if no save exists. */
     public GameMemento load() throws IOException {
-        if (!hasSave()) return null;
+        if (!hasSave())
+            return null;
         String json = Files.readString(SLOT_PATH, StandardCharsets.UTF_8);
         GameMemento m = GSON.fromJson(json, GameMemento.class);
         if (m == null || m.version != GameMemento.CURRENT_VERSION) {

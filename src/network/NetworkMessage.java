@@ -35,7 +35,8 @@ public class NetworkMessage {
         ERROR,
         MAP_UPDATE,
         // chat box
-        CHAT
+        CHAT,
+        PLAYER_LEFT
     }
 
     public Type type;
@@ -73,6 +74,8 @@ public class NetworkMessage {
     // Score payload
     public List<Integer> scores;
     public List<String> playerNames;
+    public List<Integer> correctAnswers;   
+    public List<Integer> wrongAnswers;
 
     // Game over
     public Integer winnerIndex;
@@ -87,6 +90,9 @@ public class NetworkMessage {
     public Integer col;
 
     public String gridSnapshot;
+
+    public String disconnectedPlayerName;
+    public Integer disconnectedPlayerIndex;
 
     /** Side of the grid (MAP_UPDATE). */
     public Integer mapSize;

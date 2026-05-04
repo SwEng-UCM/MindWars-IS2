@@ -16,6 +16,7 @@ import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Arrays;
 
 /**
  * The Model in MVC.
@@ -66,6 +67,7 @@ public class GameModel {
     // decide who claims how many cells in the territory phase.
     private boolean[] roundCorrect;
     private long[] roundTimes;
+    private double[] numericGuesses;
 
     // Invasion phase state
     private int invaderIndex;
@@ -115,10 +117,14 @@ public class GameModel {
     }
 
     public int getTotalRounds() {
-        return roundQuestions.size();
+        if (settings == null) {
+            return roundQuestions.size();
+        }
+        return calculateRoundQuestionCount();
     }
 
     public Question getCurrentQuestion() {
+        ensureQuestionForRound(roundIndex);
         if (roundQuestions.isEmpty() || roundIndex >= roundQuestions.size())
             return null;
         return roundQuestions.get(roundIndex);
@@ -225,35 +231,27 @@ public class GameModel {
 
         this.roundCorrect = new boolean[players.size()];
         this.roundTimes = new long[players.size()];
+        this.numericGuesses = new double[players.size()];
+        Arrays.fill(this.numericGuesses, Double.NaN);
 
         loadQuestions();
         setPhase(GamePhase.HOT_SEAT_PASS);
     }
 
     private void loadQuestions() {
-        int count = settings.mapSize; // same rule as console version
-        if (settings.randomMode) {
-            List<String> categories = new ArrayList<>(questionBank.getCategories());
-            for (int i = 0; i < count && !categories.isEmpty(); i++) {
-                String cat = categories.get(random.nextInt(categories.size()));
-                List<String> diffs = new ArrayList<>(questionBank.getDifficulties(cat));
-                if (diffs.isEmpty()) {
-                    i--;
-                    continue;
-                }
-                String diff = diffs.get(random.nextInt(diffs.size()));
-                Question q = questionBank.getQuestion(cat, diff);
-                if (q != null)
-                    roundQuestions.add(q);
-                else
-                    i--;
+        int count = calculateRoundQuestionCount();
+        roundQuestions.clear();
+        for (int i = 0; i < count; i++) {
+            Question q = pickQuestion();
+            if (q == null){
+                throw new NotEnoughQuestionsException(
+                        "Not enough questions for this game setup.\n\n" +
+                                "Needed: " + count + " questions\n" +
+                                "Found: " + roundQuestions.size() + " questions\n\n" +
+                                "Try another category/difficulty or use Random mode."
+                );
             }
-        } else {
-            for (int i = 0; i < count; i++) {
-                Question q = questionBank.getQuestion(settings.category, settings.difficulty);
-                if (q != null)
-                    roundQuestions.add(q);
-            }
+            roundQuestions.add(q);
         }
     }
 
@@ -313,9 +311,29 @@ public class GameModel {
         roundCorrect[currentPlayerIndex] = correct;
         roundTimes[currentPlayerIndex] = timedOut ? Long.MAX_VALUE : elapsed;
 
+        // for NUMERIC questions also record the raw guess so that
+        // determineRoundWinnerIndex() can apply "closest wins" logic
+        if (q.getType() == trivia.QuestionType.NUMERIC && !timedOut) {
+            try {
+                numericGuesses[currentPlayerIndex] = Double.parseDouble(rawAnswer.trim());
+            } catch (NumberFormatException ignored) {
+                numericGuesses[currentPlayerIndex] = Double.NaN;
+            }
+        }
+
         pcs.firePropertyChange(PROP_SCORES, null, players);
 
-        String correctAnswer = q.getAnswer();
+        String correctAnswer;
+        if (q.getType() == trivia.QuestionType.ORDERING && q.getOrderingAnswer() != null) {
+            correctAnswer = String.join(" → ", q.getOrderingAnswer());
+        } else if (q.getType() == trivia.QuestionType.NUMERIC) {
+            double num = q.getNumericAnswer();
+            correctAnswer = (num == Math.floor(num))
+                    ? String.valueOf((long) num)
+                    : String.valueOf(num);
+        } else {
+            correctAnswer = q.getAnswer();
+        }
         AnswerResult result = new AnswerResult(correct, timedOut, delta,
                 correctAnswer == null ? "" : correctAnswer, elapsed);
 
@@ -337,25 +355,58 @@ public class GameModel {
     // ── Territory phase ──
 
     /**
-     * Returns the order in which players should claim cells for the current
-     * round: the round winner is first. Each entry is a player index and how
-     * many cells they claim.
+     * Calculates how many cells each player can claim this round.
+     * The best player gets the most claims, and the rest are shared
+     * among the other players based on their ranking.
      */
     public int[] roundClaimCounts() {
         int size = map.getSize();
-        int winnerClaims = size / 2 + 1;
-        int loserClaims = size / 2;
+        int playerCount = players.size();
 
-        int winnerIdx = determineRoundWinnerIndex();
-        int[] out = new int[players.size()];
+        int [] claims = new int[playerCount];
 
-        for (int i = 0; i < players.size(); i++) {
-            out[i] = (i == winnerIdx) ? winnerClaims : loserClaims;
+        List<Integer> ranking= new ArrayList<>();
+
+
+        for (int i = 0; i < playerCount; i++) {
+            ranking.add(i);
         }
-        return out;
+
+        ranking.sort((a,b) ->{
+            if (roundCorrect[a] != roundCorrect[b]) {
+                return roundCorrect[a] ? - 1 : 1;
+            }
+            return Long.compare(roundTimes[a], roundTimes[b]);
+
+        });
+
+        int remainingClaims = size;
+        int winnerClaims = size/ 2+1;
+        claims[ranking.getFirst()] = winnerClaims;
+        remainingClaims -= winnerClaims;
+
+
+        int rank = 1;
+        while (remainingClaims > 0 ) {
+            claims[ranking.get(rank)]++;
+            remainingClaims--;
+            rank++;
+
+            if (rank >= ranking.size()) {
+                rank = 1; //keeps distributing among winners
+            }
+        }
+        return claims;
+
     }
 
     public int determineRoundWinnerIndex() {
+        // for NUMERIC questions use "closest to target wins
+        Question q = getCurrentQuestion();
+        if (q != null && q.getType() == trivia.QuestionType.NUMERIC) {
+            return determineNumericWinnerIndex(q.getNumericAnswer());
+        }
+
         int bestIdx = 0;
         for (int i = 1; i < players.size(); i++) {
             boolean bestCorrect = roundCorrect[bestIdx];
@@ -369,6 +420,26 @@ public class GameModel {
             }
         }
         return bestIdx;
+    }
+
+    private int determineNumericWinnerIndex(double target) {
+        java.util.List<game.NumericWinnerCalculator.EstimationResponse> responses = new ArrayList<>();
+        for (int i = 0; i < players.size(); i++) {
+            double guess = numericGuesses[i];
+            if (!Double.isNaN(guess)) {
+                long time = roundTimes[i] == Long.MAX_VALUE ? Long.MAX_VALUE : roundTimes[i];
+                responses.add(new game.NumericWinnerCalculator.EstimationResponse(
+                        players.get(i), guess, time));
+            }
+        }
+        if (responses.isEmpty()) {
+            return 0; // everyone timed out — default to first player
+        }
+        player.Player winner = game.NumericWinnerCalculator.calculateWinner(target, responses);
+        if (winner == null)
+            return 0;
+        int idx = players.indexOf(winner);
+        return idx < 0 ? 0 : idx;
     }
 
     /**
@@ -394,21 +465,78 @@ public class GameModel {
     public void finishRound() {
         roundCorrect = new boolean[players.size()];
         roundTimes = new long[players.size()];
+        numericGuesses = new double[players.size()];
+        Arrays.fill(numericGuesses, Double.NaN);
 
         if (map.isMapFull()) {
-            invaderIndex = 0;
-            setPhase(GamePhase.INVASION_PASS);
-            return;
-        }
-        roundIndex++;
-        if (roundIndex >= roundQuestions.size()) {
             setPhase(GamePhase.GAME_OVER);
             return;
         }
+
+        roundIndex++;
         currentPlayerIndex = 0;
         pcs.firePropertyChange(PROP_CURRENT_PLAYER, null, getCurrentPlayer());
         pcs.firePropertyChange(PROP_ROUND, null, roundIndex);
         setPhase(GamePhase.HOT_SEAT_PASS);
+    }
+
+    private int calculateRoundQuestionCount() {
+        if (settings == null) {
+            return roundQuestions.size();
+        }
+        return estimateTotalRounds(settings.mapSize);
+    }
+
+    public static int estimateTotalRounds(int mapSize) {
+        int totalCells = Math.max(1, mapSize * mapSize);
+        int claimsPerRound = totalClaimsPerRound(mapSize);
+        if (claimsPerRound <= 0) {
+            return totalCells;
+        }
+        return Math.max(1, (int) Math.ceil((double) totalCells / claimsPerRound));
+    }
+
+    private static int totalClaimsPerRound(int mapSize) {
+        return mapSize;
+    }
+
+    private Question pickQuestion() {
+        if (settings == null) {
+            return null;
+        }
+        if (settings.randomMode) {
+            List<String> categories = new ArrayList<>(questionBank.getCategories());
+            if (categories.isEmpty()) {
+                return null;
+            }
+            for (int attempt = 0; attempt < 8; attempt++) {
+                String cat = categories.get(random.nextInt(categories.size()));
+                List<String> diffs = new ArrayList<>(questionBank.getDifficulties(cat));
+                if (diffs.isEmpty()) {
+                    continue;
+                }
+                String diff = diffs.get(random.nextInt(diffs.size()));
+                Question q = questionBank.getQuestion(cat, diff);
+                if (q != null) {
+                    return q;
+                }
+            }
+            return null;
+        }
+        return questionBank.getQuestion(settings.category, settings.difficulty);
+    }
+
+    private void ensureQuestionForRound(int index) {
+        if (index < 0) {
+            return;
+        }
+        while (roundQuestions.size() <= index) {
+            Question q = pickQuestion();
+            if (q == null) {
+                return;
+            }
+            roundQuestions.add(q);
+        }
     }
 
     // ── Invasion phase ──
@@ -583,7 +711,8 @@ public class GameModel {
             p.setScore(s.score);
             p.setStreakRaw(s.streak);
             p.setCoins(s.coins);
-            for (int b = 0; b < s.bonusTokens; b++) p.addBonusToken();
+            for (int b = 0; b < s.bonusTokens; b++)
+                p.addBonusToken();
             p.setCorrectAnswers(s.correctAnswers);
             p.setWrongAnswers(s.wrongAnswers);
             if (s.isBot && s.botDifficulty != null) {
@@ -632,4 +761,20 @@ public class GameModel {
         setPhase(GamePhase.HOT_SEAT_PASS);
     }
 
+    public void updateBotStrategy(String difficulty) {
+        if (players.size() > 1 && players.get(1).isBot()) {
+            bot.BotStrategy strategy = switch (difficulty) {
+                case "Medium" -> new bot.MediumBot();
+                case "Hard" -> new bot.HardBot();
+                default -> new bot.EasyBot();
+            };
+            players.get(1).setStrategy(strategy);
+        }
+    }
+
+    public static class NotEnoughQuestionsException extends RuntimeException {
+        public NotEnoughQuestionsException(String message) {
+            super(message);
+        }
+    }
 }
