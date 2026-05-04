@@ -8,7 +8,6 @@ import player.Player;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.util.List;
 
 public class TerritoryClaimView extends JPanel {
@@ -23,8 +22,13 @@ public class TerritoryClaimView extends JPanel {
     private final JPanel scoreRow;
     private final JPanel gridPanel;
     private final JButton finishButton;
+    private final JButton confirmButton;
+    private final JButton undoButton;
 
     private JButton[][] cellButtons;
+
+    /** Cell currently staged but not yet confirmed (null = none pending). */
+    private int[] pendingCell;
 
     // ── Colors ──────────────────────────────────────────────────────────
     private static final Color[] PLAYER_COLORS = {
@@ -63,11 +67,22 @@ public class TerritoryClaimView extends JPanel {
         gridPanel.setBorder(new EmptyBorder(12, 12, 12, 12));
         add(gridPanel, BorderLayout.CENTER);
 
+        confirmButton = MindWarsTheme.createGradientButton("Confirm");
+        confirmButton.addActionListener(e -> onConfirm());
+        confirmButton.setVisible(false);
+
+        undoButton = MindWarsTheme.createPinkButton("Undo");
+        undoButton.addActionListener(e -> onUndo());
+        undoButton.setVisible(false);
+
         finishButton = createFinishButton();
         finishButton.addActionListener(e -> controller.onTerritoryPhaseFinished());
         finishButton.setEnabled(false);
+
         JPanel south = new JPanel();
         south.setOpaque(false);
+        south.add(undoButton);
+        south.add(confirmButton);
         south.add(finishButton);
         add(south, BorderLayout.SOUTH);
     }
@@ -94,6 +109,9 @@ public class TerritoryClaimView extends JPanel {
 
         buildPickOrder(model);
         pickIndex = 0;
+        pendingCell = null;
+        confirmButton.setVisible(false);
+        undoButton.setVisible(false);
         rebuildGrid(model, shouldEnableClaiming(model));
         updateInstruction(players);
         finishButton.setEnabled(false);
@@ -253,7 +271,7 @@ public class TerritoryClaimView extends JPanel {
     }
 
     private void onCellClicked(int row, int col) {
-        if (pickIndex >= pickOrder.length)
+        if (pickIndex >= pickOrder.length || pendingCell != null)
             return;
 
         int playerIndex = pickOrder[pickIndex];
@@ -261,30 +279,66 @@ public class TerritoryClaimView extends JPanel {
         if (!accepted)
             return;
 
-        pickIndex++;
-
-        // Rebuild so the clicked cell gets a fresh colored button
+        // Stage the claim. Repaint so the cell shows the new owner, but
+        // leave pickIndex untouched until the player presses Confirm.
         GameModel model = controller.getModel();
-        rebuildGrid(model, shouldEnableClaiming(model));
+        rebuildGrid(model, false);
 
-        // Flash the newly-colored cell
         Color flash = playerColor(playerIndex);
         JButton btn = cellButtons[row][col];
         AnimationHelper.flashBackground(btn, flash.brighter(), flash, 6, 60);
 
-        List<Player> players = model.getPlayers();
+        Player current = model.getPlayers().get(playerIndex);
+        if (current.isBot()) {
+            // Bots auto-confirm — no buttons, just commit.
+            controller.confirmLastClaim();
+            advanceAfterConfirm(model);
+            return;
+        }
+
+        pendingCell = new int[] { row, col };
+        confirmButton.setVisible(true);
+        undoButton.setVisible(true);
+        instructionLabel.setText(current.getName()
+                + " — confirm your pick or undo to choose again.");
+        instructionLabel.setForeground(playerColor(playerIndex));
+    }
+
+    private void onConfirm() {
+        if (pendingCell == null) return;
+        controller.confirmLastClaim();
+        pendingCell = null;
+        confirmButton.setVisible(false);
+        undoButton.setVisible(false);
+        advanceAfterConfirm(controller.getModel());
+    }
+
+    private void onUndo() {
+        if (pendingCell == null || !controller.canUndo()) return;
+        controller.undoLast();
+        pendingCell = null;
+        confirmButton.setVisible(false);
+        undoButton.setVisible(false);
+        // Re-render so the reverted cell becomes empty again.
+        GameModel model = controller.getModel();
+        rebuildGrid(model, shouldEnableClaiming(model));
+        updateInstruction(model.getPlayers());
+        revalidate();
+        repaint();
+    }
+
+    private void advanceAfterConfirm(GameModel model) {
+        pickIndex++;
         if (pickIndex >= pickOrder.length || model.getMap().isMapFull()) {
             disableAllEmptyCells();
             instructionLabel.setText("All territories claimed! Press Finish Round.");
             instructionLabel.setForeground(MindWarsTheme.PINK);
             finishButton.setEnabled(true);
-        } else {
-            if (!shouldEnableClaiming(model)) {
-                disableAllEmptyCells();
-            }
-            updateInstruction(players);
-            triggerBotPickIfNeeded();
+            return;
         }
+        rebuildGrid(model, shouldEnableClaiming(model));
+        updateInstruction(model.getPlayers());
+        triggerBotPickIfNeeded();
     }
 
     private boolean shouldEnableClaiming(GameModel model) {

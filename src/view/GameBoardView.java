@@ -67,11 +67,9 @@ public class GameBoardView extends JPanel {
     private final SoundManager soundManager;
     private final ButtonGroup choiceGroup = new ButtonGroup();
     private java.util.List<JToggleButton> choiceButtons = new java.util.ArrayList<>();
-    private boolean isTextQuestion = false;
 
     // Buttons row
     private final JButton submitButton;
-    private final JButton undoButton;
 
     // Feedback overlay
     private final JLabel feedbackLabel;
@@ -207,18 +205,13 @@ public class GameBoardView extends JPanel {
         qCard.add(Box.createVerticalStrut(14));
         qCard.add(answerPanel);
 
-        // ── Bottom: submit + undo ──
+        // ── Bottom: submit ──
         submitButton = MindWarsTheme.createGradientButton("Submit");
         submitButton.addActionListener(this::onSubmit);
 
-        undoButton = MindWarsTheme.createPinkButton("Undo");
-        undoButton.addActionListener(e -> onUndo());
-        undoButton.setEnabled(false);
-
-        JPanel buttons = new JPanel(new GridLayout(1, 2, 10, 0));
+        JPanel buttons = new JPanel(new GridLayout(1, 1, 10, 0));
         buttons.setOpaque(false);
         buttons.setBorder(new EmptyBorder(10, 0, 0, 0));
-        buttons.add(undoButton);
         buttons.add(submitButton);
 
         qScroll = new JScrollPane(qCard);
@@ -326,7 +319,6 @@ public class GameBoardView extends JPanel {
         feedbackLabel.setVisible(false);
 
         submitButton.setEnabled(canInteract);
-        undoButton.setEnabled(canInteract);
         setAnswerInputEnabled(canInteract);
 
         // force swing to redraw
@@ -363,7 +355,6 @@ public class GameBoardView extends JPanel {
 
         stopBotAnswerTimers();
         submitButton.setEnabled(false);
-        undoButton.setEnabled(false);
         setAnswerInputEnabled(false);
         previewBotAnswer(q, botAnswer, delay);
 
@@ -645,9 +636,6 @@ public class GameBoardView extends JPanel {
         choiceGroup.clearSelection();
 
         QuestionType type = q.getType();
-        isTextQuestion = (type == QuestionType.NUMERIC || type == QuestionType.OPEN_ENDED
-                || type == QuestionType.ORDERING);
-        undoButton.setText(isTextQuestion ? "Clear" : "Undo");
 
         if (type == QuestionType.MULTIPLE_CHOICE && q.getChoices() != null) {
             answerPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, ANSWER_PANEL_CHOICES_HEIGHT));
@@ -805,7 +793,6 @@ public class GameBoardView extends JPanel {
             showFeedback(result);
         }
         submitButton.setEnabled(false);
-        undoButton.setEnabled(false);
         setAnswerInputEnabled(false);
 
         schedulePendingAck();
@@ -825,7 +812,6 @@ public class GameBoardView extends JPanel {
         AnswerResult result = controller.onAnswerSubmitted(null, elapsed);
         showFeedback(result);
         submitButton.setEnabled(false);
-        undoButton.setEnabled(false);
 
         schedulePendingAck();
     }
@@ -863,23 +849,6 @@ public class GameBoardView extends JPanel {
                     MindWarsTheme.PINK);
             controller.onInvasionResolved(attAnswer, defAnswer);
         }
-    }
-
-    private void onUndo() {
-        if (isTextQuestion) {
-            Question q = controller.getModel().getCurrentQuestion();
-            JTextField activeField = (q != null && q.getType() == QuestionType.ORDERING)
-                    ? orderingInput
-                    : textInput;
-            activeField.setText("");
-            activeField.requestFocusInWindow();
-            return;
-        }
-        choiceGroup.clearSelection();
-        for (JToggleButton tb : choiceButtons) {
-            tb.setSelected(false);
-        }
-        choicesPanel.repaint();
     }
 
     private void showFeedback(AnswerResult result) {

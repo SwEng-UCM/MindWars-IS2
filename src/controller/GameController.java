@@ -1,9 +1,7 @@
 package controller;
 
-import command.AnswerCommand;
 import command.ClaimCellCommand;
 import command.CommandHistory;
-import command.InvasionCommand;
 import model.AnswerResult;
 import model.GameMemento;
 import model.GameMementoStore;
@@ -151,26 +149,18 @@ public class GameController {
     }
 
     /**
-     * The view submits an answer. Wraps the call in an {@link AnswerCommand}
-     * so the player can undo it while the feedback is on screen (#82).
-     * Returns the result so the view can flash correct/wrong feedback
-     * before calling {@link #onAnswerAcknowledged()}.
+     * The view submits an answer. Returns the result so the view can flash
+     * correct/wrong feedback before calling {@link #onAnswerAcknowledged()}.
      */
-
     public AnswerResult onAnswerSubmitted(String rawAnswer, long elapsedMs) {
         if (networkClient != null && networkClient.isConnected()) {
             networkClient.sendAnswer(rawAnswer, elapsedMs);
             return null;
-        } else {
-            AnswerCommand cmd = new AnswerCommand(model, rawAnswer, elapsedMs);
-            cmd.execute();
-            history.push(cmd);
-            return cmd.getResult();
         }
+        return model.submitAnswer(rawAnswer, elapsedMs);
     }
 
     public void onAnswerAcknowledged() {
-        history.clear();
         model.advanceAfterAnswer();
     }
 
@@ -206,32 +196,33 @@ public class GameController {
     public void onInvasionResolved(
             String attackerAnswer,
             String defenderAnswer) {
-        InvasionCommand cmd = new InvasionCommand(
-                model,
-                attackerAnswer,
-                defenderAnswer);
-        cmd.execute();
-        history.push(cmd);
+        model.resolveInvasion(attackerAnswer, defenderAnswer);
         if (model.getPhase() == GamePhase.GAME_OVER) {
             nav.showGameOver();
         }
     }
 
-    // ── Undo (#82) ──
+    // ── Undo (territory claim only, #121) ──
 
-    /** Whether the top of the history stack is an answer that can be undone. */
+    /** True iff the most recent action is a territory claim that can be undone. */
     public boolean canUndo() {
-        return history.canUndo() && history.peek() instanceof AnswerCommand;
+        return history.canUndo() && history.peek() instanceof ClaimCellCommand;
     }
 
-    /**
-     * Undoes the most recent action only if it is an AnswerCommand. Returns true if
-     * something was undone.
-     */
+    /** Undoes the most recent claim if it is a {@link ClaimCellCommand}. */
     public boolean undoLast() {
         if (!canUndo())
             return false;
         return history.undo();
+    }
+
+    /**
+     * Drops the most recent claim from the history without undoing it.
+     * Called once the player confirms a staged territory pick so it can no
+     * longer be undone.
+     */
+    public void confirmLastClaim() {
+        history.clear();
     }
 
     // ── Game over ──
