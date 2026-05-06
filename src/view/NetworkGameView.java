@@ -46,6 +46,7 @@ public class NetworkGameView extends JPanel {
     private List<String> lastChoices = new ArrayList<>();
     private Integer currentPlayer;
     private String[] playerNames = new String[] { "Player 1", "Player 2", "Player 3", "Player 4" };
+    private List<Integer> currentScores = new ArrayList<>();
 
     private final JPanel claimPanel;
     private final JLabel claimInstructionLabel;
@@ -55,6 +56,13 @@ public class NetworkGameView extends JPanel {
     private int cachedMapSize = 0;
     /** Index of the player who should be claiming right now (-1 = done). */
     private int claimingPlayer = -1;
+
+    // ── Betting ─────────────────────────────────────────────────────────────
+    private final JPanel bettingPanel;
+    private final JSlider wagerSlider;
+    private final JLabel wagerLabel;
+    private final JLabel infoLabel;
+    private final JButton wagerConfirmButton;
 
     // ── Chat ─────────────────────────────────────────────────────────────
     private JTextArea chatArea;
@@ -151,11 +159,47 @@ public class NetworkGameView extends JPanel {
         claimGridPanel.setOpaque(false);
         claimPanel.add(claimGridPanel, BorderLayout.CENTER);
 
+        // ── Betting panel (NEW) ──────────────────────────────────
+        bettingPanel = MindWarsTheme.createDarkCard();
+        bettingPanel.setLayout(new BoxLayout(bettingPanel, BoxLayout.Y_AXIS));
+
+        bettingPanel.add(MindWarsTheme.centeredLabel("SPECIAL BET", MindWarsTheme.HEADING_FONT, MindWarsTheme.PINK));
+        bettingPanel.add(Box.createVerticalStrut(10));
+
+        infoLabel = MindWarsTheme.centeredLabel("Final Round Opportunity", MindWarsTheme.BODY_FONT, MindWarsTheme.GRAY_LIGHT);
+        bettingPanel.add(infoLabel);
+        bettingPanel.add(Box.createVerticalStrut(25));
+
+        wagerLabel = MindWarsTheme.centeredLabel("Wager: 0 points", MindWarsTheme.TITLE_FONT, MindWarsTheme.WHITE);
+        bettingPanel.add(wagerLabel);
+        bettingPanel.add(Box.createVerticalStrut(15));
+
+        wagerSlider = new JSlider(0, 100, 0);
+        wagerSlider.setOpaque(false);
+        wagerSlider.setForeground(MindWarsTheme.WHITE);
+        wagerSlider.setPaintTicks(true);
+        wagerSlider.addChangeListener(e -> wagerLabel.setText("Wager: " + wagerSlider.getValue() + " points"));
+        bettingPanel.add(wagerSlider);
+
+        bettingPanel.add(Box.createVerticalStrut(35));
+
+        wagerConfirmButton = MindWarsTheme.createGradientButton("Confirm Bet");
+        wagerConfirmButton.addActionListener(e -> {
+            if (session.isConnected()) {
+                session.getClient().sendWager(wagerSlider.getValue());
+                wagerConfirmButton.setEnabled(false);
+                wagerSlider.setEnabled(false);
+                turnLabel.setText("Wager sent — waiting for question");
+            }
+        });
+        bettingPanel.add(wagerConfirmButton);
+
         // ── Center card layout: question vs claim ──
         JPanel centerCard = new JPanel(new CardLayout());
         centerCard.setOpaque(false);
         centerCard.add(bottom, "question");
         centerCard.add(claimPanel, "claim");
+        centerCard.add(bettingPanel, "betting");
 
         JPanel center = new JPanel(new BorderLayout(0, 8));
         center.setOpaque(false);
@@ -292,6 +336,32 @@ public class NetworkGameView extends JPanel {
                     turnLabel.setText("Waiting for all players to press Ready");
                 }
 
+            }
+            case "BETTING" -> {
+                showBettingPanel();
+                readyButton.setEnabled(false);
+                submitButton.setEnabled(false);
+                if (myTurn) {
+                    turnLabel.setText("Your turn to bet");
+                    int score = 0;
+                    if (currentPlayer != null && currentPlayer >= 0 && currentPlayer < currentScores.size()) {
+                        score = currentScores.get(currentPlayer);
+                    }
+                    score = Math.max(0, score);
+                    wagerSlider.setMaximum(score);
+                    wagerSlider.setValue(0);
+                    wagerSlider.setEnabled(true);
+                    wagerConfirmButton.setEnabled(true);
+                    infoLabel.setText(nameOf(currentPlayer) + ", you have " + score + " points available.");
+                    wagerLabel.setText("Wager: 0 points");
+                } else {
+                    turnLabel.setText("Waiting for " + escape(nameOf(currentPlayer)) + " to bet...");
+                    wagerSlider.setValue(0);
+                    wagerSlider.setEnabled(false);
+                    wagerConfirmButton.setEnabled(false);
+                    infoLabel.setText("Waiting for " + escape(nameOf(currentPlayer)) + " to confirm wager.");
+                    wagerLabel.setText("");
+                }
             }
             case "QUESTION", "INVASION_BATTLE" -> {
                 showQuestionPanel();
@@ -524,6 +594,13 @@ public class NetworkGameView extends JPanel {
         }
     }
 
+    private void showBettingPanel() {
+        JPanel centerCard = getCenterCard();
+        if (centerCard != null) {
+            ((CardLayout) centerCard.getLayout()).show(centerCard, "betting");
+        }
+    }
+
     /** Walk the component tree to find the CardLayout panel. */
     private JPanel getCenterCard() {
         // center is BorderLayout.CENTER of this; it holds the CardLayout panel
@@ -624,6 +701,7 @@ public class NetworkGameView extends JPanel {
     private void onScores(NetworkMessage msg) {
         if (msg.scores == null || msg.scores.isEmpty())
             return;
+        currentScores = new ArrayList<>(msg.scores);
         if (msg.playerNames != null) {
             for (int i = 0; i < msg.playerNames.size() && i < playerNames.length; i++) {
                 playerNames[i] = msg.playerNames.get(i);

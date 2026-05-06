@@ -7,6 +7,7 @@ package model;
 public enum GamePhase {
     SETUP, // Game setup wizard (map size, names, mode, category, difficulty)
     HOT_SEAT_PASS, // "Pass the device to X" screen between players
+    BETTING, // Special final round betting phase
     QUESTION, // Current player is answering a question
     TERRITORY_CLAIM, // A player is clicking cells to claim after a round
     INVASION_PASS, // Transition screen announcing Phase 2

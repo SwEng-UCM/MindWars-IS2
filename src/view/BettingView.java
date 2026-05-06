@@ -52,7 +52,7 @@ public class BettingView extends JPanel {
     public void refresh() {
         Player p = controller.getModel().getCurrentPlayer();
         int score = p.getScore();
-        wagerSlider.setMaximum(score);
+        wagerSlider.setMaximum(Math.max(0, score));
         wagerSlider.setValue(0);
         wagerLabel.setText("Wager: 0 points");
         infoLabel.setText(p.getName() + ", you have " + score + " points available.");

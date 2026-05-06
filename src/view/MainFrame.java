@@ -136,6 +136,10 @@ public class MainFrame extends JFrame implements NavigationController {
                 cards.show(root, CARD_HOT_SEAT);
                 controller.processBotReadyIfNeeded();
             }
+            case BETTING -> {
+                bettingView.refresh();
+                cards.show(root, "betting");
+            }
             case QUESTION -> {
                 gameBoardView.refresh();
                 cards.show(root, CARD_GAME);

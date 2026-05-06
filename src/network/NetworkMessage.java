@@ -23,6 +23,7 @@ public class NetworkMessage {
         ANSWER,
         START_GAME,
         CLAIM_CELL,
+        WAGER,
         // Server -> Client
         WELCOME,
         LOBBY,
@@ -64,6 +65,9 @@ public class NetworkMessage {
     // Answer payload
     public String answer;
     public Long elapsedMs;
+
+    // Wager payload
+    public Integer wagerAmount;
 
     // Result payload
     public Boolean correct;
@@ -138,6 +142,12 @@ public class NetworkMessage {
         NetworkMessage m = new NetworkMessage(Type.CLAIM_CELL);
         m.row = row;
         m.col = col;
+        return m;
+    }
+
+    public static NetworkMessage wager(int amount) {
+        NetworkMessage m = new NetworkMessage(Type.WAGER);
+        m.wagerAmount = amount;
         return m;
     }
 
