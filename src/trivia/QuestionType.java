@@ -3,24 +3,14 @@
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
  * @author ARNAUD Aloyse
  * AI-assisted: assist (ChatGPT)
+ * @author Dimofte Raisa
  */
 package trivia;
 
-/**
- * PURPOSE:
- * - Enumerates supported question types.
- *
- * @TODO (MVP):
- *       - Keep MULTIPLE_CHOICE and TRUE_FALSE only.
- *
- * @TODO (later):
- *       - Add SHORT_ANSWER, NUMBER_GUESS, ORDERING, etc.
- */
-
 public enum QuestionType {
-    MULTIPLE_CHOICE,
-    TRUE_FALSE,
+    MULTIPLE_CHOICE, // where the player selects one correct answer from a list of options
+    TRUE_FALSE, // where the answer is either true or false
     NUMERIC, // where the answer is a number
     OPEN_ENDED, // where the player writes a text for the answer
-    ORDERING,
+    ORDERING, // where the player has to arrange a list of items in the correct order
 }

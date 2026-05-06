@@ -221,8 +221,8 @@ public class NetworkGameView extends JPanel {
         session.addMessageListener(this::onServerMessage);
     }
 
-    // ── Chat ─────────────────────────────────────────────────────────────
-
+    // @author: Dimofte Raisa AI assisted: Gemini
+    // chat box setup and handlers
     private void setupChatPanel() {
         JPanel chatPanel = new JPanel(new BorderLayout(5, 5));
         chatPanel.setOpaque(false);
@@ -294,7 +294,7 @@ public class NetworkGameView extends JPanel {
             case ANSWER, CLAIM_CELL, JOIN, LOBBY, PLAYER_LEFT, READY, START_GAME, TURN, WELCOME -> {
                 // No UI action needed for these message types on the client screen.
             }
-            case ERROR -> {
+            case ERROR -> {// show an error dialog for connection errors, otherwise show feedback in the UI
                 String errorMsg = msg.errorMessage != null ? msg.errorMessage : "Unknown error";
                 if (errorMsg != null && errorMsg.toLowerCase().contains("full")) {
                     SwingUtilities.invokeLater(() -> {
