@@ -261,6 +261,10 @@ public class GameModel {
 
     // ── Question flow ──
 
+    public void beginBetting() {
+        setPhase(GamePhase.BETTING);
+    }
+
     /** Called after the hot-seat pass screen; transitions to the question. */
     public void beginQuestion() {
         this.questionStartMs = System.currentTimeMillis();

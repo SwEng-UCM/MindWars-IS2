@@ -138,7 +138,11 @@ public class GameController {
         } else {
             GamePhase phase = model.getPhase();
             if (phase == GamePhase.HOT_SEAT_PASS) {
-                model.beginQuestion();
+                if (model.getRoundNumber() == model.getTotalRounds()) {
+                    model.beginBetting();
+                } else {
+                    model.beginQuestion();
+                }
             } else if (phase == GamePhase.INVASION_PASS) {
                 model.beginInvasionSelect();
             }
@@ -146,10 +150,13 @@ public class GameController {
     }
 
     public void onWagerConfirmed(int amount) {
-        model.setCurrentWager(amount);
-
-        model.beginQuestion();
-        nav.showGame();
+        if (networkClient != null && networkClient.isConnected()) {
+            networkClient.sendWager(amount);
+        } else {
+            model.setCurrentWager(amount);
+            model.beginQuestion();
+            nav.showGame();
+        }
     }
 
     /**

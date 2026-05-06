@@ -83,6 +83,10 @@ public class GameClient {
         send(NetworkMessage.claimCell(row, col));
     }
 
+    public void sendWager(int amount) {
+        send(NetworkMessage.wager(amount));
+    }
+
     public void send(NetworkMessage msg) {
         if (out == null)
             return;

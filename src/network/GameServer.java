@@ -204,6 +204,7 @@ public class GameServer {
                 case JOIN -> onJoin(msg);
                 case READY -> onReady();
                 case ANSWER -> onAnswer(msg);
+                case WAGER -> onWager(msg);
                 case CLAIM_CELL -> onClaimCell(msg);
                 case START_GAME -> {
                     if (seatIndex == 0) {
@@ -271,10 +272,32 @@ public class GameServer {
                 }
 
                 if (phase == GamePhase.HOT_SEAT_PASS) {
-                    model.beginQuestion();
+                    if (model.getRoundNumber() == model.getTotalRounds()) {
+                        model.beginBetting();
+                    } else {
+                        model.beginQuestion();
+                    }
                 } else {
                     model.beginInvasionSelect();
                 }
+            }
+        }
+
+        private void onWager(NetworkMessage msg) {
+            if (seatIndex < 0) return;
+            synchronized (GameServer.this) {
+                GamePhase phase = model.getPhase();
+                if (phase != GamePhase.BETTING) {
+                    send(NetworkMessage.error("not in betting phase"));
+                    return;
+                }
+                if (seatIndex != model.getCurrentPlayerIndex()) {
+                    send(NetworkMessage.error("not your turn"));
+                    return;
+                }
+                int amount = msg.wagerAmount == null ? 0 : msg.wagerAmount;
+                model.setCurrentWager(amount);
+                model.beginQuestion();
             }
         }
 
