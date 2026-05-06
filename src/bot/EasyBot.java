@@ -1,3 +1,7 @@
+/*
+ * @author Ioannis Stogiannaris
+ * AI-assisted: no 
+ */
 package bot;
 
 import trivia.Question;

@@ -1,7 +1,8 @@
 /*
  * @author Leopold Popper
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
- * @author ARNAUD Aloyse
+ * @author ARNAUD Aloyse 
+ * @author Ioannis Stogiannaris
  * AI-assisted: assist (ChatGPT)
  */
 package controller;

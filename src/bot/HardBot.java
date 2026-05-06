@@ -1,3 +1,7 @@
+/*
+ * @author Ioannis Stogiannaris
+ * AI-assisted: yes for the getSmartWrongAnswer() (ChatGPT)
+ */
 package bot;
 
 import trivia.Question;

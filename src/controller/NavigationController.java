@@ -1,5 +1,6 @@
 /*
  * @author Leopold Popper
+   @author Ioannis Stogiannaris
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
  */
 package controller;
