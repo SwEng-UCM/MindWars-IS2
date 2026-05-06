@@ -1,6 +1,8 @@
 /*
  * @author Leopold Popper
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
+ * @author ARNAUD Aloyse
+ * AI-assisted: assist (ChatGPT)
  */
 package view;
 
@@ -38,13 +40,15 @@ public class MainWindow extends JFrame {
         registerPanel = new RegisterPanel(this);
 
         RegisterController registerController = new RegisterController(
-                registerPanel,
-                new UserRepository());
+            registerPanel,
+            new UserRepository()
+        );
         registerPanel.setController(registerController);
 
         LoginController loginController = new LoginController(
-                menuPanel,
-                new UserRepository());
+            menuPanel,
+            new UserRepository()
+        );
         menuPanel.setController(loginController);
 
         mainContainer.add(menuPanel, "MENU");
@@ -65,10 +69,10 @@ public class MainWindow extends JFrame {
             e.printStackTrace();
 
             JOptionPane.showMessageDialog(
-                    this,
-                    "Could not open the main menu:\n" + e.getMessage(),
-                    "Startup error",
-                    JOptionPane.ERROR_MESSAGE
+                this,
+                "Could not open the main menu:\n" + e.getMessage(),
+                "Startup error",
+                JOptionPane.ERROR_MESSAGE
             );
 
             setVisible(true);

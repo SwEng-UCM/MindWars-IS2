@@ -1,11 +1,15 @@
 /*
  * @author Leopold Popper
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
+ * @author ARNAUD Aloyse
+ * AI-assisted: assist (ChatGPT)
  */
 package controller;
 
 import command.ClaimCellCommand;
 import command.CommandHistory;
+import java.io.IOException;
+import javax.swing.*;
 import model.AnswerResult;
 import model.GameMemento;
 import model.GameMementoStore;
@@ -14,9 +18,6 @@ import model.GamePhase;
 import model.GameSettings;
 import model.LeaderboardStore;
 import player.Player;
-
-import java.io.IOException;
-import javax.swing.*;
 
 /**
  * The Controller in MVC. Receives view events (button clicks, cell clicks,
@@ -48,9 +49,10 @@ public class GameController {
     }
 
     public GameController(
-            GameModel model,
-            NavigationController nav,
-            LeaderboardStore leaderboard) {
+        GameModel model,
+        NavigationController nav,
+        LeaderboardStore leaderboard
+    ) {
         this.model = model;
         this.nav = nav;
         this.leaderboard = leaderboard;
@@ -81,16 +83,15 @@ public class GameController {
             leaderboardRecorded = false;
             model.startGame(settings);
             nav.showGame();
-        } catch (GameModel.NotEnoughQuestionsException e){
+        } catch (GameModel.NotEnoughQuestionsException e) {
             JOptionPane.showMessageDialog(
-                    null,
-                    e.getMessage(),
-                    "Not enough questions",
-                    JOptionPane.WARNING_MESSAGE
+                null,
+                e.getMessage(),
+                "Not enough questions",
+                JOptionPane.WARNING_MESSAGE
             );
-                   nav.showMainMenu();
+            nav.showMainMenu();
         }
-
     }
 
     /**
@@ -98,8 +99,7 @@ public class GameController {
      * call multiple times — only the first call per game has an effect.
      */
     public void recordGameOnLeaderboard() {
-        if (leaderboardRecorded)
-            return;
+        if (leaderboardRecorded) return;
         leaderboardRecorded = true;
         Player winner = model.computeWinner();
         for (Player p : model.getPlayers()) {
@@ -121,11 +121,11 @@ public class GameController {
      */
     public void processBotReadyIfNeeded() {
         Player cur = model.getCurrentPlayer();
-        if (cur == null || !cur.isBot())
-            return;
+        if (cur == null || !cur.isBot()) return;
         GamePhase phase = model.getPhase();
-        if (phase != GamePhase.HOT_SEAT_PASS && phase != GamePhase.INVASION_PASS)
-            return;
+        if (
+            phase != GamePhase.HOT_SEAT_PASS && phase != GamePhase.INVASION_PASS
+        ) return;
         Timer t = new Timer(700, e -> onHotSeatReady());
         t.setRepeats(false);
         t.start();
@@ -178,10 +178,11 @@ public class GameController {
     /** The player clicked a cell during the territory claim phase. */
     public boolean onCellClaimed(int playerIndex, int row, int col) {
         ClaimCellCommand cmd = new ClaimCellCommand(
-                model,
-                playerIndex,
-                row,
-                col);
+            model,
+            playerIndex,
+            row,
+            col
+        );
         cmd.execute();
         if (cmd.wasAccepted()) {
             history.push(cmd);
@@ -205,8 +206,9 @@ public class GameController {
     }
 
     public void onInvasionResolved(
-            String attackerAnswer,
-            String defenderAnswer) {
+        String attackerAnswer,
+        String defenderAnswer
+    ) {
         model.resolveInvasion(attackerAnswer, defenderAnswer);
         if (model.getPhase() == GamePhase.GAME_OVER) {
             nav.showGameOver();
@@ -222,8 +224,7 @@ public class GameController {
 
     /** Undoes the most recent claim if it is a {@link ClaimCellCommand}. */
     public boolean undoLast() {
-        if (!canUndo())
-            return false;
+        if (!canUndo()) return false;
         return history.undo();
     }
 
@@ -244,24 +245,23 @@ public class GameController {
     }
 
     public void restartGame() {
-        if (lastSettings == null){
+        if (lastSettings == null) {
             nav.showMainMenu();
             return;
         }
         try {
-
             history.clear();
             leaderboardRecorded = false;
 
             model.startGame(lastSettings);
             nav.showGame();
-        } catch (GameModel.NotEnoughQuestionsException e){
-                JOptionPane.showMessageDialog(
+        } catch (GameModel.NotEnoughQuestionsException e) {
+            JOptionPane.showMessageDialog(
                 null,
                 e.getMessage(),
                 "Not enough questions",
                 JOptionPane.WARNING_MESSAGE
-        );
+            );
             nav.showMainMenu();
         }
     }
@@ -286,8 +286,7 @@ public class GameController {
     /** Loads the saved slot into the model and shows the game screen. */
     public void loadGame() throws IOException {
         GameMemento m = mementoStore.load();
-        if (m == null)
-            throw new IOException("No save file found.");
+        if (m == null) throw new IOException("No save file found.");
         history.clear();
         leaderboardRecorded = false;
         lastSettings = m.settings;

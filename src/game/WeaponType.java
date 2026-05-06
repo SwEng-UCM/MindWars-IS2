@@ -1,3 +1,7 @@
+/*
+ * @author ARNAUD Aloyse
+ * AI-assisted: assist (ChatGPT)
+ */
 package game;
 
 public enum WeaponType {
