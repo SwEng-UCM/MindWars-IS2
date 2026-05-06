@@ -89,6 +89,7 @@ java -cp "MindWars.jar:lib/*" Main
 - [AI-DECLARATION.md](AI-DECLARATION.md) — AI usage declaration
 - [GitGuidelines.md](GitGuidelines.md) — git workflow
 - [UML/](UML/) — UML diagrams
+- [UserManual.pdf](UserManual.pdf) — user manual
 
 ---
 
