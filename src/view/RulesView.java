@@ -1,6 +1,8 @@
 /*
  * @author Leopold Popper
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
+ * @author ARNAUD Aloyse
+ * AI-assisted: assist (ChatGPT)
  */
 package view;
 
@@ -25,14 +27,16 @@ public class RulesView extends JPanel {
         card.setBorder(new EmptyBorder(24, 24, 24, 24));
 
         JLabel title = MindWarsTheme.centeredLabel(
-                "Rules",
-                MindWarsTheme.HEADING_FONT,
-                MindWarsTheme.PINK);
+            "Rules",
+            MindWarsTheme.HEADING_FONT,
+            MindWarsTheme.PINK
+        );
 
         JLabel subtitle = MindWarsTheme.centeredLabel(
-                "How to play MindWars",
-                MindWarsTheme.SUBTITLE_FONT,
-                MindWarsTheme.GRAY_TEXT);
+            "How to play MindWars",
+            MindWarsTheme.SUBTITLE_FONT,
+            MindWarsTheme.GRAY_TEXT
+        );
 
         JPanel header = new JPanel();
         header.setOpaque(false);
@@ -47,44 +51,56 @@ public class RulesView extends JPanel {
         content.setBorder(new EmptyBorder(4, 2, 4, 2));
 
         content.add(
-                createSection(
-                        "Objective",
-                        "Answer questions correctly and faster than your opponent to earn more points."));
+            createSection(
+                "Objective",
+                "Answer questions correctly and faster than your opponent to earn more points."
+            )
+        );
         content.add(Box.createVerticalStrut(12));
 
         content.add(
-                createSection(
-                        "Game Modes",
-                        " Solo Mode: play against a bot\n" +
-                                " Multiplayer Mode: play against another player"));
+            createSection(
+                "Game Modes",
+                " Solo Mode: play against a bot\n" +
+                    " Multiplayer Mode: play against another player"
+            )
+        );
         content.add(Box.createVerticalStrut(12));
 
         content.add(
-                createSection(
-                        "Question Types",
-                        " Multiple Choice\n" + " True / False\n" + " Estimation"));
+            createSection(
+                "Question Types",
+                " Multiple Choice\n" + " True / False\n" + " Estimation"
+            )
+        );
         content.add(Box.createVerticalStrut(12));
 
         content.add(
-                createSection(
-                        "Scoring",
-                        " Correct answer: base points\n" +
-                                " Faster answer: +1 bonus point\n" +
-                                " Answer within 3 seconds: double points\n" +
-                                " Wrong answer: 0 points"));
+            createSection(
+                "Scoring",
+                " Correct answer: base points\n" +
+                    " Faster answer: +1 bonus point\n" +
+                    " Answer within 3 seconds: double points\n" +
+                    " Wrong answer: 0 points"
+            )
+        );
         content.add(Box.createVerticalStrut(12));
 
         content.add(
-                createSection(
-                        "Bot Difficulty",
-                        " Easy Bot: answers randomly after a short delay\n" +
-                                " Hard Bot: usually answers correctly but can still make mistakes"));
+            createSection(
+                "Bot Difficulty",
+                " Easy Bot: answers randomly after a short delay\n" +
+                    " Hard Bot: usually answers correctly but can still make mistakes"
+            )
+        );
         content.add(Box.createVerticalStrut(12));
 
         content.add(
-                createSection(
-                        "Winner",
-                        "The player with the highest score at the end of the game wins."));
+            createSection(
+                "Winner",
+                "The player with the highest score at the end of the game wins."
+            )
+        );
 
         scrollPane = new JScrollPane(content);
         scrollPane.setBorder(null);
@@ -94,9 +110,11 @@ public class RulesView extends JPanel {
         scrollPane.getVerticalScrollBar().setBlockIncrement(72);
 
         scrollPane.setVerticalScrollBarPolicy(
-                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED
+        );
         scrollPane.setHorizontalScrollBarPolicy(
-                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER
+        );
         JButton back = MindWarsTheme.createPinkButton("Back to Menu");
         back.addActionListener(e -> nav.showMainMenu());
 
@@ -111,15 +129,15 @@ public class RulesView extends JPanel {
         bg.add(card);
         add(bg, BorderLayout.CENTER);
 
-                SwingUtilities.invokeLater(this::scrollToTop);
+        SwingUtilities.invokeLater(this::scrollToTop);
     }
 
-        public void scrollToTop() {
-                if (scrollPane == null) {
-                        return;
-                }
-                scrollPane.getVerticalScrollBar().setValue(0);
+    public void scrollToTop() {
+        if (scrollPane == null) {
+            return;
         }
+        scrollPane.getVerticalScrollBar().setValue(0);
+    }
 
     private JPanel createSection(String heading, String body) {
         JPanel section = new JPanel();

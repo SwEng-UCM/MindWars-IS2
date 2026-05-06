@@ -1,6 +1,8 @@
 /*
  * @author Leopold Popper
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
+ * @author ARNAUD Aloyse
+ * AI-assisted: assist (ChatGPT)
  */
 package trivia;
 

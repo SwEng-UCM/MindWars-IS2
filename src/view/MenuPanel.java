@@ -1,6 +1,8 @@
 /*
  * @author Leopold Popper
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
+ * @author ARNAUD Aloyse
+ * AI-assisted: assist (ChatGPT)
  */
 package view;
 
@@ -47,7 +49,8 @@ public class MenuPanel extends JPanel {
             logoImage = ImageIO.read(new File("assets/logo.png"));
         } catch (Exception e) {
             System.err.println(
-                    "Could not load logo.png. Ensure it is in the assets/ folder.");
+                "Could not load logo.png. Ensure it is in the assets/ folder."
+            );
         }
 
         JPanel card = new JPanel() {
@@ -55,26 +58,31 @@ public class MenuPanel extends JPanel {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(
-                        RenderingHints.KEY_ANTIALIASING,
-                        RenderingHints.VALUE_ANTIALIAS_ON);
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+                );
                 g2d.setColor(new Color(0, 0, 0, 28));
                 g2d.fill(
-                        new RoundRectangle2D.Double(
-                                4,
-                                6,
-                                getWidth() - 8,
-                                getHeight() - 8,
-                                42,
-                                42));
+                    new RoundRectangle2D.Double(
+                        4,
+                        6,
+                        getWidth() - 8,
+                        getHeight() - 8,
+                        42,
+                        42
+                    )
+                );
                 g2d.setColor(Color.WHITE);
                 g2d.fill(
-                        new RoundRectangle2D.Double(
-                                0,
-                                0,
-                                getWidth(),
-                                getHeight(),
-                                40,
-                                40));
+                    new RoundRectangle2D.Double(
+                        0,
+                        0,
+                        getWidth(),
+                        getHeight(),
+                        40,
+                        40
+                    )
+                );
                 g2d.dispose();
             }
 
@@ -82,9 +90,19 @@ public class MenuPanel extends JPanel {
             protected void paintChildren(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(
-                        RenderingHints.KEY_ANTIALIASING,
-                        RenderingHints.VALUE_ANTIALIAS_ON);
-                g2d.setClip(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 40, 40));
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+                );
+                g2d.setClip(
+                    new RoundRectangle2D.Double(
+                        0,
+                        0,
+                        getWidth(),
+                        getHeight(),
+                        40,
+                        40
+                    )
+                );
                 super.paintChildren(g2d);
                 g2d.dispose();
             }
@@ -109,11 +127,12 @@ public class MenuPanel extends JPanel {
         if (logoImage != null) {
             int targetHeight = 150;
             int targetWidth = (int) (logoImage.getWidth() *
-                    ((double) targetHeight / logoImage.getHeight()));
+                ((double) targetHeight / logoImage.getHeight()));
             Image scaledLogo = logoImage.getScaledInstance(
-                    targetWidth,
-                    targetHeight,
-                    Image.SCALE_SMOOTH);
+                targetWidth,
+                targetHeight,
+                Image.SCALE_SMOOTH
+            );
             logoLabel.setIcon(new ImageIcon(scaledLogo));
         }
         logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -122,8 +141,9 @@ public class MenuPanel extends JPanel {
         gbc.gridy = 1;
         gbc.insets = new Insets(0, 22, 12, 22);
         JLabel sub = new JLabel(
-                "Welcome back! Login to continue",
-                SwingConstants.CENTER);
+            "Welcome back! Login to continue",
+            SwingConstants.CENTER
+        );
         sub.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         sub.setForeground(Color.GRAY);
         content.add(sub, gbc);
@@ -178,13 +198,16 @@ public class MenuPanel extends JPanel {
         skipBtn.setBorderPainted(false);
         skipBtn.setFocusPainted(false);
         skipBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        skipBtn.addActionListener(e -> SwingUtilities.invokeLater(parent::startGameSession));
+        skipBtn.addActionListener(e ->
+            SwingUtilities.invokeLater(parent::startGameSession)
+        );
         content.add(skipBtn, gbc);
 
         cardScroll = new JScrollPane(
-                content,
-                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            content,
+            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER
+        );
         cardScroll.setBorder(BorderFactory.createEmptyBorder());
         cardScroll.setOpaque(false);
         cardScroll.getViewport().setOpaque(false);
@@ -212,12 +235,13 @@ public class MenuPanel extends JPanel {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         GradientPaint gp = new GradientPaint(
-                0,
-                0,
-                BRAND_PINK,
-                getWidth(),
-                getHeight(),
-                BRAND_ORANGE);
+            0,
+            0,
+            BRAND_PINK,
+            getWidth(),
+            getHeight(),
+            BRAND_ORANGE
+        );
         g2d.setPaint(gp);
         g2d.fillRect(0, 0, getWidth(), getHeight());
     }
@@ -250,14 +274,27 @@ public class MenuPanel extends JPanel {
             btn.setBackground(Color.WHITE);
             btn.setForeground(BRAND_PINK);
             btn.setBorder(
-                    BorderFactory.createLineBorder(
-                            new Color(BRAND_PINK.getRed(), BRAND_PINK.getGreen(), BRAND_PINK.getBlue(), 190),
-                            2,
-                            true));
+                BorderFactory.createLineBorder(
+                    new Color(
+                        BRAND_PINK.getRed(),
+                        BRAND_PINK.getGreen(),
+                        BRAND_PINK.getBlue(),
+                        190
+                    ),
+                    2,
+                    true
+                )
+            );
         } else {
             btn.setBackground(new Color(248, 248, 248));
             btn.setForeground(new Color(120, 120, 120));
-            btn.setBorder(BorderFactory.createLineBorder(new Color(186, 186, 186), 2, true));
+            btn.setBorder(
+                BorderFactory.createLineBorder(
+                    new Color(186, 186, 186),
+                    2,
+                    true
+                )
+            );
         }
     }
 
@@ -291,51 +328,58 @@ public class MenuPanel extends JPanel {
         field.setText(placeholder);
         field.setForeground(Color.GRAY);
 
-        field.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (field.getText().equals(placeholder)) {
-                    field.setText("");
-                    field.setForeground(Color.BLACK);
+        field.addFocusListener(
+            new FocusAdapter() {
+                @Override
+                public void focusGained(FocusEvent e) {
+                    if (field.getText().equals(placeholder)) {
+                        field.setText("");
+                        field.setForeground(Color.BLACK);
+                    }
                 }
-            }
 
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (field.getText().trim().isEmpty()) {
-                    field.setText(placeholder);
-                    field.setForeground(Color.GRAY);
+                @Override
+                public void focusLost(FocusEvent e) {
+                    if (field.getText().trim().isEmpty()) {
+                        field.setText(placeholder);
+                        field.setForeground(Color.GRAY);
+                    }
                 }
             }
-        });
+        );
     }
 
-    private void setupPasswordPlaceholder(JPasswordField field, String placeholder) {
+    private void setupPasswordPlaceholder(
+        JPasswordField field,
+        String placeholder
+    ) {
         field.setText(placeholder);
         field.setForeground(Color.GRAY);
         field.setEchoChar((char) 0);
 
-        field.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                String current = new String(field.getPassword());
-                if (current.equals(placeholder)) {
-                    field.setText("");
-                    field.setForeground(Color.BLACK);
-                    field.setEchoChar('•');
+        field.addFocusListener(
+            new FocusAdapter() {
+                @Override
+                public void focusGained(FocusEvent e) {
+                    String current = new String(field.getPassword());
+                    if (current.equals(placeholder)) {
+                        field.setText("");
+                        field.setForeground(Color.BLACK);
+                        field.setEchoChar('•');
+                    }
                 }
-            }
 
-            @Override
-            public void focusLost(FocusEvent e) {
-                String current = new String(field.getPassword()).trim();
-                if (current.isEmpty()) {
-                    field.setText(placeholder);
-                    field.setForeground(Color.GRAY);
-                    field.setEchoChar((char) 0);
+                @Override
+                public void focusLost(FocusEvent e) {
+                    String current = new String(field.getPassword()).trim();
+                    if (current.isEmpty()) {
+                        field.setText(placeholder);
+                        field.setForeground(Color.GRAY);
+                        field.setEchoChar((char) 0);
+                    }
                 }
             }
-        });
+        );
     }
 
     private JButton createGradientButton(String text) {
@@ -344,24 +388,28 @@ public class MenuPanel extends JPanel {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(
-                        RenderingHints.KEY_ANTIALIASING,
-                        RenderingHints.VALUE_ANTIALIAS_ON);
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+                );
                 GradientPaint gp = new GradientPaint(
-                        0,
-                        0,
-                        BRAND_PINK,
-                        getWidth(),
-                        0,
-                        new Color(180, 80, 0));
+                    0,
+                    0,
+                    BRAND_PINK,
+                    getWidth(),
+                    0,
+                    new Color(180, 80, 0)
+                );
                 g2d.setPaint(gp);
                 g2d.fill(
-                        new RoundRectangle2D.Double(
-                                0,
-                                0,
-                                getWidth(),
-                                getHeight(),
-                                25,
-                                25));
+                    new RoundRectangle2D.Double(
+                        0,
+                        0,
+                        getWidth(),
+                        getHeight(),
+                        25,
+                        25
+                    )
+                );
                 super.paintComponent(g);
                 g2d.dispose();
             }
@@ -403,21 +451,24 @@ public class MenuPanel extends JPanel {
 
     public void showError(String msg) {
         JOptionPane.showMessageDialog(
-                this,
-                msg,
-                "Login Error",
-                JOptionPane.ERROR_MESSAGE);
+            this,
+            msg,
+            "Login Error",
+            JOptionPane.ERROR_MESSAGE
+        );
     }
 
     public void showSuccess(String msg) {
         JOptionPane.showMessageDialog(
-                this,
-                msg,
-                "Success",
-                JOptionPane.INFORMATION_MESSAGE);
+            this,
+            msg,
+            "Success",
+            JOptionPane.INFORMATION_MESSAGE
+        );
     }
 
     private static class RoundedTextField extends JTextField {
+
         private final int arc;
 
         RoundedTextField(int arc) {
@@ -428,7 +479,10 @@ public class MenuPanel extends JPanel {
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(
+                RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON
+            );
             g2.setColor(Color.WHITE);
             g2.fillRoundRect(0, 0, getWidth(), getHeight(), arc, arc);
             g2.dispose();
@@ -438,7 +492,10 @@ public class MenuPanel extends JPanel {
         @Override
         protected void paintBorder(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(
+                RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON
+            );
             g2.setColor(hasFocus() ? INPUT_FOCUS : INPUT_BORDER);
             g2.setStroke(new BasicStroke(2f));
             g2.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 3, arc, arc);
@@ -447,6 +504,7 @@ public class MenuPanel extends JPanel {
     }
 
     private static class RoundedPasswordField extends JPasswordField {
+
         private final int arc;
 
         RoundedPasswordField(int arc) {
@@ -457,7 +515,10 @@ public class MenuPanel extends JPanel {
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(
+                RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON
+            );
             g2.setColor(Color.WHITE);
             g2.fillRoundRect(0, 0, getWidth(), getHeight(), arc, arc);
             g2.dispose();
@@ -467,7 +528,10 @@ public class MenuPanel extends JPanel {
         @Override
         protected void paintBorder(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(
+                RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON
+            );
             g2.setColor(hasFocus() ? INPUT_FOCUS : INPUT_BORDER);
             g2.setStroke(new BasicStroke(2f));
             g2.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 3, arc, arc);

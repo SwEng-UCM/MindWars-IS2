@@ -1,6 +1,8 @@
 /*
  * @author Leopold Popper
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
+ * @author ARNAUD Aloyse
+ * AI-assisted: assist (ChatGPT)
  */
 package view;
 
@@ -38,12 +40,20 @@ public class GameOverView extends JPanel {
         card.setPreferredSize(new Dimension(560, 680));
         card.setBorder(new EmptyBorder(24, 28, 24, 28));
 
-        card.add(MindWarsTheme.centeredLabel(
-                "Game Over", MindWarsTheme.TITLE_FONT, MindWarsTheme.PINK));
+        card.add(
+            MindWarsTheme.centeredLabel(
+                "Game Over",
+                MindWarsTheme.TITLE_FONT,
+                MindWarsTheme.PINK
+            )
+        );
         card.add(Box.createVerticalStrut(12));
 
         winnerLabel = MindWarsTheme.centeredLabel(
-                "", MindWarsTheme.HEADING_FONT, Color.BLACK);
+            "",
+            MindWarsTheme.HEADING_FONT,
+            Color.BLACK
+        );
         winnerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         card.add(winnerLabel);
         card.add(Box.createVerticalStrut(18));
@@ -99,7 +109,8 @@ public class GameOverView extends JPanel {
         controller.recordGameOnLeaderboard();
         Player winner = controller.getModel().computeWinner();
         winnerLabel.setText(
-                winner == null ? "It's a draw!" : winner.getName() + " wins!");
+            winner == null ? "It's a draw!" : winner.getName() + " wins!"
+        );
 
         List<Player> players = controller.getModel().getPlayers();
         MapGrid map = controller.getModel().getMap();
@@ -115,7 +126,11 @@ public class GameOverView extends JPanel {
         List<Integer> corrects = msg.correctAnswers;
         List<Integer> wrongs = msg.wrongAnswers;
 
-        if (msg.winnerIndex == null || names == null || msg.winnerIndex >= names.size()) {
+        if (
+            msg.winnerIndex == null ||
+            names == null ||
+            msg.winnerIndex >= names.size()
+        ) {
             winnerLabel.setText("It's a draw!");
         } else {
             winnerLabel.setText(names.get(msg.winnerIndex) + " wins!");
@@ -127,12 +142,15 @@ public class GameOverView extends JPanel {
             for (int i = 0; i < names.size(); i++) {
                 player.Player p = new player.Player(names.get(i));
                 p.setSymbol(i < symbols.length ? symbols[i] : (char) ('A' + i));
-                if (scores != null && i < scores.size())
-                    p.setScore(scores.get(i));
-                if (corrects != null && i < corrects.size())
-                    p.setCorrectAnswers(corrects.get(i));
-                if (wrongs != null && i < wrongs.size())
-                    p.setWrongAnswers(wrongs.get(i));
+                if (scores != null && i < scores.size()) p.setScore(
+                    scores.get(i)
+                );
+                if (
+                    corrects != null && i < corrects.size()
+                ) p.setCorrectAnswers(corrects.get(i));
+                if (wrongs != null && i < wrongs.size()) p.setWrongAnswers(
+                    wrongs.get(i)
+                );
                 players.add(p);
             }
         }
@@ -140,9 +158,11 @@ public class GameOverView extends JPanel {
         game.MapGrid map = null;
         if (msg.gridSnapshot != null && msg.mapSize != null) {
             map = new game.MapGrid(msg.mapSize);
-            for (int r = 0; r < msg.mapSize; r++)
-                for (int c = 0; c < msg.mapSize; c++)
-                    map.setOwner(r, c, msg.gridSnapshot.charAt(r * msg.mapSize + c));
+            for (int r = 0; r < msg.mapSize; r++) for (
+                int c = 0;
+                c < msg.mapSize;
+                c++
+            ) map.setOwner(r, c, msg.gridSnapshot.charAt(r * msg.mapSize + c));
         }
 
         rebuildStats(players);
@@ -156,8 +176,7 @@ public class GameOverView extends JPanel {
 
     private void rebuildStats(List<Player> players) {
         statsPanel.removeAll();
-        if (players == null)
-            return;
+        if (players == null) return;
         for (int i = 0; i < players.size(); i++) {
             Player p = players.get(i);
             Color color = playerColor(i);
@@ -168,23 +187,40 @@ public class GameOverView extends JPanel {
             row.setBorder(new EmptyBorder(4, 0, 4, 0));
             row.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-            JLabel name = new JLabel(p.getName() + "  —  " + p.getScore() + " pts");
+            JLabel name = new JLabel(
+                p.getName() + "  —  " + p.getScore() + " pts"
+            );
             name.setFont(MindWarsTheme.BODY_BOLD);
             name.setForeground(color);
             name.setAlignmentX(Component.LEFT_ALIGNMENT);
             row.add(name);
 
-            row.add(statLine("Correct / Wrong",
-                    p.getCorrectAnswers() + " / " + p.getWrongAnswers()));
-            row.add(statLine("Avg response",
-                    String.format("%.1fs", p.getAverageResponseTime())));
+            row.add(
+                statLine(
+                    "Correct / Wrong",
+                    p.getCorrectAnswers() + " / " + p.getWrongAnswers()
+                )
+            );
+            row.add(
+                statLine(
+                    "Avg response",
+                    String.format("%.1fs", p.getAverageResponseTime())
+                )
+            );
             double fastestSeconds = p.getFastestResponse();
-            row.add(statLine("Fastest response",
-                    fastestSeconds > 0 ? String.format("%.1fs", fastestSeconds) : "—"));
+            row.add(
+                statLine(
+                    "Fastest response",
+                    fastestSeconds > 0
+                        ? String.format("%.1fs", fastestSeconds)
+                        : "—"
+                )
+            );
 
             statsPanel.add(row);
-            if (i < players.size() - 1)
-                statsPanel.add(Box.createVerticalStrut(6));
+            if (i < players.size() - 1) statsPanel.add(
+                Box.createVerticalStrut(6)
+            );
         }
         statsPanel.revalidate();
         statsPanel.repaint();
@@ -212,8 +248,7 @@ public class GameOverView extends JPanel {
 
     private void rebuildLegend(List<Player> players, MapGrid map) {
         legendPanel.removeAll();
-        if (players == null || map == null)
-            return;
+        if (players == null || map == null) return;
         for (int i = 0; i < players.size(); i++) {
             Player p = players.get(i);
             int territory = map.countTerritory(p.getSymbol());
@@ -256,6 +291,7 @@ public class GameOverView extends JPanel {
     }
 
     private static class FinalMapCanvas extends JPanel {
+
         private MapGrid map;
         private List<Player> players;
 
@@ -272,17 +308,20 @@ public class GameOverView extends JPanel {
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
-            if (map == null)
-                return;
+            if (map == null) return;
 
             Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(
+                RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON
+            );
 
             int size = map.getSize();
             int gap = 4;
             int cellSize = Math.min(
-                    (getWidth() - gap * (size + 1)) / size,
-                    (getHeight() - gap * (size + 1)) / size);
+                (getWidth() - gap * (size + 1)) / size,
+                (getHeight() - gap * (size + 1)) / size
+            );
 
             int totalW = gap + size * (cellSize + gap);
             int totalH = gap + size * (cellSize + gap);
@@ -308,8 +347,9 @@ public class GameOverView extends JPanel {
         private Color colorFor(char owner) {
             if (players != null) {
                 for (int i = 0; i < players.size(); i++) {
-                    if (players.get(i).getSymbol() == owner)
-                        return playerColor(i);
+                    if (players.get(i).getSymbol() == owner) return playerColor(
+                        i
+                    );
                 }
             }
             return MindWarsTheme.EMPTY_CELL;

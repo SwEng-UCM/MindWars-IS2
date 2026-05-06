@@ -2,23 +2,12 @@
 version: 1.0
 level: moderate
 processes:
-  coding: pair
-  debugging: copilot
+  coding: mean (pair) you can view file by file
+  debugging: Ai tools described below
   planning: none
-  documentation: assist
+  documentation: assist 
 components:
-  bot/: hint
-  command/: pair
-  controller/: pair
-  game/: pair
-  model/: pair
-  network/: pair
-  persistence/: pair
-  trivia/: pair
-  util/: copilot
-  view/: pair
-  Main.java: assist
-  CheckQuestions.java: assist
+  you can view file by file
 ---
 
 ## Notes
