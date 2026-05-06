@@ -1,3 +1,7 @@
+/*
+ * @author Leopold Popper
+ * AI-assisted: yes (Claude by Anthropic, via Claude Code)
+ */
 package controller;
 
 /**
