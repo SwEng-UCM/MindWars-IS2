@@ -1,6 +1,8 @@
 /*
  * @author Leopold Popper
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
+ * @author Elena-Thea Ungureanu
+ * AI-assisted yes no
  */
 package network;
 

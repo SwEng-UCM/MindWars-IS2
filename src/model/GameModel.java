@@ -4,6 +4,8 @@
  * @author Dimofte Raisa
  * @author Ioannis Stogiannaris
  * AI-assisted: yes (Gemini - ChatGPT) 
+ * @author Elena-Thea Ungureanu
+ * AI-assisted yes Gemini
  */
 package model;
 

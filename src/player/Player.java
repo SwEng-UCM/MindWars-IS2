@@ -7,6 +7,8 @@
  * AI-assisted: yes (Gemini)
  * @author Ioannis Stogiannaris
  * AI-assisted: yes (ChatGPT)
+ * @author Elena-Thea Ungureanu
+ * AI-assisted yes Gemini
  */
 package player;
 

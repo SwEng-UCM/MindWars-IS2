@@ -1,4 +1,7 @@
-
+/*
+ * @author Elena-Thea Ungureanu
+ * AI-assisted no
+ */
 package bot;
 
 import trivia.Question;

@@ -1,4 +1,6 @@
 /*
+ * @author Elena-Thea Ungureanu
+ * AI-assisted yes Gemini
  * @author Leopold Popper
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
  */

@@ -3,6 +3,8 @@
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
  * @author Dimofte Raisa
  * AI-assisted: yes (Gemini)
+ * @author Elena-Thea Ungureanu
+ * AI-assisted yes Gemini
  */
 package network;
 

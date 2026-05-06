@@ -1,6 +1,8 @@
 /*
  * @author Leopold Popper
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
+ * @author Elena-Thea Ungureanu
+ * AI-assisted yes no
  */
 package network;
 
@@ -82,7 +84,7 @@ public class NetworkMessage {
     // Score payload
     public List<Integer> scores;
     public List<String> playerNames;
-    public List<Integer> correctAnswers;   
+    public List<Integer> correctAnswers;
     public List<Integer> wrongAnswers;
 
     // Game over

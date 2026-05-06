@@ -5,6 +5,8 @@
  * @author Ioannis Stogiannaris
  * AI-assisted: pair (ChatGPT)
  * @author Dimofte Raisa
+ * @author Elena-Thea Ungureanu
+ * AI-assisted yes Gemini
  */
 package game;
 
