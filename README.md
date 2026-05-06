@@ -4,7 +4,7 @@
 
 > *"Where brains conquer"*
 
-A trivia game for up to 4 players (hot-seat, optional bots, or LAN multiplayer) where players answer questions to earn points and conquer territory on a shared map.
+A trivia game for 1–4 players where players answer questions to earn points and conquer territory on a shared map. Modes: solo (1 player vs bot), hot-seat (2–4 humans on one machine), or LAN multiplayer (up to 4 humans across machines).
 
 ---
 
@@ -74,7 +74,8 @@ java -cp "MindWars.jar:lib/*" Main
 ## Known Limitations
 
 - LAN-only multiplayer (no NAT traversal / internet play)
-- Maximum 4 players per match (any mix of humans and bots)
+- Maximum 4 players per match
+- Bot opponent is only available in 1-player solo mode; 2–4 player matches are humans only
 - Single save slot (saving overwrites the previous one)
 - Single-level undo, only during territory claim
 - `questions.json` is loaded once at startup — restart to pick up edits
