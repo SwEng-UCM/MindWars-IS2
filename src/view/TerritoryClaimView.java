@@ -1,6 +1,8 @@
 /*
  * @author Leopold Popper
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
+ * @author Chelaru Anastasia
+ *  AI-assisted yes Gemini
  */
 package view;
 
@@ -309,7 +311,8 @@ public class TerritoryClaimView extends JPanel {
     }
 
     private void onConfirm() {
-        if (pendingCell == null) return;
+        if (pendingCell == null)
+            return;
         controller.confirmLastClaim();
         pendingCell = null;
         confirmButton.setVisible(false);
@@ -318,7 +321,8 @@ public class TerritoryClaimView extends JPanel {
     }
 
     private void onUndo() {
-        if (pendingCell == null || !controller.canUndo()) return;
+        if (pendingCell == null || !controller.canUndo())
+            return;
         controller.undoLast();
         pendingCell = null;
         confirmButton.setVisible(false);

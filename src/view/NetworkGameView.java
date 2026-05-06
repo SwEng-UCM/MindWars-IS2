@@ -1,6 +1,8 @@
 /*
  * @author Leopold Popper
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
+ * @author Chelaru Anastasia
+ *  AI-assisted yes Gemini
  */
 package view;
 
@@ -170,7 +172,8 @@ public class NetworkGameView extends JPanel {
         bettingPanel.add(MindWarsTheme.centeredLabel("SPECIAL BET", MindWarsTheme.HEADING_FONT, MindWarsTheme.PINK));
         bettingPanel.add(Box.createVerticalStrut(10));
 
-        infoLabel = MindWarsTheme.centeredLabel("Final Round Opportunity", MindWarsTheme.BODY_FONT, MindWarsTheme.GRAY_LIGHT);
+        infoLabel = MindWarsTheme.centeredLabel("Final Round Opportunity", MindWarsTheme.BODY_FONT,
+                MindWarsTheme.GRAY_LIGHT);
         bettingPanel.add(infoLabel);
         bettingPanel.add(Box.createVerticalStrut(25));
 
@@ -331,7 +334,8 @@ public class NetworkGameView extends JPanel {
                 submitButton.setEnabled(false);
                 if (myTurn) {
                     promptLabel
-                            .setText("<html><b>It's your turn!</b><br>Both players must press Ready before the question starts.</html>");
+                            .setText(
+                                    "<html><b>It's your turn!</b><br>Both players must press Ready before the question starts.</html>");
                     turnLabel.setText("Your turn — waiting for all Ready");
                 } else {
                     promptLabel.setText(

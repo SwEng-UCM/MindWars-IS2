@@ -5,6 +5,8 @@ import player.Player;
 import javax.swing.*;
 import java.awt.*;
 
+//@author Anastasia Chelaru
+// AI-assisted yes Gemini
 public class BettingView extends JPanel {
     private final GameController controller;
     private final JSlider wagerSlider;

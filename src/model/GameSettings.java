@@ -8,6 +8,7 @@ package model;
  * Value object holding the user's choices from the setup wizard. The
  * controller builds one of these and hands it to {@link GameModel#startGame}.
  */
+
 public final class GameSettings {
     public final int mapSize;
     public final boolean vsBot;

@@ -6,6 +6,9 @@ import java.util.List;
 /**
  * Utility to find the winner of an estimation round.
  * Priority: 1. Smallest difference | 2. Fastest time.
+ * 
+ * @author Chelaru Anastasia
+ *         AI-assisted no
  */
 public final class NumericWinnerCalculator {
 
