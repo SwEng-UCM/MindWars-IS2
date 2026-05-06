@@ -5,6 +5,8 @@
  * AI-assisted: assist (ChatGPT)
  * @author Dimofte Raisa
  * AI-assisted: yes (Gemini)
+ * @author Ioannis Stogiannaris
+ * AI-assisted: yes (ChatGPT)
  */
 package player;
 

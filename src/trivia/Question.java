@@ -4,6 +4,8 @@
  * @author ARNAUD Aloyse
  * AI-assisted: assist (ChatGPT)
  * @author Dimofte Raisa
+ * @author Ioannis Stogiannaris
+ * AI-assisted: no
  */
 package trivia;
 

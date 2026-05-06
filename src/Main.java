@@ -1,5 +1,5 @@
 /*
- * @author Leopold Popper
+ * @author Leopold Popper - Ioannis Stogiannaris
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
  */
 import javax.swing.SwingUtilities;

@@ -3,6 +3,8 @@
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
  * @author Dimofte Raisa
  * AI-assisted: yes (Gemini)
+ * @author Ioannis Stogiannaris 
+ * AI-assisted: yes (ChatGPT)
  */
 package controller;
 

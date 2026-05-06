@@ -2,6 +2,9 @@
  * @author Leopold Popper
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
  * @author Dimofte Raisa
+ * @author Ioannis Stogiannaris
+ * AI-assisted: no
+ * 
  */
 package trivia;
 
