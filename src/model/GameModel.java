@@ -1,6 +1,8 @@
 /*
  * @author Leopold Popper
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
+ * @author Dimofte Raisa
+ * AI-assisted: yes (Gemini)
  */
 package model;
 
@@ -247,13 +249,12 @@ public class GameModel {
         roundQuestions.clear();
         for (int i = 0; i < count; i++) {
             Question q = pickQuestion();
-            if (q == null){
+            if (q == null) {
                 throw new NotEnoughQuestionsException(
                         "Not enough questions for this game setup.\n\n" +
                                 "Needed: " + count + " questions\n" +
                                 "Found: " + roundQuestions.size() + " questions\n\n" +
-                                "Try another category/difficulty or use Random mode."
-                );
+                                "Try another category/difficulty or use Random mode.");
             }
             roundQuestions.add(q);
         }
@@ -371,37 +372,35 @@ public class GameModel {
         int size = map.getSize();
         int playerCount = players.size();
 
-        int [] claims = new int[playerCount];
+        int[] claims = new int[playerCount];
 
-        List<Integer> ranking= new ArrayList<>();
-
+        List<Integer> ranking = new ArrayList<>();
 
         for (int i = 0; i < playerCount; i++) {
             ranking.add(i);
         }
 
-        ranking.sort((a,b) ->{
+        ranking.sort((a, b) -> {
             if (roundCorrect[a] != roundCorrect[b]) {
-                return roundCorrect[a] ? - 1 : 1;
+                return roundCorrect[a] ? -1 : 1;
             }
             return Long.compare(roundTimes[a], roundTimes[b]);
 
         });
 
         int remainingClaims = size;
-        int winnerClaims = size/ 2+1;
+        int winnerClaims = size / 2 + 1;
         claims[ranking.getFirst()] = winnerClaims;
         remainingClaims -= winnerClaims;
 
-
         int rank = 1;
-        while (remainingClaims > 0 ) {
+        while (remainingClaims > 0) {
             claims[ranking.get(rank)]++;
             remainingClaims--;
             rank++;
 
             if (rank >= ranking.size()) {
-                rank = 1; //keeps distributing among winners
+                rank = 1; // keeps distributing among winners
             }
         }
         return claims;

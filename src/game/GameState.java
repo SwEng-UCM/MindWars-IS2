@@ -44,6 +44,7 @@ public class GameState {
         this.currentPlayerIndex = index;
     }
 
+    // @author: "Raisa"
     public void reset() {
         this.players.clear();
         this.roundNumber = 1;

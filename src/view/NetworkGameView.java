@@ -170,7 +170,8 @@ public class NetworkGameView extends JPanel {
         bettingPanel.add(MindWarsTheme.centeredLabel("SPECIAL BET", MindWarsTheme.HEADING_FONT, MindWarsTheme.PINK));
         bettingPanel.add(Box.createVerticalStrut(10));
 
-        infoLabel = MindWarsTheme.centeredLabel("Final Round Opportunity", MindWarsTheme.BODY_FONT, MindWarsTheme.GRAY_LIGHT);
+        infoLabel = MindWarsTheme.centeredLabel("Final Round Opportunity", MindWarsTheme.BODY_FONT,
+                MindWarsTheme.GRAY_LIGHT);
         bettingPanel.add(infoLabel);
         bettingPanel.add(Box.createVerticalStrut(25));
 
@@ -218,8 +219,8 @@ public class NetworkGameView extends JPanel {
         session.addMessageListener(this::onServerMessage);
     }
 
-    // ── Chat ─────────────────────────────────────────────────────────────
-
+    // @author: Dimofte Raisa AI assisted: Gemini
+    // chat box setup and handlers
     private void setupChatPanel() {
         JPanel chatPanel = new JPanel(new BorderLayout(5, 5));
         chatPanel.setOpaque(false);
@@ -291,7 +292,7 @@ public class NetworkGameView extends JPanel {
             case ANSWER, CLAIM_CELL, JOIN, LOBBY, PLAYER_LEFT, READY, START_GAME, TURN, WELCOME -> {
                 // No UI action needed for these message types on the client screen.
             }
-            case ERROR -> {
+            case ERROR -> {// show an error dialog for connection errors, otherwise show feedback in the UI
                 String errorMsg = msg.errorMessage != null ? msg.errorMessage : "Unknown error";
                 if (errorMsg != null && errorMsg.toLowerCase().contains("full")) {
                     SwingUtilities.invokeLater(() -> {
@@ -331,7 +332,8 @@ public class NetworkGameView extends JPanel {
                 submitButton.setEnabled(false);
                 if (myTurn) {
                     promptLabel
-                            .setText("<html><b>It's your turn!</b><br>Both players must press Ready before the question starts.</html>");
+                            .setText(
+                                    "<html><b>It's your turn!</b><br>Both players must press Ready before the question starts.</html>");
                     turnLabel.setText("Your turn — waiting for all Ready");
                 } else {
                     promptLabel.setText(

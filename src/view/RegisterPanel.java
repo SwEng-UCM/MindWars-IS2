@@ -1,6 +1,8 @@
 /*
  * @author Leopold Popper
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
+ * @author: Dimofte Raisa
+ * AI assisted: Gemini
  */
 package view;
 
@@ -160,6 +162,7 @@ public class RegisterPanel extends JPanel {
         });
         content.add(regBtn, gbc);
 
+        // scroll pane for smaller screens
         cardScroll = new JScrollPane(
                 content,
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,

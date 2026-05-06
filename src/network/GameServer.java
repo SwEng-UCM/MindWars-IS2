@@ -1,6 +1,8 @@
 /*
  * @author Leopold Popper
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
+ * @author Dimofte Raisa
+ * AI-assisted: yes (Gemini)
  */
 package network;
 
@@ -284,7 +286,8 @@ public class GameServer {
         }
 
         private void onWager(NetworkMessage msg) {
-            if (seatIndex < 0) return;
+            if (seatIndex < 0)
+                return;
             synchronized (GameServer.this) {
                 GamePhase phase = model.getPhase();
                 if (phase != GamePhase.BETTING) {

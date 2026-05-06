@@ -3,6 +3,7 @@
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
  * @author ARNAUD Aloyse
  * AI-assisted: pair (ChatGPT)
+ * @author Dimofte Raisa
  */
 package game;
 
@@ -54,8 +55,7 @@ public class Game {
      */
     private void handleNumericRound(Question question, boolean isLastRound) {
         // Stores responses (player, guess, and time) to compare them later
-        List<NumericWinnerCalculator.EstimationResponse> roundData =
-            new ArrayList<>();
+        List<NumericWinnerCalculator.EstimationResponse> roundData = new ArrayList<>();
 
         // Map to store the wager for each player to process later
         Map<Player, Integer> playerBets = new HashMap<>();
@@ -76,20 +76,17 @@ public class Game {
             io.println("  " + p.getName() + " - ESTIMATION CHALLENGE");
             io.println("  ----------------------------------------");
             io.println(
-                "  " + question.formatForConsole().replace("\n", "\n  ")
-            );
+                    "  " + question.formatForConsole().replace("\n", "\n  "));
 
             if (p.getBonusTokens() > 0) {
                 io.println(
-                    "\n  [!] You have " +
-                        p.getBonusTokens() +
-                        " bonus token(s) available!"
-                );
+                        "\n  [!] You have " +
+                                p.getBonusTokens() +
+                                " bonus token(s) available!");
                 String use = io
-                    .readNonEmptyString(
-                        "  Use a lifeline for this question? (yes/no): "
-                    )
-                    .toLowerCase();
+                        .readNonEmptyString(
+                                "  Use a lifeline for this question? (yes/no): ")
+                        .toLowerCase();
                 if (use.startsWith("y")) {
                     p.setHasUsedBonus(false); // Reset to track if they actually picked a bonus
                     bonus.offerBonusIfAvailable(p, question);
@@ -97,8 +94,7 @@ public class Game {
                     if (p.hasUsedBonus()) {
                         p.useBonusToken();
                         io.println(
-                            "  Token used! Remaining: " + p.getBonusTokens()
-                        );
+                                "  Token used! Remaining: " + p.getBonusTokens());
                     }
                 }
             }
@@ -108,8 +104,7 @@ public class Game {
 
             // Read and parse the numeric guess
             io.println(
-                "  You have " + (TIME_LIMIT_MS / 1000) + " seconds to answer!"
-            );
+                    "  You have " + (TIME_LIMIT_MS / 1000) + " seconds to answer!");
             String input = readAnswerWithTimeout(question);
             double val;
             if (input.equals("__TIMEOUT__")) {
@@ -126,16 +121,14 @@ public class Game {
             // Update player's total time and store round performance
             p.setTimer(p.getTimer() + elapsed);
             roundData.add(
-                new NumericWinnerCalculator.EstimationResponse(p, val, elapsed)
-            );
+                    new NumericWinnerCalculator.EstimationResponse(p, val, elapsed));
         }
 
         // Identify the winner based on proximity to target and response time
         double correctAnswer = question.getNumericAnswer();
         Player winner = NumericWinnerCalculator.calculateWinner(
-            correctAnswer,
-            roundData
-        );
+                correctAnswer,
+                roundData);
 
         // Display results summary table
         io.println("");
@@ -143,14 +136,13 @@ public class Game {
         io.println("  Correct Answer: " + (int) correctAnswer);
         io.println("");
         io.println(
-            "  " +
-                padRight("PLAYER", 12) +
-                " | " +
-                padRight("GUESS", 8) +
-                " | " +
-                padRight("DIFF", 6) +
-                " | TIME"
-        );
+                "  " +
+                        padRight("PLAYER", 12) +
+                        " | " +
+                        padRight("GUESS", 8) +
+                        " | " +
+                        padRight("DIFF", 6) +
+                        " | TIME");
         io.println("  --------------------------------------------------");
 
         for (NumericWinnerCalculator.EstimationResponse res : roundData) {
@@ -158,15 +150,14 @@ public class Game {
             double timeSec = res.timeTaken / 1000.0;
 
             io.println(
-                "  " +
-                    padRight(res.player.getName(), 12) +
-                    " | " +
-                    padRight(String.valueOf((int) res.value), 8) +
-                    " | " +
-                    padRight(String.valueOf(diff), 6) +
-                    " | " +
-                    String.format("%.2fs", timeSec)
-            );
+                    "  " +
+                            padRight(res.player.getName(), 12) +
+                            " | " +
+                            padRight(String.valueOf((int) res.value), 8) +
+                            " | " +
+                            padRight(String.valueOf(diff), 6) +
+                            " | " +
+                            String.format("%.2fs", timeSec));
         }
         io.println("  --------------------------------------------------");
 
@@ -193,10 +184,9 @@ public class Game {
     private void displayHotSeatHeader(Player p) {
         io.println("\n\n  +----------------------------------------+");
         io.println(
-            "  |     PASS THE DEVICE TO " +
-                padRight(p.getName().toUpperCase(), 15) +
-                " |"
-        );
+                "  |     PASS THE DEVICE TO " +
+                        padRight(p.getName().toUpperCase(), 15) +
+                        " |");
         io.println("  |     Other player, look away!           |");
         io.println("  +----------------------------------------+");
         io.readLine("  Press ENTER when ready...");
@@ -206,8 +196,8 @@ public class Game {
     public void run() {
         // 1. Ask for sound preference at the very beginning
         String soundChoice = io
-            .readNonEmptyString("  Enable sound effects and music? (yes/no): ")
-            .toLowerCase();
+                .readNonEmptyString("  Enable sound effects and music? (yes/no): ")
+                .toLowerCase();
         boolean isMuted = soundChoice.equals("no") || soundChoice.equals("n");
         sound.setMuted(isMuted);
         sound.startBackground();
@@ -225,12 +215,10 @@ public class Game {
 
             io.println("");
             String mode = io.selectFromList(
-                "  Choose game mode:",
-                List.of(
-                    "Choose category & difficulty",
-                    "Random Round (computer decides)"
-                )
-            );
+                    "  Choose game mode:",
+                    List.of(
+                            "Choose category & difficulty",
+                            "Random Round (computer decides)"));
 
             io.println("");
             io.println("  All players registered. Let the battle begin!");
@@ -238,20 +226,17 @@ public class Game {
             sound.play(SoundManager.GAME_START);
 
             boolean randomRound = mode.equals(
-                "Random Round (computer decides)"
-            );
+                    "Random Round (computer decides)");
 
             Random random = new Random();
             List<Question> roundQuestions = new ArrayList<>();
 
             if (!randomRound) {
                 List<String> categories = new ArrayList<>(
-                    questionBank.getCategories()
-                );
+                        questionBank.getCategories());
                 String selectedCategory = io.selectFromList(
-                    "  Choose a CATEGORY for this match:",
-                    categories
-                );
+                        "  Choose a CATEGORY for this match:",
+                        categories);
 
                 String selectedDifficulty = "";
                 boolean hasBot = false;
@@ -261,12 +246,12 @@ public class Game {
                     if (p.isBot()) {
                         hasBot = true;
                         String dName = p
-                            .getStrategy()
-                            .getDifficultyName()
-                            .toUpperCase();
+                                .getStrategy()
+                                .getDifficultyName()
+                                .toUpperCase();
                         int currentLevel = dName.equals("HARD")
-                            ? 2
-                            : (dName.equals("MEDIUM") ? 1 : 0);
+                                ? 2
+                                : (dName.equals("MEDIUM") ? 1 : 0);
 
                         if (currentLevel > maxBotDifficulty) {
                             maxBotDifficulty = currentLevel;
@@ -277,64 +262,54 @@ public class Game {
 
                 if (hasBot) {
                     io.println(
-                        "\n  [SYSTEM] Bot(s) detected. Setting match difficulty to " +
-                            selectedDifficulty +
-                            "."
-                    );
+                            "\n  [SYSTEM] Bot(s) detected. Setting match difficulty to " +
+                                    selectedDifficulty +
+                                    ".");
                 } else {
                     Player difficultyChooser = gameState
-                        .getPlayers()
-                        .get(random.nextInt(gameState.getPlayers().size()));
+                            .getPlayers()
+                            .get(random.nextInt(gameState.getPlayers().size()));
 
                     io.println(
-                        "\n  " +
-                            difficultyChooser.getName() +
-                            ", you choose the DIFFICULTY!"
-                    );
+                            "\n  " +
+                                    difficultyChooser.getName() +
+                                    ", you choose the DIFFICULTY!");
                     List<String> difficulties = new ArrayList<>(
-                        questionBank.getDifficulties(selectedCategory)
-                    );
+                            questionBank.getDifficulties(selectedCategory));
                     selectedDifficulty = io.selectFromList(
-                        "  Choose DIFFICULTY (EASY/MEDIUM/HARD):",
-                        difficulties
-                    );
+                            "  Choose DIFFICULTY (EASY/MEDIUM/HARD):",
+                            difficulties);
                 }
 
                 io.println(
-                    "  Final match settings: " +
-                        selectedCategory +
-                        " | " +
-                        selectedDifficulty
-                );
+                        "  Final match settings: " +
+                                selectedCategory +
+                                " | " +
+                                selectedDifficulty);
                 io.println("");
 
                 for (int i = 0; i < questionsPerPlayer; i++) {
                     Question q = questionBank.getQuestion(
-                        selectedCategory,
-                        selectedDifficulty
-                    );
+                            selectedCategory,
+                            selectedDifficulty);
                     if (q != null) {
                         roundQuestions.add(q);
                     }
                 }
             } else {
                 io.println(
-                    "  Random Round enabled: The computer will choose category and difficulty each question!"
-                );
+                        "  Random Round enabled: The computer will choose category and difficulty each question!");
                 io.println("");
 
                 List<String> categories = new ArrayList<>(
-                    questionBank.getCategories()
-                );
+                        questionBank.getCategories());
 
                 for (int i = 0; i < questionsPerPlayer; i++) {
                     String category = categories.get(
-                        random.nextInt(categories.size())
-                    );
+                            random.nextInt(categories.size()));
 
                     List<String> diffs = new ArrayList<>(
-                        questionBank.getDifficulties(category)
-                    );
+                            questionBank.getDifficulties(category));
                     if (diffs.isEmpty()) {
                         i--; // try again
                         continue;
@@ -355,12 +330,10 @@ public class Game {
             if (roundQuestions.isEmpty()) {
                 if (randomRound) {
                     io.println(
-                        "  ERROR: No questions available for Random Round!"
-                    );
+                            "  ERROR: No questions available for Random Round!");
                 } else {
                     io.println(
-                        "  ERROR: No questions available for this category/difficulty combination!"
-                    );
+                            "  ERROR: No questions available for this category/difficulty combination!");
                 }
                 io.println("  Game cannot start.");
                 return;
@@ -368,31 +341,27 @@ public class Game {
 
             if (roundQuestions.size() < questionsPerPlayer) {
                 io.println(
-                    "  WARNING: Only " +
-                        roundQuestions.size() +
-                        " question(s) available instead of " +
-                        questionsPerPlayer +
-                        "."
-                );
+                        "  WARNING: Only " +
+                                roundQuestions.size() +
+                                " question(s) available instead of " +
+                                questionsPerPlayer +
+                                ".");
                 io.println(
-                    "  Continuing with " +
-                        roundQuestions.size() +
-                        " question(s)..."
-                );
+                        "  Continuing with " +
+                                roundQuestions.size() +
+                                " question(s)...");
             }
 
             io.println(
-                "  Starting game with " + roundQuestions.size() + " questions!"
-            );
+                    "  Starting game with " + roundQuestions.size() + " questions!");
             io.println("");
 
             // Play multiple rounds with pre-selected questions
             for (int round = 0; round < roundQuestions.size(); round++) {
                 String checkSettings = io.readLine(
-                    "\n  Press ENTER to start Round " +
-                        (round + 1) +
-                        " or type 's' for Bot Settings:"
-                );
+                        "\n  Press ENTER to start Round " +
+                                (round + 1) +
+                                " or type 's' for Bot Settings:");
                 if (checkSettings.equalsIgnoreCase("s")) {
                     boolean difficultyChanged = false;
                     String newDiffUpper = "";
@@ -400,32 +369,26 @@ public class Game {
                     for (Player p : gameState.getPlayers()) {
                         if (p.isBot()) {
                             io.println(
-                                "\n  SETTINGS: " + p.getName().toUpperCase()
-                            );
+                                    "\n  SETTINGS: " + p.getName().toUpperCase());
                             String newDiff = io.selectFromList(
-                                "  Choose new difficulty:",
-                                List.of(
-                                    "Easy",
-                                    "Medium",
-                                    "Hard",
-                                    "Keep Current"
-                                )
-                            );
+                                    "  Choose new difficulty:",
+                                    List.of(
+                                            "Easy",
+                                            "Medium",
+                                            "Hard",
+                                            "Keep Current"));
 
                             if (!newDiff.equals("Keep Current")) {
                                 switch (newDiff) {
                                     case "Easy" -> changeBotDifficulty(
-                                        p,
-                                        new bot.EasyBot()
-                                    );
+                                            p,
+                                            new bot.EasyBot());
                                     case "Medium" -> changeBotDifficulty(
-                                        p,
-                                        new bot.MediumBot()
-                                    );
+                                            p,
+                                            new bot.MediumBot());
                                     case "Hard" -> changeBotDifficulty(
-                                        p,
-                                        new bot.HardBot()
-                                    );
+                                            p,
+                                            new bot.HardBot());
                                 }
                                 difficultyChanged = true;
                                 newDiffUpper = newDiff.toUpperCase();
@@ -435,19 +398,17 @@ public class Game {
 
                     if (difficultyChanged && !randomRound) {
                         io.println(
-                            "  [REGENERATING] Updating questions to " +
-                                newDiffUpper +
-                                " level..."
-                        );
+                                "  [REGENERATING] Updating questions to " +
+                                        newDiffUpper +
+                                        " level...");
                         String currentCat = roundQuestions
-                            .get(round)
-                            .getCategory();
+                                .get(round)
+                                .getCategory();
 
                         for (int i = round; i < roundQuestions.size(); i++) {
                             Question newQ = questionBank.getQuestion(
-                                currentCat,
-                                newDiffUpper
-                            );
+                                    currentCat,
+                                    newDiffUpper);
                             if (newQ != null) {
                                 roundQuestions.set(i, newQ);
                             }
@@ -458,27 +419,25 @@ public class Game {
                 io.println("");
                 io.println("");
                 io.println(
-                    "   =========== ROUND " +
-                        (round + 1) +
-                        " of " +
-                        roundQuestions.size() +
-                        " ==========="
-                );
+                        "   =========== ROUND " +
+                                (round + 1) +
+                                " of " +
+                                roundQuestions.size() +
+                                " ===========");
 
                 Question currentQuestion = roundQuestions.get(round);
                 if (randomRound) {
                     io.println(
-                        "  Category: " +
-                            currentQuestion.getCategory() +
-                            " | Difficulty: " +
-                            currentQuestion.getDifficulty()
-                    );
+                            "  Category: " +
+                                    currentQuestion.getCategory() +
+                                    " | Difficulty: " +
+                                    currentQuestion.getDifficulty());
                 }
                 io.println("");
 
                 boolean[] roundResults = new boolean[gameState
-                    .getPlayers()
-                    .size()];
+                        .getPlayers()
+                        .size()];
                 long[] roundTimes = new long[gameState.getPlayers().size()];
                 boolean isLastRound = (round == roundQuestions.size() - 1);
 
@@ -496,25 +455,22 @@ public class Game {
                         // makes the contract explicit and safe for future multi-threaded UIs.)
                         if (!turnManager.isActivePlayer(currentPlayer)) {
                             io.println(
-                                "  [SYSTEM] It is not " +
-                                    currentPlayer.getName() +
-                                    "'s turn. Skipping."
-                            );
+                                    "  [SYSTEM] It is not " +
+                                            currentPlayer.getName() +
+                                            "'s turn. Skipping.");
                             continue;
                         }
 
-                        Question playerQuestion =
-                            currentQuestion.cloneQuestion();
+                        Question playerQuestion = currentQuestion.cloneQuestion();
 
                         displayHotSeatHeader(currentPlayer);
                         int wager = 0;
 
                         if (turnManager.isCurrentPlayerBot()) {
                             io.println(
-                                "\n  " +
-                                    currentPlayer.getName() +
-                                    " (BOT) is thinking..."
-                            );
+                                    "\n  " +
+                                            currentPlayer.getName() +
+                                            " (BOT) is thinking...");
 
                             bot.BotStrategy strat = currentPlayer.getStrategy();
                             String response = strat.getAnswer(playerQuestion);
@@ -522,114 +478,99 @@ public class Game {
 
                             try {
                                 Thread.sleep(1000);
-                            } catch (InterruptedException e) {}
+                            } catch (InterruptedException e) {
+                            }
 
                             io.println(
-                                "  [BOT] Answered: " +
-                                    response +
-                                    " in " +
-                                    (elapsedTime / 1000.0) +
-                                    "s"
-                            );
+                                    "  [BOT] Answered: " +
+                                            response +
+                                            " in " +
+                                            (elapsedTime / 1000.0) +
+                                            "s");
 
                             roundTimes[p] = elapsedTime;
                             currentPlayer.setTimer(
-                                currentPlayer.getTimer() + elapsedTime
-                            );
+                                    currentPlayer.getTimer() + elapsedTime);
 
                             boolean isCorrect = AnswerValidator.isCorrect(
-                                playerQuestion,
-                                response
-                            );
+                                    playerQuestion,
+                                    response);
                             roundResults[p] = isCorrect;
 
                             processScore(
-                                currentPlayer,
-                                playerQuestion,
-                                isCorrect,
-                                0,
-                                elapsedTime
-                            );
+                                    currentPlayer,
+                                    playerQuestion,
+                                    isCorrect,
+                                    0,
+                                    elapsedTime);
 
                             if (!isCorrect) {
                                 io.println(
-                                    "   >> BOT WRONG! The correct answer was: " +
-                                        playerQuestion.getAnswer()
-                                );
+                                        "   >> BOT WRONG! The correct answer was: " +
+                                                playerQuestion.getAnswer());
                             }
                         } else {
                             if (isLastRound) {
                                 wager = handleBetting(
-                                    currentPlayer,
-                                    currentQuestion
-                                );
+                                        currentPlayer,
+                                        currentQuestion);
                             }
                             io.println("");
                             io.println(
-                                "  " +
-                                    currentPlayer.getName() +
-                                    " - Question " +
-                                    (round + 1) +
-                                    " of " +
-                                    roundQuestions.size()
-                            );
+                                    "  " +
+                                            currentPlayer.getName() +
+                                            " - Question " +
+                                            (round + 1) +
+                                            " of " +
+                                            roundQuestions.size());
                             io.println(
-                                "  ----------------------------------------"
-                            );
+                                    "  ----------------------------------------");
                             io.println(
-                                "  " +
-                                    playerQuestion
-                                        .formatForConsole()
-                                        .replace("\n", "\n  ")
-                            );
+                                    "  " +
+                                            playerQuestion
+                                                    .formatForConsole()
+                                                    .replace("\n", "\n  "));
 
                             if (currentPlayer.getBonusTokens() > 0) {
                                 io.println(
-                                    "\n  [!] You have " +
-                                        currentPlayer.getBonusTokens() +
-                                        " bonus token(s) available!"
-                                );
+                                        "\n  [!] You have " +
+                                                currentPlayer.getBonusTokens() +
+                                                " bonus token(s) available!");
                                 String use = io
-                                    .readNonEmptyString(
-                                        "  Use a lifeline for this question? (yes/no): "
-                                    )
-                                    .toLowerCase();
+                                        .readNonEmptyString(
+                                                "  Use a lifeline for this question? (yes/no): ")
+                                        .toLowerCase();
 
                                 if (use.startsWith("y")) {
                                     // reset flag to ensure we only consume token if a bonus is actually selected
                                     currentPlayer.setHasUsedBonus(false);
 
                                     bonus.offerBonusIfAvailable(
-                                        currentPlayer,
-                                        playerQuestion
-                                    );
+                                            currentPlayer,
+                                            playerQuestion);
 
                                     if (currentPlayer.hasUsedBonus()) {
                                         currentPlayer.useBonusToken();
                                         io.println(
-                                            "  Token consumed! Remaining: " +
-                                                currentPlayer.getBonusTokens()
-                                        );
+                                                "  Token consumed! Remaining: " +
+                                                        currentPlayer.getBonusTokens());
                                     }
                                 }
                             }
 
                             io.println(
-                                "  You have " +
-                                    (TIME_LIMIT_MS / 1000) +
-                                    " seconds to answer!"
-                            );
+                                    "  You have " +
+                                            (TIME_LIMIT_MS / 1000) +
+                                            " seconds to answer!");
                             long startTime = System.currentTimeMillis();
                             String response = readAnswerWithTimeout(
-                                playerQuestion
-                            );
+                                    playerQuestion);
                             long endTime = System.currentTimeMillis();
                             long elapsedTime = endTime - startTime;
 
                             roundTimes[p] = elapsedTime;
                             currentPlayer.setTimer(
-                                currentPlayer.getTimer() + elapsedTime
-                            );
+                                    currentPlayer.getTimer() + elapsedTime);
 
                             boolean isCorrect;
                             if (response.equals("__TIMEOUT__")) {
@@ -637,56 +578,43 @@ public class Game {
                                 int penalty = calculatePoints(currentQuestion);
                                 currentPlayer.subtractScore(penalty);
                                 io.println(
-                                    "   >> TIME'S UP! -" +
-                                        penalty +
-                                        " points penalty."
-                                );
+                                        "   >> TIME'S UP! -" +
+                                                penalty +
+                                                " points penalty.");
                             } else {
                                 isCorrect = AnswerValidator.isCorrect(
-                                    playerQuestion,
-                                    response
-                                );
+                                        playerQuestion,
+                                        response);
                             }
 
                             roundResults[p] = isCorrect;
                             processScore(
-                                currentPlayer,
-                                playerQuestion,
-                                isCorrect,
-                                wager,
-                                elapsedTime
-                            );
+                                    currentPlayer,
+                                    playerQuestion,
+                                    isCorrect,
+                                    wager,
+                                    elapsedTime);
 
                             if (!isCorrect) {
                                 String correctAnswer;
 
-                                if (
-                                    playerQuestion.getType() ==
-                                    QuestionType.ORDERING
-                                ) {
-                                    List<String> correctList =
-                                        playerQuestion.getOrderingAnswer();
+                                if (playerQuestion.getType() == QuestionType.ORDERING) {
+                                    List<String> correctList = playerQuestion.getOrderingAnswer();
 
                                     // String.join will transform ["Asia", "Africa", "Europe"] in "Asia -> Africa ->
                                     // Europe"
                                     correctAnswer = String.join(
-                                        " -> ",
-                                        correctList
-                                    );
-                                } else if (
-                                    playerQuestion.getType() ==
-                                    QuestionType.NUMERIC
-                                ) {
+                                            " -> ",
+                                            correctList);
+                                } else if (playerQuestion.getType() == QuestionType.NUMERIC) {
                                     correctAnswer = String.valueOf(
-                                        currentQuestion.getNumericAnswer()
-                                    );
+                                            currentQuestion.getNumericAnswer());
                                 } else {
                                     correctAnswer = playerQuestion.getAnswer();
                                 }
                                 io.println(
-                                    "   >> WRONG or TIMEOUT! The correct answer was: " +
-                                        correctAnswer
-                                );
+                                        "   >> WRONG or TIMEOUT! The correct answer was: " +
+                                                correctAnswer);
                             }
                         }
 
@@ -716,12 +644,10 @@ public class Game {
 
             showPlayerStatistics();
 
-            // option to play again
             String choice = io
-                .readNonEmptyString(
-                    "  Would you like to play another game? (yes/no): "
-                )
-                .toLowerCase();
+                    .readNonEmptyString(
+                            "  Would you like to play another game? (yes/no): ")
+                    .toLowerCase();
             playAgain = choice.equals("yes") || choice.equals("y");
 
             if (playAgain) {
@@ -760,17 +686,15 @@ public class Game {
             while (!done[0]) {
                 try {
                     String response = io.readLineWithTimeoutAndCountdown(
-                        "  Your answer:",
-                        TIME_LIMIT_MS
-                    );
+                            "  Your answer:",
+                            TIME_LIMIT_MS);
                     if (AnswerValidator.isValidAnswer(question, response)) {
                         result[0] = response;
                         done[0] = true;
                         break;
                     } else {
                         io.println(
-                            "  Invalid answer. Please enter a valid option."
-                        );
+                                "  Invalid answer. Please enter a valid option.");
                     }
                 } catch (TimeoutException e) {
                     done[0] = true;
@@ -809,14 +733,11 @@ public class Game {
 
         io.println("  RULES:");
         io.println(
-            "  1. BATTLE: Answer correctly and BE FAST! Speed is the tie-breaker."
-        );
+                "  1. BATTLE: Answer correctly and BE FAST! Speed is the tie-breaker.");
         io.println(
-            "  2. REWARD: Round Winner claims 1 more cell from the map than the runner up. Claims scale with the map size."
-        );
+                "  2. REWARD: Round Winner claims 1 more cell from the map than the runner up. Claims scale with the map size.");
         io.println(
-            "             - Once claimed, the cell will show your player symbol."
-        );
+                "             - Once claimed, the cell will show your player symbol.");
 
         io.println("");
     }
@@ -836,9 +757,8 @@ public class Game {
                 p = new Player(name);
             } else {
                 String diff = io.selectFromList(
-                    " Bot Difficulty:",
-                    List.of("Easy", "Medium", "Hard")
-                );
+                        " Bot Difficulty:",
+                        List.of("Easy", "Medium", "Hard"));
                 p = new Player("Bot " + symbols[i]);
                 switch (diff) {
                     case "Easy" -> p.setStrategy(new bot.EasyBot());
@@ -878,12 +798,11 @@ public class Game {
             int territory = map.countTerritory(player.getSymbol());
 
             io.println(
-                "    " +
-                    padRight(player.getName(), 15) +
-                    padRight(player.getScore() + " pts", 10) +
-                    padRight(territory + " terr", 10) +
-                    String.format("%.2fs", timeInSeconds)
-            );
+                    "    " +
+                            padRight(player.getName(), 15) +
+                            padRight(player.getScore() + " pts", 10) +
+                            padRight(territory + " terr", 10) +
+                            String.format("%.2fs", timeInSeconds));
         }
 
         io.println("");
@@ -891,9 +810,8 @@ public class Game {
 
         // calculate the winner (considers score first, then territory)
         Player winner = WinnerCalculator.getWinnerOrNull(
-            gameState.getPlayers(),
-            map
-        );
+                gameState.getPlayers(),
+                map);
 
         if (winner == null) {
             io.println("  It's a TIE! Same score and territory.");
@@ -909,7 +827,8 @@ public class Game {
     }
 
     private String padRight(String text, int length) {
-        if (text.length() >= length) return text;
+        if (text.length() >= length)
+            return text;
         StringBuilder sb = new StringBuilder(text);
         while (sb.length() < length) {
             sb.append(' ');
@@ -940,30 +859,30 @@ public class Game {
             if (currentPlayer.isBot()) {
                 map.displayForPlayer(io, symbol);
                 io.println(
-                    "  [BOT] " +
-                        currentPlayer.getName() +
-                        " is selecting a territory..."
-                );
+                        "  [BOT] " +
+                                currentPlayer.getName() +
+                                " is selecting a territory...");
 
                 int[] move = getBotMove();
-                if (move == null) break;
+                if (move == null)
+                    break;
 
                 r = move[0];
                 c = move[1];
 
                 try {
                     Thread.sleep(1500);
-                } catch (InterruptedException e) {}
+                } catch (InterruptedException e) {
+                }
                 io.println("  [BOT] Chose coordinates: " + r + "," + c);
             } else {
                 map.displayForPlayer(io, symbol);
                 String input = io.readNonEmptyString(
-                    "  " +
-                        currentPlayer.getName() +
-                        " (" +
-                        symbol +
-                        "), enter coordinates row,col:"
-                );
+                        "  " +
+                                currentPlayer.getName() +
+                                " (" +
+                                symbol +
+                                "), enter coordinates row,col:");
 
                 if (!input.contains(",")) {
                     io.println("  Invalid format! Please use: row,col");
@@ -988,30 +907,27 @@ public class Game {
                 map.revealCellForPlayer(symbol, r, c);
 
                 io.println(
-                    "  Success! Cell [" +
-                        r +
-                        "," +
-                        c +
-                        "] is marked with '" +
-                        symbol +
-                        "'."
-                );
+                        "  Success! Cell [" +
+                                r +
+                                "," +
+                                c +
+                                "] is marked with '" +
+                                symbol +
+                                "'.");
 
                 if (cellHasBonus) {
                     io.println("\n  BONUS TOKEN FOUND!");
                     currentPlayer.addBonusToken();
                     io.println(
-                        "  You found a power-up! You now have " +
-                            currentPlayer.getBonusTokens() +
-                            " token(s)."
-                    );
+                            "  You found a power-up! You now have " +
+                                    currentPlayer.getBonusTokens() +
+                                    " token(s).");
                 }
                 done = true;
             } else {
                 if (!currentPlayer.isBot()) {
                     io.println(
-                        "  That cell is either outside the map or already taken! Try again."
-                    );
+                            "  That cell is either outside the map or already taken! Try again.");
                 }
             }
         }
@@ -1019,10 +935,12 @@ public class Game {
 
     private void handleTerritoryPhase(boolean[] results, long[] times) {
         List<Integer> ranking = new ArrayList<>();
-        for (int i = 0; i < gameState.getPlayers().size(); i++) ranking.add(i);
+        for (int i = 0; i < gameState.getPlayers().size(); i++)
+            ranking.add(i);
 
         ranking.sort((a, b) -> {
-            if (results[a] != results[b]) return results[a] ? -1 : 1;
+            if (results[a] != results[b])
+                return results[a] ? -1 : 1;
             return Long.compare(times[a], times[b]);
         });
 
@@ -1032,19 +950,18 @@ public class Game {
             Player p = gameState.getPlayers().get(playerIdx);
             String status = results[playerIdx] ? "CORRECT" : "WRONG";
             io.println(
-                (i + 1) +
-                    ". " +
-                    p.getName() +
-                    " [" +
-                    status +
-                    "] - " +
-                    (times[playerIdx] / 1000.0) +
-                    "s"
-            );
+                    (i + 1) +
+                            ". " +
+                            p.getName() +
+                            " [" +
+                            status +
+                            "] - " +
+                            (times[playerIdx] / 1000.0) +
+                            "s");
 
             int claims = (results[playerIdx])
-                ? (map.getSize() / 2 + 1)
-                : (map.getSize() / 2);
+                    ? (map.getSize() / 2 + 1)
+                    : (map.getSize() / 2);
 
             for (int c = 1; c <= claims; c++) {
                 io.println(" " + p.getName() + " claim " + c + "/" + claims);
@@ -1070,12 +987,11 @@ public class Game {
             speedWinner.addScore(speedBonus);
 
             io.println(
-                "\n  ⚡ SPEED BONUS: " +
-                    speedWinner.getName() +
-                    " was the fastest correct answer! +" +
-                    speedBonus +
-                    " pts"
-            );
+                    "\n  ⚡ SPEED BONUS: " +
+                            speedWinner.getName() +
+                            " was the fastest correct answer! +" +
+                            speedBonus +
+                            " pts");
         }
     }
 
@@ -1087,39 +1003,35 @@ public class Game {
     private int handleBetting(Player player, Question q) {
         if (player.getScore() <= 0) {
             io.println(
-                "\n  " +
-                    player.getName() +
-                    ", you have 0 points. Skipping betting phase."
-            );
+                    "\n  " +
+                            player.getName() +
+                            ", you have 0 points. Skipping betting phase.");
             return 0;
         }
         io.println("\n  *** SPECIAL BETTING OPPORTUNITY ***");
         io.println(
-            "  Category: " +
-                q.getCategory().toUpperCase() +
-                " | Difficulty: HARD"
-        );
+                "  Category: " +
+                        q.getCategory().toUpperCase() +
+                        " | Difficulty: HARD");
         io.println("  Your current score: [" + player.getScore() + "]");
 
         String choice = io
-            .readNonEmptyString("  Do you want to bet your points? (yes/no):")
-            .toLowerCase();
+                .readNonEmptyString("  Do you want to bet your points? (yes/no):")
+                .toLowerCase();
 
         if (choice.equals("yes") || choice.equals("y")) {
             while (true) {
                 try {
                     String input = io.readNonEmptyString(
-                        "  Enter wager (1 - " + player.getScore() + "):"
-                    );
+                            "  Enter wager (1 - " + player.getScore() + "):");
                     int bet = Integer.parseInt(input);
 
                     if (bet > 0 && bet <= player.getScore()) {
                         return bet;
                     }
                     io.println(
-                        "  Invalid amount! Max bet allowed is " +
-                            player.getScore()
-                    );
+                            "  Invalid amount! Max bet allowed is " +
+                                    player.getScore());
                 } catch (NumberFormatException e) {
                     io.println("  Please enter a valid number.");
                 }
@@ -1139,30 +1051,28 @@ public class Game {
      * Handles both standard questions and numeric estimation challenges.
      */
     private void processScore(
-        Player player,
-        Question q,
-        boolean isCorrect,
-        int wager,
-        long elapsedTimeMs
-    ) {
-        boolean playSounds =
-            q.getType() != QuestionType.OPEN_ENDED &&
-            q.getType() != QuestionType.NUMERIC;
+            Player player,
+            Question q,
+            boolean isCorrect,
+            int wager,
+            long elapsedTimeMs) {
+        boolean playSounds = q.getType() != QuestionType.OPEN_ENDED &&
+                q.getType() != QuestionType.NUMERIC;
 
         if (isCorrect) {
             player.addCorrectAnswer(elapsedTimeMs);
-            if (playSounds) sound.play(SoundManager.CORRECT);
+            if (playSounds)
+                sound.play(SoundManager.CORRECT);
             if (wager > 0) {
                 // Wager logic: Double the bet
                 int winAmount = wager * 2;
                 player.addScore(winAmount);
                 io.println(
-                    "\n  >> CORRECT! [" +
-                        player.getName() +
-                        "] won " +
-                        winAmount +
-                        " points from the bet!"
-                );
+                        "\n  >> CORRECT! [" +
+                                player.getName() +
+                                "] won " +
+                                winAmount +
+                                " points from the bet!");
             } else {
                 // Standard points logic: Use the difficulty-based scoring
                 int points = calculatePoints(q); // Now correctly returns 10, 20, or 30
@@ -1172,37 +1082,35 @@ public class Game {
                     points *= 2;
                     sound.play(SoundManager.LIGHTNING);
                     io.println(
-                        "  >> ⚡ LIGHTNING! Answered in <= 3s: base points doubled."
-                    );
+                            "  >> ⚡ LIGHTNING! Answered in <= 3s: base points doubled.");
                 }
 
                 // setStreak adds the points and checks for the STREAK_BONUS (3 pts)
                 player.setStreak(points);
 
                 io.println(
-                    "\n  >> CORRECT! [" +
-                        player.getName() +
-                        "] earned " +
-                        points +
-                        " points."
-                );
+                        "\n  >> CORRECT! [" +
+                                player.getName() +
+                                "] earned " +
+                                points +
+                                " points.");
                 if (player.getStreak() >= 2) {
                     io.println("     Streak Bonus applied! +3 pts");
                 }
             }
         } else {
             player.addWrongAnswer(elapsedTimeMs);
-            if (playSounds) sound.play(SoundManager.INCORRECT);
+            if (playSounds)
+                sound.play(SoundManager.INCORRECT);
             if (wager > 0) {
                 // Failure logic: Subtract the bet
                 player.subtractScore(wager);
                 io.println(
-                    "  >> WRONG! [" +
-                        player.getName() +
-                        "] lost the bet of " +
-                        wager +
-                        " points."
-                );
+                        "  >> WRONG! [" +
+                                player.getName() +
+                                "] lost the bet of " +
+                                wager +
+                                " points.");
             } else {
                 // Failure logic: Reset streak, no points lost
                 player.resetStreak();
@@ -1212,9 +1120,8 @@ public class Game {
 
     private int chooseMapSize() {
         String mapSize = io.selectFromList(
-            "  Choose a map size. ",
-            List.of("Small 3x3", "Medium 5x5", "Large 7x7")
-        );
+                "  Choose a map size. ",
+                List.of("Small 3x3", "Medium 5x5", "Large 7x7"));
 
         return switch (mapSize) {
             case "Medium 5x5" -> 5;
@@ -1232,15 +1139,13 @@ public class Game {
             char attackerSym = attacker.getSymbol();
 
             List<Character> potentialTargets = map.getVisibleEnemySymbols(
-                attackerSym
-            );
+                    attackerSym);
 
             if (potentialTargets.isEmpty()) {
                 io.println(
-                    "  [SYSTEM] " +
-                        attacker.getName() +
-                        " has no enemies to attack. Skipping."
-                );
+                        "  [SYSTEM] " +
+                                attacker.getName() +
+                                " has no enemies to attack. Skipping.");
                 continue;
             }
 
@@ -1250,15 +1155,14 @@ public class Game {
             } else {
                 if (attacker.isBot()) {
                     targetSym = potentialTargets.get(
-                        new Random().nextInt(potentialTargets.size())
-                    );
+                            new Random().nextInt(potentialTargets.size()));
                 } else {
                     List<String> options = new ArrayList<>();
-                    for (char s : potentialTargets) options.add("Player " + s);
+                    for (char s : potentialTargets)
+                        options.add("Player " + s);
                     String choice = io.selectFromList(
-                        "  Select enemy to attack:",
-                        options
-                    );
+                            "  Select enemy to attack:",
+                            options);
                     targetSym = choice.charAt(choice.length() - 1);
                 }
             }
@@ -1274,25 +1178,23 @@ public class Game {
             char defenderSym = defender.getSymbol();
 
             io.println(
-                "  " +
-                    attacker.getName() +
-                    " is attacking " +
-                    defender.getName() +
-                    "!"
-            );
+                    "  " +
+                            attacker.getName() +
+                            " is attacking " +
+                            defender.getName() +
+                            "!");
             map.display(io);
 
             int attR = -1,
-                attC = -1,
-                defR = -1,
-                defC = -1;
+                    attC = -1,
+                    defR = -1,
+                    defC = -1;
 
             if (attacker.isBot()) {
                 io.println(
-                    "  [BOT] " +
-                        attacker.getName() +
-                        " is scanning for targets..."
-                );
+                        "  [BOT] " +
+                                attacker.getName() +
+                                " is scanning for targets...");
                 int[][] move = getBotAttackMove(attackerSym, defenderSym);
 
                 if (move != null) {
@@ -1302,22 +1204,21 @@ public class Game {
                     defC = move[1][1];
                     try {
                         Thread.sleep(2000);
-                    } catch (InterruptedException e) {}
+                    } catch (InterruptedException e) {
+                    }
                     io.println(
-                        "  [BOT] Attacking FROM [" +
-                            attR +
-                            "," +
-                            attC +
-                            "] TO [" +
-                            defR +
-                            "," +
-                            defC +
-                            "]"
-                    );
+                            "  [BOT] Attacking FROM [" +
+                                    attR +
+                                    "," +
+                                    attC +
+                                    "] TO [" +
+                                    defR +
+                                    "," +
+                                    defC +
+                                    "]");
                 } else {
                     io.println(
-                        "  [BOT] No valid adjacent targets found. Skipping turn."
-                    );
+                            "  [BOT] No valid adjacent targets found. Skipping turn.");
                     continue;
                 }
             } else {
@@ -1325,8 +1226,7 @@ public class Game {
                 while (!sourceValid) {
                     try {
                         String input = io.readNonEmptyString(
-                            "  Select YOUR territory to attack FROM (row,col) or 'd' to see map:"
-                        );
+                                "  Select YOUR territory to attack FROM (row,col) or 'd' to see map:");
 
                         if (input.equalsIgnoreCase("d")) {
                             map.display(io);
@@ -1351,8 +1251,7 @@ public class Game {
                 while (!targetValid) {
                     try {
                         String input = io.readNonEmptyString(
-                            "  Select ADJACENT enemy territory to ATTACK (row,col) or 'd' to see map:"
-                        );
+                                "  Select ADJACENT enemy territory to ATTACK (row,col) or 'd' to see map:");
 
                         if (input.equalsIgnoreCase("d")) {
                             map.display(io);
@@ -1365,8 +1264,7 @@ public class Game {
 
                         if (map.getOwner(defR, defC) != defenderSym) {
                             io.println(
-                                "  Error: That's not an enemy territory!"
-                            );
+                                    "  Error: That's not an enemy territory!");
                         } else if (!map.isAdjacent(attR, attC, defR, defC)) {
                             io.println("  Error: Cell is not adjacent!");
                         } else {
@@ -1392,17 +1290,15 @@ public class Game {
                 Question q_defender = q.cloneQuestion();
 
                 String correctAnswer = (q.getType() == QuestionType.NUMERIC)
-                    ? String.valueOf(q.getNumericAnswer())
-                    : q.getAnswer();
-                String correctAnswer_defender = (q_defender.getType() ==
-                    QuestionType.NUMERIC)
-                    ? String.valueOf(q_defender.getNumericAnswer())
-                    : q_defender.getAnswer();
+                        ? String.valueOf(q.getNumericAnswer())
+                        : q.getAnswer();
+                String correctAnswer_defender = (q_defender.getType() == QuestionType.NUMERIC)
+                        ? String.valueOf(q_defender.getNumericAnswer())
+                        : q_defender.getAnswer();
 
                 if (attempts == 2) {
                     io.println(
-                        "\n  !!! TIE-BREAKER QUESTION (Final attempt) !!!"
-                    );
+                            "\n  !!! TIE-BREAKER QUESTION (Final attempt) !!!");
                 } else {
                     io.println("\n BATTLE QUESTION ");
                 }
@@ -1417,48 +1313,39 @@ public class Game {
                     io.println("Do you want to use a weapon?");
                     String choiceAtt = io.readNonEmptyString("1) Yes\n2) No");
 
-                    if (
-                        choiceAtt.equals("1") ||
-                        choiceAtt.equalsIgnoreCase("yes")
-                    ) {
+                    if (choiceAtt.equals("1") ||
+                            choiceAtt.equalsIgnoreCase("yes")) {
                         attacked = true;
-                        List<WeaponType> attackWeapons =
-                            attacker.getAttackWeapon();
+                        List<WeaponType> attackWeapons = attacker.getAttackWeapon();
 
                         if (!attackWeapons.isEmpty()) {
                             io.println("\nChoose a weapon to use:");
                             for (int i = 0; i < attackWeapons.size(); i++) {
                                 io.println(
-                                    (i + 1) + ") " + attackWeapons.get(i)
-                                );
+                                        (i + 1) + ") " + attackWeapons.get(i));
                             }
 
                             int weaponChoice = io.readInt(
-                                "\nEnter the number of the weapon: ",
-                                1,
-                                attackWeapons.size()
-                            );
+                                    "\nEnter the number of the weapon: ",
+                                    1,
+                                    attackWeapons.size());
                             WeaponType selectedWeapon = attackWeapons.get(
-                                weaponChoice - 1
-                            );
+                                    weaponChoice - 1);
                             weapon_use = selectedWeapon;
 
                             Weapon currentWeapon = new Weapon(
-                                selectedWeapon,
-                                io
-                            );
+                                    selectedWeapon,
+                                    io);
                             q_defender = currentWeapon.useWeapon(
-                                q_defender,
-                                selectedWeapon,
-                                questionBank,
-                                weapon_use,
-                                q
-                            );
+                                    q_defender,
+                                    selectedWeapon,
+                                    questionBank,
+                                    weapon_use,
+                                    q);
 
-                            correctAnswer_defender = (q_defender.getType() ==
-                                QuestionType.NUMERIC)
-                                ? String.valueOf(q_defender.getNumericAnswer())
-                                : q_defender.getAnswer();
+                            correctAnswer_defender = (q_defender.getType() == QuestionType.NUMERIC)
+                                    ? String.valueOf(q_defender.getNumericAnswer())
+                                    : q_defender.getAnswer();
 
                             io.println("You used: " + selectedWeapon);
                             attacker.useWeapon(selectedWeapon);
@@ -1471,68 +1358,58 @@ public class Game {
                     attAns = attacker.getStrategy().getAnswer(q);
                     try {
                         Thread.sleep(1000);
-                    } catch (InterruptedException e) {}
+                    } catch (InterruptedException e) {
+                    }
                     io.println("  [BOT] Attacker answered: " + attAns);
                 } else {
                     io.println(q.formatForConsole());
                     attAns = readAnswerWithTimeout(q);
                 }
 
-                boolean attCorrect =
-                    !attAns.equals("__TIMEOUT__") &&
-                    AnswerValidator.isCorrect(q, attAns);
+                boolean attCorrect = !attAns.equals("__TIMEOUT__") &&
+                        AnswerValidator.isCorrect(q, attAns);
 
-                if (attCorrect) io.println("   >> CORRECT!");
-                else io.println("   >> WRONG! Correct was: " + correctAnswer);
+                if (attCorrect)
+                    io.println("   >> CORRECT!");
+                else
+                    io.println("   >> WRONG! Correct was: " + correctAnswer);
 
                 displayHotSeatHeader(defender);
                 io.println("  DEFENDER [" + defender.getName() + "]:");
 
-                if (
-                    !defender.isBot() && attacked && defender.hasDefendWeapon()
-                ) {
+                if (!defender.isBot() && attacked && defender.hasDefendWeapon()) {
                     io.println(
-                        "You were attacked! Do you want to use a defense weapon?"
-                    );
+                            "You were attacked! Do you want to use a defense weapon?");
                     String choiceDef = io.readNonEmptyString("1) Yes\n2) No");
 
-                    if (
-                        choiceDef.equals("1") ||
-                        choiceDef.equalsIgnoreCase("yes")
-                    ) {
-                        List<WeaponType> defenseWeapons =
-                            defender.getDefendWeapon();
+                    if (choiceDef.equals("1") ||
+                            choiceDef.equalsIgnoreCase("yes")) {
+                        List<WeaponType> defenseWeapons = defender.getDefendWeapon();
                         if (!defenseWeapons.isEmpty()) {
                             io.println("\nChoose a defense weapon:");
                             for (int i = 0; i < defenseWeapons.size(); i++) {
                                 io.println(
-                                    (i + 1) + ") " + defenseWeapons.get(i)
-                                );
+                                        (i + 1) + ") " + defenseWeapons.get(i));
                             }
                             int weaponChoice = io.readInt(
-                                "\nEnter weapon number: ",
-                                1,
-                                defenseWeapons.size()
-                            );
+                                    "\nEnter weapon number: ",
+                                    1,
+                                    defenseWeapons.size());
                             WeaponType selectedWeapon = defenseWeapons.get(
-                                weaponChoice - 1
-                            );
+                                    weaponChoice - 1);
                             Weapon currentWeapon = new Weapon(
-                                selectedWeapon,
-                                io
-                            );
+                                    selectedWeapon,
+                                    io);
                             q_defender = currentWeapon.useWeapon(
-                                q_defender,
-                                selectedWeapon,
-                                questionBank,
-                                weapon_use,
-                                q
-                            );
+                                    q_defender,
+                                    selectedWeapon,
+                                    questionBank,
+                                    weapon_use,
+                                    q);
 
-                            correctAnswer_defender = (q_defender.getType() ==
-                                QuestionType.NUMERIC)
-                                ? String.valueOf(q_defender.getNumericAnswer())
-                                : q_defender.getAnswer();
+                            correctAnswer_defender = (q_defender.getType() == QuestionType.NUMERIC)
+                                    ? String.valueOf(q_defender.getNumericAnswer())
+                                    : q_defender.getAnswer();
 
                             io.println("You used: " + selectedWeapon);
                             defender.useWeapon(selectedWeapon);
@@ -1545,46 +1422,45 @@ public class Game {
                     defAns = defender.getStrategy().getAnswer(q_defender);
                     try {
                         Thread.sleep(1000);
-                    } catch (InterruptedException e) {}
+                    } catch (InterruptedException e) {
+                    }
                     io.println("  [BOT] Defender answered: " + defAns);
                 } else {
                     io.println(q_defender.formatForConsole());
                     defAns = readAnswerWithTimeout(q_defender);
                 }
 
-                boolean defCorrect =
-                    !defAns.equals("__TIMEOUT__") &&
-                    AnswerValidator.isCorrect(q_defender, defAns);
+                boolean defCorrect = !defAns.equals("__TIMEOUT__") &&
+                        AnswerValidator.isCorrect(q_defender, defAns);
 
-                if (defCorrect) io.println("   >> CORRECT!");
-                else io.println(
-                    "   >> WRONG! Correct was: " + correctAnswer_defender
-                );
+                if (defCorrect)
+                    io.println("   >> CORRECT!");
+                else
+                    io.println(
+                            "   >> WRONG! Correct was: " + correctAnswer_defender);
 
                 if (attCorrect && !defCorrect) {
                     io.println(
-                        "\n  >> SUCCESS! " +
-                            attacker.getName() +
-                            " conquered the territory!"
-                    );
+                            "\n  >> SUCCESS! " +
+                                    attacker.getName() +
+                                    " conquered the territory!");
                     map.setOwner(defR, defC, attackerSym);
                     sound.play(SoundManager.TERRITORY);
                     battleResolved = true;
                 } else if (!attCorrect && defCorrect) {
                     io.println(
-                        "\n  >> REPELLED! " +
-                            defender.getName() +
-                            " defended successfully!"
-                    );
+                            "\n  >> REPELLED! " +
+                                    defender.getName() +
+                                    " defended successfully!");
                     battleResolved = true;
                 } else {
-                    if (attempts < 2) io.println(
-                        "\n  >> TIE! Final tie-breaker..."
-                    );
-                    else io.println(
-                        "\n  >> DOUBLE TIE! Attack failed. Territory stays with " +
-                            defender.getName()
-                    );
+                    if (attempts < 2)
+                        io.println(
+                                "\n  >> TIE! Final tie-breaker...");
+                    else
+                        io.println(
+                                "\n  >> DOUBLE TIE! Attack failed. Territory stays with " +
+                                        defender.getName());
                 }
             }
         }
@@ -1597,16 +1473,13 @@ public class Game {
             io.println("  Correct Answers   : " + player.getCorrectAnswers());
             io.println("  Wrong Answers     : " + player.getWrongAnswers());
             io.println(
-                "  Average Response  : " +
-                    String.format(
-                        "%.2f seconds",
-                        player.getAverageResponseTime()
-                    )
-            );
+                    "  Average Response  : " +
+                            String.format(
+                                    "%.2f seconds",
+                                    player.getAverageResponseTime()));
             io.println(
-                "  Fastest Response  : " +
-                    String.format("%.2f seconds", player.getFastestResponse())
-            );
+                    "  Fastest Response  : " +
+                            String.format("%.2f seconds", player.getFastestResponse()));
             io.println("");
         }
     }
@@ -1620,8 +1493,7 @@ public class Game {
             io.println("\n");
             for (WeaponType w : WeaponType.values()) {
                 io.println(
-                    (w.ordinal() + 1) + ". " + w + " (" + w.getCost() + ")"
-                );
+                        (w.ordinal() + 1) + ". " + w + " (" + w.getCost() + ")");
             }
             io.println("0. Exit Shop\n");
             io.println("H. to see the help\n");
@@ -1632,22 +1504,20 @@ public class Game {
                 shopping = false;
                 continue;
             }
-            if (
-                choice.equals("H") ||
-                choice.equals("h") ||
-                choice.equals("help") ||
-                choice.equals("Help")
-            ) {
+            if (choice.equals("H") ||
+                    choice.equals("h") ||
+                    choice.equals("help") ||
+                    choice.equals("Help")) {
                 io.println(
-                    "// Offensive weapons //\n" +
-                        "CANNON(30) -> Increases the difficulty of the opponent's question\n" +
-                        "CROSSBOW(30) -> Allows you to choose the opponent's question category\n" +
-                        "BURST(65) -> Can choose the category and difficulty max, works 50% of the time\n\n" +
-                        "// Defensive weapons //\n" +
-                        "SHIELD(60) -> Cancels an incoming attack of CANNON and CROSSBOW, 50% chance to cancel BURST\n" +
-                        "LASER_SIGHT(30) -> Allows you to choose your own question category\n" +
-                        "HELMET(30) -> Lowers the difficulty of your question\n"
-                );
+                        "// Offensive weapons //\n" +
+                                "CANNON(30) -> Increases the difficulty of the opponent's question\n" +
+                                "CROSSBOW(30) -> Allows you to choose the opponent's question category\n" +
+                                "BURST(65) -> Can choose the category and difficulty max, works 50% of the time\n\n" +
+                                "// Defensive weapons //\n" +
+                                "SHIELD(60) -> Cancels an incoming attack of CANNON and CROSSBOW, 50% chance to cancel BURST\n"
+                                +
+                                "LASER_SIGHT(30) -> Allows you to choose your own question category\n" +
+                                "HELMET(30) -> Lowers the difficulty of your question\n");
             }
 
             WeaponType selected = null;
@@ -1656,7 +1526,8 @@ public class Game {
                 if (index >= 0 && index < WeaponType.values().length) {
                     selected = WeaponType.values()[index];
                 }
-            } catch (NumberFormatException ignored) {}
+            } catch (NumberFormatException ignored) {
+            }
 
             if (selected != null) {
                 int cost = selected.getCost();
@@ -1664,15 +1535,13 @@ public class Game {
                     player.subtractScore(cost);
                     player.addWeapon(selected);
                     io.println(
-                        "Item purchased: " +
-                            selected +
-                            " (remaining score: " +
-                            player.getScore() +
-                            ")"
-                    );
+                            "Item purchased: " +
+                                    selected +
+                                    " (remaining score: " +
+                                    player.getScore() +
+                                    ")");
                     io.println(
-                        "Your current inventory: " + player.getInventory()
-                    );
+                            "Your current inventory: " + player.getInventory());
                 } else {
                     io.println("\nNot enough points to buy this weapon!");
                 }
@@ -1690,24 +1559,21 @@ public class Game {
             }
             if (!affordable) {
                 io.println(
-                    "You don't have enough points to buy any more weapons. Exiting shop."
-                );
+                        "You don't have enough points to buy any more weapons. Exiting shop.");
                 shopping = false;
             }
         }
 
         io.println(
-            "Exiting shop. Your current inventory: " + player.getInventory()
-        );
+                "Exiting shop. Your current inventory: " + player.getInventory());
     }
 
     public void changeBotDifficulty(Player player, BotStrategy newStrategy) {
         if (player.isBot()) {
             player.setStrategy(newStrategy);
             io.println(
-                "  [SETTINGS] Bot difficulty changed to: " +
-                    newStrategy.getDifficultyName()
-            );
+                    "  [SETTINGS] Bot difficulty changed to: " +
+                            newStrategy.getDifficultyName());
         }
     }
 
@@ -1739,10 +1605,8 @@ public class Game {
                         for (int dc = -1; dc <= 1; dc++) {
                             int tr = r + dr;
                             int tc = c + dc;
-                            if (
-                                map.isInside(tr, tc) &&
-                                map.getOwner(tr, tc) == enemySym
-                            ) {
+                            if (map.isInside(tr, tc) &&
+                                    map.getOwner(tr, tc) == enemySym) {
                                 return new int[][] { { r, c }, { tr, tc } };
                             }
                         }

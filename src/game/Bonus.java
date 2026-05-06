@@ -3,6 +3,7 @@
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
  * @author ARNAUD Aloyse
  * AI-assisted: pair (ChatGPT)
+ * @author Dimofte Raisa
  */
 package game;
 
@@ -45,11 +46,11 @@ public class Bonus {
             io.println("\n  Bonus available! Choose one or skip:");
 
             // requirement: 50/50 unavailable for T/F and typed-answer (Open, Numeric,
-            // Ordering)
+            // Ordering) @author: "Raisa"
             boolean canUse5050 = (q.getType() == QuestionType.MULTIPLE_CHOICE);
             // Requirement: New Question unavailable for Numeric/Ordering
             boolean canUseNewQ = (q.getType() != QuestionType.NUMERIC &&
-                q.getType() != QuestionType.ORDERING);
+                    q.getType() != QuestionType.ORDERING);
 
             if (canUse5050) {
                 io.println("  1) 50/50");
@@ -61,8 +62,7 @@ public class Bonus {
                 io.println("  2) New Question (same category & difficulty)");
             } else {
                 io.println(
-                    "  2) [New Question Not Available for this question type]"
-                );
+                        "  2) [New Question Not Available for this question type]");
             }
 
             io.println("   3) Clue (get a hint)");
@@ -74,8 +74,7 @@ public class Bonus {
                 case "1":
                     if (!canUse5050) {
                         io.println(
-                            "  Selection unavailable for True/False or Open-Ended. Try another."
-                        );
+                                "  Selection unavailable for True/False or Open-Ended. Try another.");
                         continue;
                     }
                     apply5050(q);
@@ -85,8 +84,7 @@ public class Bonus {
                 case "2":
                     if (!canUseNewQ) {
                         io.println(
-                            "  Selection unavailable for this question type."
-                        );
+                                "  Selection unavailable for this question type.");
                         continue;
                     }
                     applyNewQuestion(player, q);
@@ -166,11 +164,9 @@ public class Bonus {
             List<String> hintElements = ordering.subList(0, hintCount);
 
             io.println(
-                "  50/50 applied: here is the start of the correct order!"
-            );
+                    "  50/50 applied: here is the start of the correct order!");
             io.println(
-                "  Hint (first " + hintCount + " elements): " + hintElements
-            );
+                    "  Hint (first " + hintCount + " elements): " + hintElements);
             io.println("  Full question remains to be answered by player:");
             io.println("  " + q.formatForConsole().replace("\n", "\n  "));
         }
@@ -182,9 +178,8 @@ public class Bonus {
 
         while ((newQ == null || newQ.getAnswer() == null) && tries < 10) {
             newQ = questionBank.getQuestion(
-                currentQuestion.getCategory(),
-                currentQuestion.getDifficulty()
-            );
+                    currentQuestion.getCategory(),
+                    currentQuestion.getDifficulty());
             tries++;
         }
 
@@ -198,8 +193,7 @@ public class Bonus {
 
         io.println("\n  New question loaded!");
         io.println(
-            "  " + currentQuestion.formatForConsole().replace("\n", "\n  ")
-        );
+                "  " + currentQuestion.formatForConsole().replace("\n", "\n  "));
     }
 
     private void showClue(Question question) {
@@ -208,8 +202,7 @@ public class Bonus {
             io.println("  No clue available for this question.");
         } else {
             io.println(
-                "  " + question.formatForConsole().replace("\n", "\n  ")
-            );
+                    "  " + question.formatForConsole().replace("\n", "\n  "));
             io.println("  Clue: " + clue);
         }
     }

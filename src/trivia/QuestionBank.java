@@ -1,6 +1,7 @@
 /*
  * @author Leopold Popper
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
+ * @author Dimofte Raisa
  */
 package trivia;
 
@@ -10,16 +11,21 @@ import java.io.FileReader;
 import java.lang.reflect.Type;
 import java.util.*;
 
+/**
+ * Manages a collection of quiz questions loaded from a JSON file
+ * The class organizes questions into a nested map structure for efficient
+ * retrieval by category and difficulty level.
+ */
 public class QuestionBank {
-    // structure: category -> (dificulty -> questions)
+    // structure: category -> (difficulty -> questions)
     private Map<String, Map<String, List<Question>>> organizedQuestions = new HashMap<>();
 
-    public QuestionBank(String jsonPath) {
+    public QuestionBank(String jsonPath) {// load questions from the specified JSON file
         loadFromJson(jsonPath);
         System.out.println("DEBUG: QuestionBank loaded " + getAllQuestionsAsList().size() + " total questions.");
     }
 
-    private void loadFromJson(String jsonPath) {
+    private void loadFromJson(String jsonPath) {// reads the JSON file and organizes questions into the nested map
         try (FileReader reader = new FileReader(jsonPath)) {
             Gson gson = new Gson();
             Type listType = new TypeToken<List<Question>>() {
