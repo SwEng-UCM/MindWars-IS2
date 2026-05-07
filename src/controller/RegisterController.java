@@ -5,6 +5,8 @@
  * AI-assisted: yes (Gemini)
  * @author Ioannis Stogiannaris 
  * AI-assisted: yes (ChatGPT)
+ * @author: Ashley Umeghalu
+ * AI-assisted: yes (ChatGPT)
  */
 package controller;
 

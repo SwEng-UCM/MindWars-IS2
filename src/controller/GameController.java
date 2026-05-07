@@ -6,6 +6,8 @@
  * AI-assisted: assist (ChatGPT)
  * @author Elena-Thea Ungureanu
  * AI-assisted yes Gemini
+ * @author Ashley Umeghalu
+ * AI-assisted: yes (ChatGPT)
  */
 package controller;
 

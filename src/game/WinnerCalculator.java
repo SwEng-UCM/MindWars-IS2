@@ -1,6 +1,8 @@
 /*
  * @author Leopold Popper
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
+ *  @author Ashley Umeghalu
+ * AI-assisted: yes (ChatGPT)
  */
 package game;
 

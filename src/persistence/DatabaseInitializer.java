@@ -1,3 +1,7 @@
+/*
+ *  @author Ashley Umeghalu
+ * AI-assisted: yes (ChatGPT)
+ */
 package persistence;
 
 import java.sql.Connection;

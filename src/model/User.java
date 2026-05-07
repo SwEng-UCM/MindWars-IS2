@@ -1,3 +1,7 @@
+/*
+ *  @author Ashley Umeghalu
+ * AI-assisted: yes (ChatGPT)
+ */
 package model;
 
 public class User {

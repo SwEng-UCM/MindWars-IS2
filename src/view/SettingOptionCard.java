@@ -3,6 +3,8 @@
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
  * @author Ioannis Stogiannaris
  * AI-assisted: assist (ChatGPT)
+ * @author Ashley Umeghalu
+ * AI-assisted: yes (ChatGPT)
  */
 package view;
 
