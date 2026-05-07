@@ -5,6 +5,8 @@
  * AI-assisted: assist (ChatGPT)
  * @author Ioannis Stogiannaris
  * AI-assisted: assist (ChatGPT)
+ * @author Radu Gabriel Stanescu
+ * AI-assisted: yes (Codex)
  */
 package view;
 

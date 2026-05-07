@@ -1,6 +1,8 @@
 /*
  * @author Leopold Popper
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
+ * @author Radu Gabriel Stanescu
+ * AI-assisted: yes (Codex)
  */
 package game;
 

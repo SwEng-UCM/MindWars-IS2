@@ -4,7 +4,9 @@
  * @author Dimofte Raisa
  * @author Ioannis Stogiannaris
  * AI-assisted: no
- * 
+ *
+ * @author Radu Gabriel Stanescu
+ * AI-assisted: yes (Codex)
  */
 package trivia;
 

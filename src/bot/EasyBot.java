@@ -4,6 +4,8 @@
  *
  * @author Elena-Thea Ungureanu
  * AI-assisted no
+ * @author Radu Gabriel Stanescu
+ * AI-assisted: yes (Codex)
  */
 
 package bot;

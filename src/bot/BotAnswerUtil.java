@@ -1,3 +1,7 @@
+/*
+ * @author Radu Gabriel Stanescu
+ * AI-assisted: yes (Codex)
+ */
 
 package bot;
 

@@ -2,6 +2,8 @@
 /*
  * @author Elena-Thea Ungureanu
  * AI-assisted yes Gemini
+ * @author Radu Gabriel Stanescu
+ * AI-assisted: yes (Codex)
  */
 
 package bot;

@@ -9,6 +9,8 @@
  * AI-assisted yes Gemini
  * @author Ashley Umeghalu
  * AI-assisted: yes (ChatGPT)
+ * @author Radu Gabriel Stanescu
+ * AI-assisted: yes (Codex)
  */
 package game;
 

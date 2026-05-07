@@ -1,3 +1,7 @@
+/*
+ * @author Radu Gabriel Stanescu
+ * AI-assisted: yes (Codex)
+ */
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 

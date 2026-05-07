@@ -1,6 +1,8 @@
 /*
  * @author Leopold Popper - Ioannis Stogiannaris
  * AI-assisted: yes (Claude by Anthropic, via Claude Code)
+ * @author Radu Gabriel Stanescu
+ * AI-assisted: yes (Codex)
  */
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
