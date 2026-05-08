@@ -12,12 +12,13 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import util.AppPaths;
 
 /**
  * Persistent leaderboard storage (#89). Reads/writes a JSON file next to
@@ -30,7 +31,7 @@ import java.util.Map;
  */
 public class LeaderboardStore {
 
-    private static final Path DEFAULT_FILE = Paths.get("leaderboard.json");
+    private static final Path DEFAULT_FILE = AppPaths.leaderboardFile();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Type LIST_TYPE = new TypeToken<List<LeaderboardEntry>>() {
     }.getType();

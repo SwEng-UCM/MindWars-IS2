@@ -14,7 +14,6 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -48,10 +47,18 @@ public class MenuPanel extends JPanel {
         setBorder(new EmptyBorder(20, 20, 20, 20));
 
         try {
-            logoImage = ImageIO.read(new File("assets/logo.png"));
+            java.io.InputStream in = MenuPanel.class.getResourceAsStream("/logo.png");
+            if (in != null) {
+                logoImage = ImageIO.read(in);
+            } else {
+                java.io.File f = new java.io.File("assets/logo.png");
+                if (f.exists()) {
+                    logoImage = ImageIO.read(f);
+                }
+            }
         } catch (Exception e) {
             System.err.println(
-                "Could not load logo.png. Ensure it is in the assets/ folder."
+                "Could not load logo.png."
             );
         }
 

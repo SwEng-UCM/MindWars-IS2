@@ -7,7 +7,10 @@
 package util;
 
 import javax.sound.sampled.*;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 
 public class SoundManager {
@@ -40,19 +43,34 @@ public class SoundManager {
         return settings;
     }
 
+    /**
+     * Open an audio stream for {@code soundFileName}, looking first inside
+     * the JAR (classpath resource at {@code /<name>}), then on disk under
+     * {@code assets/}. Returns {@code null} if neither is available.
+     */
+    private AudioInputStream openAudio(String soundFileName) throws UnsupportedAudioFileException, IOException {
+        InputStream in = SoundManager.class.getResourceAsStream("/" + soundFileName);
+        if (in != null) {
+            return AudioSystem.getAudioInputStream(new BufferedInputStream(in));
+        }
+        File file = new File(ASSETS_DIR + soundFileName);
+        if (file.exists()) {
+            return AudioSystem.getAudioInputStream(file);
+        }
+        return null;
+    }
+
     public void play(String soundFileName) {
         if (!settings.isSoundEffectsEnabled()) {
             return;
         }
 
-        File file = new File(ASSETS_DIR + soundFileName);
-        if (!file.exists()) {
-            return;
-        }
-
         new Thread(() -> {
             try {
-                AudioInputStream stream = AudioSystem.getAudioInputStream(file);
+                AudioInputStream stream = openAudio(soundFileName);
+                if (stream == null) {
+                    return;
+                }
                 Clip clip = AudioSystem.getClip();
                 clip.open(stream);
                 clip.addLineListener(event -> {
@@ -74,13 +92,11 @@ public class SoundManager {
 
         stopBackground();
 
-        File file = new File(ASSETS_DIR + BACKGROUND);
-        if (!file.exists()) {
-            return;
-        }
-
         try {
-            AudioInputStream stream = AudioSystem.getAudioInputStream(file);
+            AudioInputStream stream = openAudio(BACKGROUND);
+            if (stream == null) {
+                return;
+            }
             backgroundClip = AudioSystem.getClip();
             backgroundClip.open(stream);
             backgroundClip.loop(Clip.LOOP_CONTINUOUSLY);
@@ -105,13 +121,11 @@ public class SoundManager {
 
         stopTimer();
 
-        File file = new File(ASSETS_DIR + TIMER);
-        if (!file.exists()) {
-            return;
-        }
-
         try {
-            AudioInputStream stream = AudioSystem.getAudioInputStream(file);
+            AudioInputStream stream = openAudio(TIMER);
+            if (stream == null) {
+                return;
+            }
             timerClip = AudioSystem.getClip();
             timerClip.open(stream);
             timerClip.loop(Clip.LOOP_CONTINUOUSLY);
@@ -129,7 +143,7 @@ public class SoundManager {
         }
     }
 
-    
+
     public void refreshAudioState() {
         if (!settings.isMusicEnabled()) {
             stopBackground();

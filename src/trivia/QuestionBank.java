@@ -12,8 +12,16 @@ package trivia;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -31,7 +39,11 @@ public class QuestionBank {
     }
 
     private void loadFromJson(String jsonPath) {// reads the JSON file and organizes questions into the nested map
-        try (FileReader reader = new FileReader(jsonPath)) {
+        try (Reader reader = openReader(jsonPath)) {
+            if (reader == null) {
+                System.err.println("Error loading JSON: resource not found: " + jsonPath);
+                return;
+            }
             Gson gson = new Gson();
             Type listType = new TypeToken<List<Question>>() {
             }.getType();
@@ -47,6 +59,27 @@ public class QuestionBank {
             organizedQuestions.values().forEach(diffMap -> diffMap.values().forEach(Collections::shuffle));
         } catch (Exception e) {
             System.err.println("Error loading JSON: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Resolve {@code jsonPath} from (1) the classpath (so the file can live
+     * inside the packaged JAR), (2) a sibling file on disk, in that order.
+     */
+    private Reader openReader(String jsonPath) throws java.io.IOException {
+        String resourceName = jsonPath.startsWith("/") ? jsonPath : "/" + jsonPath;
+        InputStream in = QuestionBank.class.getResourceAsStream(resourceName);
+        if (in != null) {
+            return new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+        }
+        Path p = Paths.get(jsonPath);
+        if (Files.exists(p)) {
+            return new BufferedReader(new InputStreamReader(Files.newInputStream(p), StandardCharsets.UTF_8));
+        }
+        try {
+            return new FileReader(jsonPath);
+        } catch (java.io.FileNotFoundException e) {
+            return null;
         }
     }
 

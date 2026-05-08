@@ -51,7 +51,15 @@ public class RegisterPanel extends JPanel {
 
         // logo
         try {
-            logoImage = ImageIO.read(new File("assets/logo.png"));
+            java.io.InputStream in = RegisterPanel.class.getResourceAsStream("/logo.png");
+            if (in != null) {
+                logoImage = ImageIO.read(in);
+            } else {
+                File f = new File("assets/logo.png");
+                if (f.exists()) {
+                    logoImage = ImageIO.read(f);
+                }
+            }
         } catch (Exception e) {
             System.err.println("Could not load logo.png.");
         }
