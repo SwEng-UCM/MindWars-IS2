@@ -10,3 +10,4 @@ out/
 build-jar/
 .idea
 .claude
+*.iml
