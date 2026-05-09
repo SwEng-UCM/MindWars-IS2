@@ -1,13 +1,13 @@
 ---
-version: 1.0
-level: moderate
+version: 0.1.2
+level: pair
 processes:
-  coding: mean (pair) you can view file by file
-  debugging: Ai tools described below
-  planning: none
-  documentation: assist 
-components:
-  you can view file by file
+  design: none
+  implementation: pair
+  testing: assist
+  documentation: assist
+  review: assist
+  deployment: none
 ---
 
 ## Notes
